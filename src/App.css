@@ -3,6 +3,7 @@
   padding: 0 auto;
   text-align: center;
   height: 100vh;
+  width: 100%;
 }
 
 .logo {
@@ -16,6 +17,18 @@
 }
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+.answer-container {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.4s ease;
+  opacity: 0;
+}
+
+.answer-container.expanded {
+  max-height: 300px; /* Hoặc giá trị đủ lớn để chứa câu trả lời */
+  opacity: 1;
 }
 
 @keyframes logo-spin {

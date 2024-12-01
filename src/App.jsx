@@ -5,6 +5,10 @@ import Forgot from "./pages/Forgot";
 import NotFound from "./pages/404";
 import Home from "./pages/Home";
 import Privacy from "./pages/Privacy";
+import AboutUs from "./pages/AboutUs";
+import PricingPlan from "./pages/PricingPlan";
+import HelpCenter from "./pages/HelpCenter";
+
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -22,7 +26,10 @@ const router = createBrowserRouter([
   { path: path.FORGOT, element: <Forgot /> },
   { path: path.NOT_FOUND, element: <NotFound /> },
   { path: path.HOME, element: <Home /> },
-  { path: path.Privacy, element: <Privacy /> },
+  { path: path.PRIVACY, element: <Privacy /> },
+  { path: path.ABOUT, element: <AboutUs /> },
+  { path: path.PRICING, element: <PricingPlan /> },
+  { path: path.FAQ, element: <HelpCenter /> },
   // { path: path.PROJECT_LIST, element: <ProjectList /> },
 ]);
 

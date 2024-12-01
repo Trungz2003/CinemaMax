@@ -1,10 +1,15 @@
+import AboutUs from "../pages/AboutUs";
+
 const path = {
   LOGIN: "/signin",
   SIGNUP: "/signup",
   FORGOT: "/forgot",
-  NOT_FOUND: "/404",
+  NOT_FOUND: "/*",
   HOME: "/",
-  Privacy: "/privacy",
+  PRIVACY: "/privacy",
+  ABOUT: "/about",
+  PRICING: "/pricing",
+  FAQ: "/faq",
 };
 
 export default path;

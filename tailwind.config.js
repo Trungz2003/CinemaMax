@@ -8,5 +8,9 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require("tailwind-scrollbar-hide"), // Plugin để ẩn thanh cuộn
+    require("tailwind-scrollbar"), // Plugin để tùy chỉnh thanh cuộn
+    // Thêm các plugin khác nếu cần
+  ],
 };
