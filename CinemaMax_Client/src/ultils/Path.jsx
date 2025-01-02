@@ -1,4 +1,5 @@
 const path = {
+  // path client
   LOGIN: "/signin",
   SIGNUP: "/signup",
   FORGOT: "/forgot",
@@ -12,6 +13,16 @@ const path = {
   CATALOG: "/catalog",
   CONTACTS: "/contacts",
   MYCINEMAMAX: "/profile",
+
+  // path admin
+  DASHBOARD: "/admin/dashboard",
+  CATALOGS: "/admin/catalogs",
+  USERS: "/admin/users",
+  COMMENTS: "/admin/comments",
+  REVIEWS: "/admin/reviews",
+  SETTING: "/admin/setting",
+  EDITUSER: "/admin/edituser",
+  ADDITEM: "/admin/additem",
 };
 
 export default path;

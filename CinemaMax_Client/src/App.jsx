@@ -17,6 +17,14 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import path from "./ultils/Path";
+import Dashboard from "./pages/admin/Dashboard";
+import Catalogs from "./pages/admin/Catalogs";
+import Users from "./pages/admin/Users";
+import Comments from "./pages/admin/Comments";
+import Reviews from "./pages/admin/Reviews";
+import Setting from "./pages/admin/Setting";
+import EditUser from "./pages/admin/EditUser";
+import AddItem from "./pages/admin/AddItem";
 
 // Cấu hình router với createBrowserRouter
 const router = createBrowserRouter([
@@ -34,6 +42,16 @@ const router = createBrowserRouter([
   { path: path.CATALOG, element: <Catalog /> },
   { path: path.CONTACTS, element: <Contacts /> },
   { path: path.MYCINEMAMAX, element: <MyCinemaMax /> },
+
+  // Path admin
+  { path: path.DASHBOARD, element: <Dashboard /> },
+  { path: path.CATALOGS, element: <Catalogs /> },
+  { path: path.USERS, element: <Users /> },
+  { path: path.COMMENTS, element: <Comments /> },
+  { path: path.REVIEWS, element: <Reviews /> },
+  { path: path.SETTING, element: <Setting /> },
+  { path: path.EDITUSER, element: <EditUser /> },
+  { path: path.ADDITEM, element: <AddItem /> },
 ]);
 
 function App() {

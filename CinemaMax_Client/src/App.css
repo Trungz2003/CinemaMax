@@ -49,6 +49,39 @@
   padding-bottom: 10px; /* Mở rộng vùng click */
 }
 
+.text-custom {
+  color: #f9ab00;
+}
+
+.tooltip {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: fixed; /* Make the tooltip follow the mouse */
+  background: #333;
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 4px;
+  z-index: 1000;
+  white-space: normal;
+  max-width: 300px;
+  pointer-events: none; /* Allow mouse events to pass through */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);

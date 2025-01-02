@@ -42,6 +42,20 @@ import { IoImagesOutline } from "react-icons/io5";
 import { BiShow } from "react-icons/bi";
 import { BiHide } from "react-icons/bi";
 
+import { LuLayoutGrid } from "react-icons/lu";
+import { FiUsers } from "react-icons/fi";
+import { TfiCommentAlt } from "react-icons/tfi";
+import { MdOutlineSettings } from "react-icons/md";
+
+import { TbDiamond } from "react-icons/tb";
+import { LuTrophy } from "react-icons/lu";
+
+import { MdLockOutline } from "react-icons/md";
+import { BiEdit } from "react-icons/bi";
+import { BsTrash3 } from "react-icons/bs";
+
+import { LuVideo } from "react-icons/lu";
+
 const Icons = {
   Login: {
     facebook: LuFacebook,
@@ -108,6 +122,32 @@ const Icons = {
     img: IoImagesOutline,
     show: BiShow,
     hide: BiHide,
+  },
+
+  Dashboard: {
+    layout: LuLayoutGrid,
+    movie: TbMovie,
+    users: FiUsers,
+    comment: TfiCommentAlt,
+    star: IoIosStarHalf,
+    setting: MdOutlineSettings,
+    diamond: TbDiamond,
+    show: BiShow,
+    trophy: LuTrophy,
+    refresh: LuRefreshCcw,
+  },
+
+  Catalog: {
+    search: IoSearchSharp,
+    left: FaChevronLeft,
+    right: FaChevronRight,
+    lock: MdLockOutline,
+    edit: BiEdit,
+    trash: BsTrash3,
+  },
+
+  AddItem: {
+    video: LuVideo,
   },
 };
 
