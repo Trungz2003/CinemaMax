@@ -2,6 +2,10 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom"; // Import Link và useLocation
 import Icons from "../../ultils/Icons";
 import path from "../../ultils/Path";
+import { useState } from "react";
+
+const pemistion = "admin";
+const code = 1234;
 
 const RenderNavBar = () => {
   const location = useLocation(); // Lấy đường dẫn hiện tại
@@ -44,40 +48,87 @@ const RenderNavBar = () => {
   );
 };
 
-const Navbar = () => {
+const RenderInfor = () => {
   return (
-    <div className="w-full md:w-[18%] bg-[#1a191f] md:h-[100vh] md:border-r md:border-[#222129] md:box-border fixed top-0 left-0 right-0 z-50">
-      <div className="w-full py-[16px] border-b border-[#222129] box-border md:px-[26px] px-[4%]">
-        <h1 className="font-bold md:text-[2rem] text-[26px] text-left w-[180px] m-0 p-0">
-          <span className="text-[#faab00]">Cinema</span>
-          <span className="text-white">Max</span>
-        </h1>
-      </div>
+    <div className="w-full md:px-[2%] px-[1%] md:flex md:flex-row flex-col md:h-[80px] border-b border-[#222129] box-border">
+      <div className="w-full px-[10px] h-full flex items-center justify-between">
+        <div className="flex md:w-full w-[75%] md:pt-0 pt-[20px]">
+          {/* Thông tin người dùng (Tên và ID) */}
+          <div className="md:w-full w-[600px] h-full flex items-center justify-start mb-4 md:mb-0">
+            <div className="w-[40px] h-[40px] rounded bg-[#212026] flex justify-center items-center">
+              <Icons.MovieDetails.persion className="w-[100%] h-[100%]" />
+            </div>
 
-      {/* Các phần còn lại sẽ bị ẩn khi ở chế độ mobile */}
-      <div className="md:flex md:w-full md:py-[20px] md:px-[26px] md:border-b md:border-[#222129] box-border hidden">
-        <div className="md:w-[80%] w-[600px] h-full flex items-center justify-start mb-4 md:mb-0">
-          <div className="w-[40px] h-[40px] rounded bg-[#212026] flex justify-center items-center">
-            <Icons.MovieDetails.persion className="w-[70%] h-[70%]" />
-          </div>
-          <div className="h-full w-[130px] ml-[20px] relative text-left">
-            <div className="absolute top-1/2 left-0 transform -translate-y-1/2">
-              <p className="text-left text-[12px]">Quản trị viên</p>
-              <p className="font-bold text-left text-[16px]">John Doe</p>
+            <div className="h-full w-full ml-[20px] relative">
+              <div className="absolute top-1/2 left-0 transform -translate-y-1/2">
+                <p className="text-[12px] text-left">{pemistion}</p>
+                <p className="font-bold text-left flex gap-1 items-center">
+                  John Doe{" "}
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="md:w-[20%] w-full h-full flex items-center justify-end mb-4 md:mb-0">
-          <div className="w-[40px] h-[40px] rounded-[8px] flex justify-center items-center cursor-pointer select-none hover:text-[#f9ab00] border-[2px] border-[#f9ab00]">
-            <Icons.MyCinemaMax.logout className="w-[60%] h-[60%]" />
-          </div>
+        <div className=" h-full w-[20%] items-center flex gap-[15px] justify-end">
+          <button className="w-[32px] h-[32px] rounded-[8px] bg-[rgba(41,180,116,0.1)] hover:bg-[rgba(41,180,116,0.2)] text-[#29B474] flex font-bold justify-center items-center">
+            <Icons.Catalog.lock />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Navbar = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen((prevState) => !prevState);
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen((prevState) => !prevState);
+  };
+
+  return (
+    <div className="w-full md:w-[18%] bg-[#1a191f] md:h-[100vh] md:border-r md:border-[#222129] md:box-border fixed top-0 left-0 right-0 z-50 md:flex-none">
+      <div className="w-full py-[16px] border-b border-[#222129] box-border md:px-[26px] px-[4%] flex justify-between">
+        <h1 className="font-bold md:text-[2rem] text-[26px] text-left w-[180px] m-0 p-0">
+          <span className="text-[#faab00]">Stream</span>
+          <span className="text-white">Phim</span>
+        </h1>
+
+        {/* Toggle menu icon (điều khiển khi trên mobile) */}
+        <div
+          className="md:hidden flex items-center cursor-pointer text-[26px] pl-0"
+          onClick={toggleMenu}
+        >
+          <Icons.Navbar.bar />
         </div>
       </div>
 
-      {/* RenderNavBar cũng bị ẩn khi ở chế độ mobile */}
-      <div className="pt-[25px] px-[26px] border-r border-[#222129] box-border md:block hidden">
+      <RenderInfor />
+
+      {/* Phần menu trên mobile */}
+      <div className={`md:flex hidden md:w-full md:py-[20px] md:px-[26px] `}>
         <RenderNavBar />
+      </div>
+
+      {/* Sidebar menu */}
+      <div
+        className={`fixed top-[80px] right-0 h-[60%] w-[250px] bg-[#222129] transition-all duration-300 transform ${
+          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        } md:hidden z-[999] border-t border-[#faab00]`}
+      >
+        <h1 className="font-bold md:text-[2rem] text-[26px] text-left w-[180px] m-0 p-0">
+          <span className="text-[#faab00]">Stream</span>
+          <span className="text-white">Phim</span>
+        </h1>
+        <div className="p-4 text-white">
+          <RenderNavBar />
+        </div>
       </div>
     </div>
   );

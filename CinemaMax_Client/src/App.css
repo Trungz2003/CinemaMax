@@ -82,6 +82,11 @@
   visibility: visible;
 }
 
+.no-scroll {
+  overflow: hidden;
+  height: 100%;
+}
+
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
@@ -95,4 +100,34 @@
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
+}
+
+.resolution-menu {
+  position: absolute;
+  top: 50px; /* Menu nằm dưới icon */
+  right: 10px;
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.resolution-menu label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+  color: black;
+}
+
+.resolution-dropdown {
+  color: black;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 5px;
+  font-size: 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  width: 100%;
 }

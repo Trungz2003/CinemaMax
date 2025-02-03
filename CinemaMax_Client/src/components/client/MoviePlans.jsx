@@ -1,7 +1,35 @@
 import React from "react";
 import Icons from "../../ultils/Icons";
+import SelectPlans from "../../pages/client/SelectPlans";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import path from "../../ultils/Path";
 
 export const MoviePlans = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  // Thêm/lớp `no-scroll` vào body
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
+
+    // Dọn dẹp khi component bị unmount
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, [isModalOpen]);
+
   const SettingCircleCheck = () => {
     return (
       <Icons.MoviePlans.circleCheck className="text-[20px] text-[#29b474]" />
@@ -53,9 +81,12 @@ export const MoviePlans = () => {
           </div>
 
           <div className="w-[100%] mt-[30px] flex justify-center">
-            <button className="bg-[#222129] text-white w-full py-[5px] h-[46px] transition flex justify-center items-center rounded-[8px] border-[2px] border-[#faab00] hover:text-[#faab00]">
+            <Link
+              to={path.SIGNUP}
+              className="bg-[#222129] text-white w-full py-[5px] h-[46px] transition flex justify-center items-center rounded-[8px] border-[2px] border-[#faab00] hover:text-[#faab00]"
+            >
               ĐĂNG KÝ
-            </button>
+            </Link>
           </div>
         </div>
         <div className="md:w-[410px] w-full h-[360px] mb-[10px] p-[30px] border-t-[3px] border-[#ef6430] shadow-xl bg-[#222129] rounded-lg">
@@ -90,7 +121,10 @@ export const MoviePlans = () => {
           </div>
 
           <div className="w-[100%] mt-[30px] flex justify-center">
-            <button className="bg-[#222129] text-white w-full py-[5px] h-[46px] transition flex justify-center items-center rounded-[8px] border-[2px] border-[#ef6430] hover:text-[#ef6430]">
+            <button
+              className="bg-[#222129] text-white w-full py-[5px] h-[46px] transition flex justify-center items-center rounded-[8px] border-[2px] border-[#ef6430] hover:text-[#ef6430]"
+              onClick={handleOpenModal}
+            >
               ĐĂNG KÝ
             </button>
           </div>
@@ -129,10 +163,15 @@ export const MoviePlans = () => {
           </div>
 
           <div className="w-[100%] mt-[30px] flex justify-center">
-            <button className="bg-[#222129] text-white w-full py-[5px] h-[46px] transition flex justify-center items-center rounded-[8px] border-[2px] border-[#de585d] hover:text-[#de585d]">
+            <button
+              className="bg-[#222129] text-white w-full py-[5px] h-[46px] transition flex justify-center items-center rounded-[8px] border-[2px] border-[#de585d] hover:text-[#de585d]"
+              onClick={handleOpenModal}
+            >
               ĐĂNG KÝ
             </button>
           </div>
+
+          {isModalOpen && <SelectPlans onClose={handleCloseModal} />}
         </div>
       </div>
     </div>

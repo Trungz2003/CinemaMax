@@ -3,6 +3,7 @@ import { Footer } from "../../components/client/Footer";
 import Icons from "../../ultils/Icons";
 import React, { useState, useEffect, useRef } from "react";
 import MovieItem from "../../components/client/MovieItem";
+import VideoPlayer from "../../components/client/VideoPlayer";
 
 const data = [
   {
@@ -67,9 +68,7 @@ const movie = {
   releaseYear: 2019,
   runtime: "128 phút",
   country: "Hoa Kỳ",
-  videoLink:
-    "https://hd1080.opstream2.com/share/ae6a88d9f6105ed901b89301924c0830",
-  //"src/assets/test/Video.mp4",
+  videoLink: "v1736699428/Test_ahko4y.mp4",
   description: `
       Khi một nhà khảo cổ học nổi tiếng mất tích, con gái ông bắt đầu một hành trình nguy hiểm đến trung tâm của rừng nhiệt đới Amazon để tìm ông. Trên đường đi, cô phát hiện ra một thành phố ẩn giấu và một âm mưu nguy hiểm đe dọa đến sự cân bằng quyền lực trên thế giới.
       Với sự giúp đỡ của một kẻ lưu manh quyến rũ, cô phải vượt qua địa hình hiểm trở và đánh bại những kẻ thù mạnh mẽ để cứu cha mình và khám phá ra những bí mật của thành phố đã mất.
@@ -485,22 +484,6 @@ const TabMenu = () => {
   );
 };
 
-const VideoPlayer = ({ url }) => {
-  return (
-    <div className="relative w-full h-full mx-auto bg-black">
-      <iframe
-        id="videoIframe"
-        className="w-full h-full"
-        src={url}
-        title="Video Player"
-        frameBorder="0"
-        allow="autoplay; encrypted-media"
-        allowFullScreen
-      ></iframe>
-    </div>
-  );
-};
-
 const RenderMovieDetals = () => {
   return (
     <div className="bg-[#1a191f] text-white w-full border-b border-gray-600 box-border">
@@ -595,7 +578,7 @@ const RenderMovieDetals = () => {
 
           {/* Render video phim */}
           <div className="md:w-[49%] w-[100%] md:h-full h-[250px] md:p-4 p-0 md:mt-0 mt-4">
-            <VideoPlayer url={movie.videoLink} />
+            <VideoPlayer nameFile={movie.videoLink} />
           </div>
         </div>
       </div>

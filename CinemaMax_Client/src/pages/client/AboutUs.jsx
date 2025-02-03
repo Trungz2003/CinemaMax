@@ -11,14 +11,14 @@ const RenderAbout = () => {
       <div className="w-full md:px-[8%] px-[4%] pt-[80px] pb-[70px] text-[16px] border-b border-gray-600 box-border">
         <div className="w-full md:text-[36px] text-[26px] flex justify-start">
           <span className="text-left">
-            <span className="font-bold">CinamaMax</span> – Nơi tốt nhất để xem
+            <span className="font-bold">StreamPhim</span> – Nơi tốt nhất để xem
             phim
           </span>
         </div>
         <div className="w-full text-justify mt-[10px] md:text-[16px] text-[14px]">
           <span className="w-full">
             Chào mừng đến với trang web phim{" "}
-            <span className="font-bold">CinamaMax</span> , điểm đến tuyệt vời
+            <span className="font-bold">StreamPhim</span> , điểm đến tuyệt vời
             cho tất cả những người đam mê phim ảnh. Đắm mình vào thế giới của
             những câu chuyện hấp dẫn, hình ảnh tuyệt đẹp và những màn trình diễn
             khó quên. Khám phá thư viện phim đồ sộ của chúng tôi, trải dài trên

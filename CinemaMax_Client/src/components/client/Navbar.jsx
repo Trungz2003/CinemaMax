@@ -41,8 +41,8 @@ const Navbar = () => {
         {/* Logo */}
         <div>
           <h1 className="font-bold md:text-[2rem] text-[26px] text-left w-[180px] m-0 p-0">
-            <span className="text-[#faab00]">Cinema</span>
-            <span className="text-white">Max</span>
+            <span className="text-[#faab00]">Stream</span>
+            <span className="text-white">Phim</span>
           </h1>
         </div>
 
@@ -105,7 +105,7 @@ const Navbar = () => {
                   Chính sách bảo mật
                 </Link>
                 <Link
-                  to={path.FAQ}
+                  to={path.DASHBOARD}
                   className="block p-2 text-white hover:text-[#faab00] cursor-pointer select-none"
                 >
                   Trang quản trị
@@ -145,45 +145,54 @@ const Navbar = () => {
         } md:hidden z-[999] border-t border-[#faab00]`}
       >
         <div className="p-4 text-white">
-          <div className="flex items-center hover:text-[#faab00] cursor-pointer">
+          <div className="flex items-center hover:text-[#faab00] cursor-pointer select-none">
             TRANG CHỦ
           </div>
-          <div className="flex items-center hover:text-[#faab00] cursor-pointer">
+          <div className="flex items-center pt-[5px] hover:text-[#faab00] cursor-pointer select-none">
             DANH MỤC
           </div>
-          <div className="flex items-center hover:text-[#faab00] cursor-pointer">
+          <div className="flex items-center pt-[5px] hover:text-[#faab00] cursor-pointer select-none">
             CÁC GÓI THUÊ
           </div>
           <div className="relative">
             <div
-              className="flex items-center hover:text-[#faab00] cursor-pointer"
+              className="flex items-center pt-[5px] hover:text-[#faab00] cursor-pointer select-none"
               onClick={toggleDropdown}
             >
               TRANG <Icons.Navbar.down />
             </div>
             {isDropdownOpen && (
               <div className="absolute top-[100%] left-0 w-[200px] bg-[#222129] rounded-lg shadow-lg text-left text-[14px]">
-                <div className="p-2 text-white hover:text-[#faab00] cursor-pointer">
+                <Link
+                  to={path.ABOUT}
+                  className="block p-2 mt-[5px] text-white hover:text-[#faab00] cursor-pointer select-none"
+                >
                   Giới thiệu
-                </div>
-                <div className="p-2 text-white hover:text-[#faab00] cursor-pointer">
-                  Hồ sơ
-                </div>
-                <div className="p-2 text-white hover:text-[#faab00] cursor-pointer">
-                  Diễn viên
-                </div>
-                <div className="p-2 text-white hover:text-[#faab00] cursor-pointer">
+                </Link>
+                <Link
+                  to={path.CONTACTS}
+                  className="block p-2 text-white hover:text-[#faab00] cursor-pointer select-none"
+                >
                   Liên hệ
-                </div>
-                <div className="p-2 text-white hover:text-[#faab00] cursor-pointer">
+                </Link>
+                <Link
+                  to={path.FAQ}
+                  className="block p-2 text-white hover:text-[#faab00] cursor-pointer select-none"
+                >
                   Trung tâm trợ giúp
-                </div>
-                <div className="p-2 text-white hover:text-[#faab00] cursor-pointer">
+                </Link>
+                <Link
+                  to={path.PRIVACY}
+                  className="block p-2 text-white hover:text-[#faab00] cursor-pointer select-none"
+                >
                   Chính sách bảo mật
-                </div>
-                <div className="p-2 text-white hover:text-[#faab00] cursor-pointer">
+                </Link>
+                <Link
+                  to={path.DASHBOARD}
+                  className="block p-2 text-white hover:text-[#faab00] cursor-pointer select-none"
+                >
                   Trang quản trị
-                </div>
+                </Link>
               </div>
             )}
           </div>

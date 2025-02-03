@@ -242,9 +242,12 @@ const RenderDashboard = () => {
     <div className="md:px-[2%] px-[4%] w-full text-[16px]">
       <div className="h-[80px] flex items-center justify-between border-b border-[#222129] box-border">
         <div className="text-[32px]">Dashboard</div>
-        <div className="w-[120px] h-[40px] rounded-[8px] border-[2px] border-[#f9ab00] flex justify-center items-center">
+        <Link
+          to={path.ADDITEM}
+          className="w-[120px] h-[40px] rounded-[8px] border-[2px] border-[#f9ab00] flex justify-center items-center"
+        >
           THÊM MỤC
-        </div>
+        </Link>
       </div>
       <div className="w-full md:pt-[30px] pb-[40px]">
         <div className="w-full md:h-[115px] md:flex gap-[25px]">

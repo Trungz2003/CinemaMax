@@ -116,8 +116,8 @@ const SignUp = () => {
       >
         <div className="absolute md:w-[400px] w-[85%] max-w-[400px] h-[600px] md:h-[90%] rounded-[10px] md:py-[20px] py-[10px] md:px-[70px] px-[20px] bg-[#1a191f] shadow-[0_0_0_0.5px_rgba(255,255,255,0.3)]">
           <h1 className="font-bold md:text-[2rem] text-[26px] text-center w-full m-0 p-0">
-            <span className="text-[#faab00]">Cinema</span>
-            <span className="text-white">Max</span>
+            <span className="text-[#faab00]">Stream</span>
+            <span className="text-white">Phim</span>
           </h1>
           <div className="mt-2 w-full">
             <div className="relative w-full pt-[20px]">
