@@ -1,0 +1,14 @@
+package org.example.cinemamax_server.repository;
+
+import org.example.cinemamax_server.entity.UserSubscriptions;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface UserSubscriptionRepository extends JpaRepository<UserSubscriptions, Integer> {
+    void deleteByUserId(int userId);
+    Optional<UserSubscriptions> findByUserId(Long userId);
+}
+   

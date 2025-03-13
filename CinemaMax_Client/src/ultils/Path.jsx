@@ -21,8 +21,8 @@ const path = {
   COMMENTS: "/admin/comments",
   REVIEWS: "/admin/reviews",
   SETTING: "/admin/setting",
-  EDITUSER: "/admin/edituser",
-  ADDITEM: "/admin/additem",
+  EDITUSER: "/admin/edituser/:id",
+  ADDITEM: "/admin/additem/:id?",
 };
 
 export default path;

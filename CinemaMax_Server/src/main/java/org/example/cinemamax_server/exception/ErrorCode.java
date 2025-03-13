@@ -21,6 +21,18 @@ public enum ErrorCode {
     UNAUTHORIZED(1008, "user không có quyền truy cập", HttpStatus.FORBIDDEN),
     DATA_NOT_COMPLETE(400, "Dữ liệu không đầy đủ", HttpStatus.BAD_REQUEST),
     USER_NOT_EXISTED(405, "User not existed", HttpStatus.NOT_FOUND),
+    EMAIL_ALREADY_EXISTS(409, "email already exists", HttpStatus.CONFLICT),
+    USER_NOT_ACTIVATED(403, "Tài khoản chưa được kích hoạt", HttpStatus.FORBIDDEN),
+    EMAIL_REGISTERED_WITH_SYSTEM(400, "Email đã được đăng ký với phương thức hệ thống", HttpStatus.BAD_REQUEST),
+    NOT_FOUND(404, "Không tìm thấy thể loại nào", HttpStatus.NOT_FOUND),
+    INVALID_USER_ID(400, "Id không hợp lệ", HttpStatus.BAD_REQUEST),
+    ID_NOT_EXISTED(404, "Id không tồn tại", HttpStatus.NOT_FOUND),
+    MOVIE_NOT_EXISTED(405, "Movie not existed", HttpStatus.NOT_FOUND),
+    ROLE_NOT_FOUND(404, "Role not existed", HttpStatus.NOT_FOUND),
+    SUBSCRIPTION_NOT_FOUND(404, "Subscription not existed", HttpStatus.NOT_FOUND),
+    INCORRECT_PASSWORD(400, "Mật khẩu cũ không đúng!", HttpStatus.BAD_REQUEST),
+    ACCOUNT_IS_NOT_SYSTEM_ACCOUNT(400, "This account is not a system account and cannot change the password", HttpStatus.BAD_REQUEST),
+    GENRES_IS_NOT(400, "Không tìm thấy thể loại với ID!", HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

@@ -1,132 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "../../components/admin/Navbar";
 import Icons from "../../ultils/Icons";
 import { Link } from "react-router-dom";
 import path from "../../ultils/Path";
-
-const dashboardData = [
-  {
-    title: "Đăng ký tháng này",
-    value: "1 678",
-    change: 15, // Sử dụng số thực cho giá trị thay đổi
-    icon: Icons.Dashboard.diamond,
-  },
-  {
-    title: "Các mục được thêm vào tháng này",
-    value: "376",
-    change: -44, // Sử dụng số thực cho giá trị thay đổi
-    icon: Icons.Dashboard.movie,
-  },
-  {
-    title: "Lượt xem tháng này",
-    value: "509 573",
-    change: 3.1, // Sử dụng số thực cho phần trăm thay đổi
-    icon: Icons.Dashboard.show,
-    isPercentage: true, // Thêm thuộc tính isPercentage để xác định cần hiển thị phần trăm
-  },
-  {
-    title: "Đánh giá tháng này",
-    value: "642",
-    change: 8, // Sử dụng số thực cho giá trị thay đổi
-    icon: Icons.Dashboard.star,
-  },
-];
-
-const topRatedMovies = [
-  { id: "241", name: "Thành phố đã mất", type: "Bộ phim", rating: "9.2" },
-  { id: "825", name: "Dòng chảy ngầm", type: "Bộ phim", rating: "9.1" },
-  {
-    id: "9271",
-    name: "Những câu chuyện từ thế giới ngầm",
-    type: "Phim truyền hình",
-    rating: "9.0",
-  },
-  {
-    id: "635",
-    name: "Thế giới vô hình",
-    type: "Phim truyền hình",
-    rating: "8.9",
-  },
-  {
-    id: "825",
-    name: "Con Đường Cứu Chuộc",
-    type: "Phim truyền hình",
-    rating: "8.9",
-  },
-];
-
-const usersNew = [
-  {
-    id: 23,
-    fullName: "Brian Cranston",
-    email: "bcxwz@email.com",
-    username: "BrianXWZ",
-  },
-  {
-    id: 22,
-    fullName: "Jesse Plemons",
-    email: "jess@email.com",
-    username: "Jesse.P",
-  },
-  {
-    id: 21,
-    fullName: "Matt Jones",
-    email: "matt@email.com",
-    username: "Matty",
-  },
-  {
-    id: 20,
-    fullName: "Tess Harper",
-    email: "harper@email.com",
-    username: "Harper123",
-  },
-  {
-    id: 19,
-    fullName: "Jonathan Ngân hàng",
-    email: "ngân hàng@email.com",
-    username: "Jonathan",
-  },
-];
-
-const newestMovies = [
-  { id: "123", name: "Phim mới 1", type: "Bộ phim", rating: "7.8" },
-  { id: "456", name: "Phim mới 2", type: "Phim truyền hình", rating: "8.2" },
-  { id: "789", name: "Phim mới 3", type: "Bộ phim", rating: "8.5" },
-  // thêm các phim mới nhất khác
-];
-
-const newReview = [
-  {
-    id: 824,
-    name: "Tôi mơ bằng một ngôn ngữ khác",
-    author: "Eliza Josceline",
-    rating: 7.2,
-  },
-  {
-    id: 602,
-    name: "Ngồi dự bị",
-    author: "Ketut",
-    rating: 6.3,
-  },
-  {
-    id: 538,
-    name: "Whitney",
-    author: "Brian Cranston",
-    rating: 8.4,
-  },
-  {
-    id: 129,
-    name: "Điểm mù",
-    author: "Quảng",
-    rating: 9.0,
-  },
-  {
-    id: 360,
-    name: "Khác",
-    author: "Jackson Nâu",
-    rating: 7.7,
-  },
-];
+import { getDashboard } from "../../apis/server/Dashboard";
+import { useEffect } from "react";
 
 const RenderMoviesTable = ({ title, data, columnTitles, headerIcons }) => {
   return (
@@ -203,29 +81,37 @@ const RenderMoviesTable = ({ title, data, columnTitles, headerIcons }) => {
               <div className="flex-shrink-0 w-[350px] md:w-[45%] h-full flex items-center justify-start text-[#fff]">
                 <Link
                   to={`/details/${item.id}`}
-                  className="hover:text-[#f9ab00] select-none"
+                  className="hover:text-[#f9ab00] select-none overflow-hidden text-ellipsis whitespace-nowrap"
                 >
-                  {item.name || item.fullName}{" "}
+                  {item.title || item.fullName || "null"}{" "}
                   {/* Render tên phim hoặc tên người dùng */}
                 </Link>
               </div>
-              <div className="flex-shrink-0 w-[200px] md:w-[30%] h-full flex items-center justify-start">
+              <div className="flex-shrink-0 w-[200px] md:w-[30%] h-full flex items-center justify-start ">
                 <div
                   className={`${
-                    item.email ? "text-[#C0C0C0]" : "" // Nếu item có email, chuyển màu chữ thành #C0C0C0
+                    item.email
+                      ? "text-[#C0C0C0] overflow-hidden text-ellipsis whitespace-nowrap"
+                      : "overflow-hidden text-ellipsis whitespace-nowrap" // Nếu item có email, chuyển màu chữ thành #C0C0C0
                   }`}
                 >
-                  {item.type || item.email || item.author}
+                  {item.genres || item.email || item.actor}
                   {/* Render thể loại phim hoặc email người dùng */}
                 </div>
               </div>
               <div className="flex-shrink-0 w-[80px] md:w-[15%] h-full flex items-center justify-start gap-2">
-                {item.rating && (
+                {item.rating !== null && item.rating !== undefined && (
                   <Icons.MyCinemaMax.star className="text-[#f9ab00]" />
-                )}{" "}
+                )}
                 {/* Render đánh giá nếu có */}
-                <div className={item.rating ? "font-bold" : ""}>
-                  {item.rating || item.username}
+                <div
+                  className={
+                    item.rating
+                      ? "font-bold overflow-hidden text-ellipsis whitespace-nowrap"
+                      : "overflow-hidden text-ellipsis whitespace-nowrap"
+                  }
+                >
+                  {item.rating ?? item.userName ?? "null"}
                 </div>
                 {/* Render điểm đánh giá hoặc tên người dùng */}
               </div>
@@ -238,6 +124,59 @@ const RenderMoviesTable = ({ title, data, columnTitles, headerIcons }) => {
 };
 
 const RenderDashboard = () => {
+  const [latestMovie, setLatestMovie] = useState([]);
+  const [latestRatedMovie, setLatestRatedMovie] = useState([]);
+  const [latestUser, setLatestUser] = useState([]);
+  const [topRatedMovie, setTopRatedMovie] = useState([]);
+  const [statistics, setStatistics] = useState([]);
+  const dashboardData = [
+    {
+      title: "Đăng ký tháng này",
+      value: statistics.totalUsers,
+      change: statistics.newUsersThisMonth,
+      icon: Icons.Dashboard.diamond,
+    },
+    {
+      title: "Các mục được thêm vào tháng này",
+      value: statistics.totalMovies,
+      change: statistics.newMoviesThisMonth, // Sử dụng số thực cho giá trị thay đổi
+      icon: Icons.Dashboard.movie,
+    },
+    {
+      title: "Lượt xem tháng này",
+      value: "509 573",
+      change: 3.1, // Sử dụng số thực cho phần trăm thay đổi
+      icon: Icons.Dashboard.show,
+      isPercentage: true, // Thêm thuộc tính isPercentage để xác định cần hiển thị phần trăm
+    },
+    {
+      title: "Đánh giá tháng này",
+      value: statistics.totalRatings,
+      change: statistics.newRatingsThisMonth, // Sử dụng số thực cho giá trị thay đổi
+      icon: Icons.Dashboard.star,
+    },
+  ];
+  useEffect(() => {
+    const handleDashboard = async () => {
+      try {
+        const response = await getDashboard();
+        console.log(response.result.statistics);
+
+        if (response.code === 0) {
+          setLatestMovie(response.result.latestMovies);
+          setLatestRatedMovie(response.result.latestRatedMovies);
+          setTopRatedMovie(response.result.topRatedMovies);
+          setLatestUser(response.result.latestUsers);
+          setStatistics(response.result.statistics);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    handleDashboard();
+  }, []);
+
   return (
     <div className="md:px-[2%] px-[4%] w-full text-[16px]">
       <div className="h-[80px] flex items-center justify-between border-b border-[#222129] box-border">
@@ -266,7 +205,7 @@ const RenderDashboard = () => {
                     }`}
                   >
                     {/* Kiểm tra nếu giá trị change là số âm hay dương để hiển thị đúng */}
-                    {data.change > 0 ? `+${data.change}` : data.change}
+                    {data.change >= 0 ? `+${data.change}` : data.change}
                     {/* Thêm dấu phần trăm nếu là phần trăm */}
                     {data.isPercentage && "%"}
                   </div>
@@ -282,7 +221,7 @@ const RenderDashboard = () => {
         <div className="w-full md:flex gap-[25px] pt-[30px]">
           <RenderMoviesTable
             title="Phim có đánh giá cao nhất"
-            data={topRatedMovies}
+            data={topRatedMovie}
             columnTitles={{
               id: "ID",
               name: "TÊN PHIM",
@@ -294,7 +233,7 @@ const RenderDashboard = () => {
           <div className="md:hidden md:pt-0 pt-[25px]"></div>
           <RenderMoviesTable
             title="Phim mới nhất"
-            data={newestMovies}
+            data={latestMovie}
             columnTitles={{
               id: "ID",
               name: "TÊN PHIM",
@@ -309,7 +248,7 @@ const RenderDashboard = () => {
         <div className="w-full pt-[30px] md:flex gap-[25px]">
           <RenderMoviesTable
             title="Người dùng mới nhất"
-            data={usersNew}
+            data={latestUser}
             columnTitles={{
               id: "ID",
               name: "TÊN ĐẦY ĐỦ",
@@ -321,7 +260,7 @@ const RenderDashboard = () => {
           <div className="md:hidden md:pt-0 pt-[25px]"></div>
           <RenderMoviesTable
             title="Đánh giá mới nhất"
-            data={newReview}
+            data={latestRatedMovie}
             columnTitles={{
               id: "ID",
               name: "TÊN PHIM",

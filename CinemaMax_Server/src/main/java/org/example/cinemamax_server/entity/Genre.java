@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -20,6 +22,9 @@ public class Genre {
 
     @Column(name = "name")
     private String name;
+
+    @ManyToMany(mappedBy = "genres") // Quan hệ ngược lại từ Movies
+    private List<Movies> movies;
 
     // Getters and Setters
 }

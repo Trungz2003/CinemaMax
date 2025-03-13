@@ -164,15 +164,15 @@ const RenderHome = () => {
           </div>
           <div className="mt-[20px]">
             <p className="md:w-[470px] w-[270px]">
-              A brilliant scientist discovers a way to harness the power of the
-              ocean's currents to create a new, renewable energy source. But
-              when her groundbreaking technology falls into the wrong hands, she
-              must race against time to stop it from being used for evil.
+              Một nhà khoa học lỗi lạc khám phá ra cách khai thác sức mạnh của
+              dòng hải lưu để tạo ra nguồn năng lượng mới có thể tái tạo. Nhưng
+              khi công nghệ đột phá của cô rơi vào tay kẻ xấu, cô phải chạy đua
+              với thời gian để ngăn chặn nó bị lợi dụng vào mục đích xấu.
             </p>
           </div>
           <div className="mt-[20px]">
             <button className="bg-transparent text-white px-[10px] py-[5px] w-[165px] h-[45px] border-[2px] border-[#faab00] rounded-md hover:bg-[#f2d19480] transition">
-              WATCH NOW
+              XEM NGAY
             </button>
           </div>
 

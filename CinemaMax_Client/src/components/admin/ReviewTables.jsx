@@ -3,8 +3,16 @@ import { useState, useEffect } from "react";
 import fuzzy from "fuzzy";
 import { Link } from "react-router-dom";
 import Icons from "../../ultils/Icons";
+import { deleteReview } from "../../apis/server/EditUser";
+import { ShowToast } from "../../ultils/ToastUtils";
 
-const ReviewTables = ({ data, columnTitles, sortOption, searchQuery }) => {
+const ReviewTables = ({
+  data,
+  setData,
+  columnTitles,
+  sortOption,
+  searchQuery,
+}) => {
   const itemsPerPage = 10; // Number of items per page
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -21,18 +29,20 @@ const ReviewTables = ({ data, columnTitles, sortOption, searchQuery }) => {
     setTooltip({ show: false, x: 0, y: 0, text: "" });
   };
 
-  const searchData = searchQuery.trim()
-    ? data.filter((item) => {
-        // Lọc dữ liệu theo nhiều trường
-        const fieldsToSearch = [item.title, item.author]; // Các trường cần tìm kiếm
-        const result = fuzzy.filter(
-          searchQuery,
-          fieldsToSearch.filter(Boolean)
-        ); // Chỉ lọc những trường không phải undefined/null
+  const searchData =
+    Array.isArray(data) && searchQuery.trim()
+      ? data.filter((item) => {
+          const fieldsToSearch = [item.title, item.actor]; // Các trường cần tìm kiếm
+          const result = fuzzy.filter(
+            searchQuery,
+            fieldsToSearch.filter(Boolean)
+          ); // Chỉ lọc những trường không phải undefined/null
 
-        return result.length > 0; // Nếu có kết quả tìm kiếm thì giữ lại
-      })
-    : data;
+          return result.length > 0; // Nếu có kết quả tìm kiếm thì giữ lại
+        })
+      : Array.isArray(data)
+      ? data
+      : []; // Nếu `data` không phải mảng, trả về mảng rỗng
 
   // Sắp xếp dữ liệu đã lọc
   const sortedData = [...searchData].sort((a, b) => {
@@ -59,6 +69,20 @@ const ReviewTables = ({ data, columnTitles, sortOption, searchQuery }) => {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+    }
+  };
+
+  const handleDeleteReview = async (id) => {
+    const result = await deleteReview(id); // Giả sử hàm này nhận ID và token
+
+    console.log(result);
+
+    if (result.code === 0) {
+      setData(data.filter((c) => c.id !== id)); // Xóa phần tử có id = id
+      ShowToast("success", result.message);
+      return data;
+    } else {
+      ShowToast("error", "Không thể lấy thông tin người dùng!");
     }
   };
   return (
@@ -108,17 +132,17 @@ const ReviewTables = ({ data, columnTitles, sortOption, searchQuery }) => {
               </div>
               <div
                 className="flex-shrink-0 md:w-[12%] w-[150px] h-full flex items-center justify-start overflow-hidden whitespace-nowrap text-ellipsis"
-                onMouseMove={(e) => handleMouseMove(e, item.author)} // Tooltip hiển thị tên tác giả
+                onMouseMove={(e) => handleMouseMove(e, item.actor)} // Tooltip hiển thị tên tác giả
                 onMouseLeave={handleMouseLeave}
               >
-                {item.author}
+                {item.actor}
               </div>
               <div
                 className="flex-shrink-0 md:w-[30%] w-[150px] h-full flex items-center justify-start overflow-hidden whitespace-nowrap text-ellipsis pl-[10px]"
-                onMouseMove={(e) => handleMouseMove(e, item.description)} // Tooltip hiển thị mô tả
+                onMouseMove={(e) => handleMouseMove(e, item.content)} // Tooltip hiển thị mô tả
                 onMouseLeave={handleMouseLeave}
               >
-                {item.description} {/* Description */}
+                {item.content} {/* Description */}
               </div>
               <div className="flex-shrink-0 md:w-[10%] w-[90px] h-full flex items-center justify-center">
                 {item.rating && (
@@ -130,10 +154,13 @@ const ReviewTables = ({ data, columnTitles, sortOption, searchQuery }) => {
                 </div>
               </div>
               <div className="flex-shrink-0 md:w-[10%] w-[150px] h-full flex items-center justify-start">
-                {item.creationDate} {/* Creation Date */}
+                {item.releaseDate} {/* Creation Date */}
               </div>
               <div className="h-full items-center flex gap-[15px] justify-start">
-                <button className="w-[32px] h-[32px] rounded-[8px] bg-[rgba(235,87,87,0.1)] hover:bg-[rgba(235,87,87,0.2)] text-[#EB5757] flex font-bold justify-center items-center">
+                <button
+                  className="w-[32px] h-[32px] rounded-[8px] bg-[rgba(235,87,87,0.1)] hover:bg-[rgba(235,87,87,0.2)] text-[#EB5757] flex font-bold justify-center items-center"
+                  onClick={() => handleDeleteReview(item.id)}
+                >
                   <Icons.Catalog.trash />
                 </button>
               </div>

@@ -5,6 +5,8 @@ import { ShowToast } from "../../ultils/ToastUtils";
 import { Link, useNavigate } from "react-router-dom";
 import path from "../../ultils/Path";
 import Icons from "../../ultils/Icons";
+import { login, signupGG } from "../../apis/client/Auth";
+import { signInWithGoogle } from "../../firebase/firebaseConfig";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +15,7 @@ const Login = () => {
   const [passwordError, setPasswordError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [isAgree, setIsAgree] = useState(false);
 
   // Toggle password visibility
   const handleTogglePassword = () => {
@@ -65,41 +68,50 @@ const Login = () => {
     }
   };
 
-  // Form submission
-  //   async function handleSubmit(e) {
-  //     e.preventDefault();
-  //     const isEmailValid = validateEmail(email);
-  //     const isPasswordValid = validatePassword(password);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const isEmailValid = validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+    if (!isAgree) {
+      ShowToast("error", "Bạn phải đồng ý với chính sách bảo mật!");
+      return;
+    }
 
-  //     if (isEmailValid && isPasswordValid) {
-  //       const data = {
-  //         email: email,
-  //         password: password,
-  //       };
+    if (isEmailValid && isPasswordValid) {
+      try {
+        const response = await login(email, password);
+        if (response.code === 0) {
+          ShowToast("success", "Đăng nhập thành công!");
+          navigate(path.HOME);
+        }
+      } catch {
+        ShowToast("error", "Đăng nhập không thành công, vui lòng thử lại!");
+      }
+    }
+  };
 
-  //       ApiLogin(data)
-  //         .then((response) => {
-  //           if (response.status === 200) {
-  //             ShowToast("success", "Đăng nhập thành công!");
-  //             navigate(path.HOME);
-  //           }
-  //         })
-  //         .catch((error) => {
-  //           if (!error.response) {
-  //             ShowToast(
-  //               "error",
-  //               "Không thể kết nối đến server. Vui lòng kiểm tra lại!"
-  //             );
-  //           } else if (error.response && error.response.status === 404) {
-  //             ShowToast("error", "Tài khoản hoặc mật khẩu không chính xác!");
-  //           } else {
-  //             console.log(error);
+  const handleLoginGG = async () => {
+    try {
+      const userData = await signInWithGoogle();
 
-  //             ShowToast("error", "Đã xảy ra lỗi không xác định!");
-  //           }
-  //         });
-  //     }
-  //   }
+      if (!userData || !userData.accessToken) {
+        ShowToast("error", "Không lấy được token từ google");
+        return; // Dừng quá trình nếu không có token
+      }
+
+      const accessToken = userData.accessToken;
+
+      const response = await signupGG(accessToken);
+      if (response.code === 0) {
+        console.log("Trước khi navigate:", path.HOME);
+        navigate(path.HOME);
+        console.log("Sau khi navigate");
+        ShowToast("success", "Đăng nhập thành công!");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+    }
+  };
 
   return (
     <div className="flex justify-center items-center md:h-[100%]  h-full w-full text-[14px]">
@@ -116,8 +128,8 @@ const Login = () => {
       >
         <div className="absolute md:w-[400px] w-[85%] max-w-[400px] h-[600px] md:h-[90%] rounded-[10px] md:py-[50px] py-[20px] md:px-[70px] px-[20px] bg-[#1a191f] shadow-[0_0_0_0.5px_rgba(255,255,255,0.3)]">
           <h1 className="font-bold md:text-[2rem] text-[26px] text-center w-full m-0 p-0">
-            <span className="text-[#faab00]">Cinema</span>
-            <span className="text-white">Max</span>
+            <span className="text-[#faab00]">Stream</span>
+            <span className="text-white">Phim</span>
           </h1>
           <div className="mt-4 w-full">
             <input
@@ -165,8 +177,8 @@ const Login = () => {
             <div className="flex items-center space-x-2 mt-[20px]">
               <input
                 type="checkbox"
-                //checked={rememberMe}
-                //onChange={() => setRememberMe(!rememberMe)}
+                checked={isAgree}
+                onChange={() => setIsAgree(!isAgree)}
                 className="h-5 w-5 bg-[#261e2a] appearance-none border-2 border-gray-500 rounded-md checked:before:content-['✔'] checked:before:text-[12px] checked:before:text-[#F9AB00] checked:before:flex checked:before:justify-center checked:before:items-center cursor-pointer"
               />
               <label htmlFor="rememberMe" className="text-sm text-white">
@@ -179,25 +191,19 @@ const Login = () => {
               href="#"
               type="submit"
               className="border-[2px] border-[#faab00] text-[#faab00] w-full h-[45px] hover:bg-[#faab00] hover:text-white px-4 py-2 rounded-md"
+              onClick={handleSubmit}
             >
               ĐĂNG NHẬP
             </button>
           </div>
           <div className="w-full flex justify-center mt-[10px]">
-            <p className="text-white">or</p>
-          </div>
-          <div className="mt-[10px]">
-            <button
-              type="submit"
-              className="bg-[#3b5999] text-white w-full h-[40px] hover:bg-white hover:text-[#3b5999] px-4 py-2 rounded-md flex justify-center items-center"
-            >
-              Đăng nhập với <Icons.Login.facebook className="ml-1" />
-            </button>
+            <p className="text-white">hoặc</p>
           </div>
 
           <div className="mt-[15px]">
             <button
-              type="submit"
+              type="button"
+              onClick={handleLoginGG}
               className="bg-[#df4a32] text-white w-full h-[40px] hover:bg-white hover:text-[#df4a32] px-4 py-2 rounded-md flex justify-center items-center"
             >
               Đăng nhập với <Icons.Login.google className="ml-1" />

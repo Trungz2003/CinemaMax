@@ -1,4 +1,5 @@
 package org.example.cinemamax_server.configuration;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -9,12 +10,16 @@ import org.example.cinemamax_server.entity.Role;
 import org.example.cinemamax_server.entity.User;
 import org.example.cinemamax_server.repository.RoleRepository;
 import org.example.cinemamax_server.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+
+import static org.example.cinemamax_server.enums.Status.ACTIVE;
 
 @Slf4j
 @Configuration
@@ -23,19 +28,25 @@ import java.util.HashSet;
 public class ApplicationInitConfig {
     PasswordEncoder passwordEncoder;
 
+    @Value("${admin.email}")
     @NonFinal
-    static final String ADMIN_EMAIL = "quangtrunghytq203@gmail.com";
+    String adminEmail;
 
+    @Value("${admin.password}")
     @NonFinal
-    static final String ADMIN_PASSWORD = "zx123123zx";
+    String adminPassword;
 
+    @Value("${admin.username}")
     @NonFinal
-    static final String ADMIN_USER_NAME = "admin";
+    String adminUsername;
 
     @Bean
+    @Transactional
     ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
-            if (userRepository.findByEmail(ADMIN_EMAIL).isEmpty()) {
+            if (userRepository.findByEmail(adminEmail).isEmpty()) {
+                log.info("Admin user does not exist. Creating default admin...");
+
                 roleRepository.save(Role.builder()
                         .name(PredefinedRole.USER_ROLE)
                         .description("User role")
@@ -50,16 +61,19 @@ public class ApplicationInitConfig {
                 roles.add(adminRole);
 
                 User user = User.builder()
-                        .email(ADMIN_EMAIL)
-                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
-                        .userName(ADMIN_USER_NAME)
+                        .email(adminEmail)
+                        .password(passwordEncoder.encode(adminPassword))
+                        .userName(adminUsername)
                         .roles(roles)
+                        .enabled(true)
+                        .status(ACTIVE)
                         .build();
 
                 userRepository.save(user);
-
+                log.info("Admin user created successfully: {}", adminEmail);
+            } else {
+                log.info("Admin user already exists. Skipping initialization.");
             }
-            log.info("Application initialization completed .....");
         };
     }
 }

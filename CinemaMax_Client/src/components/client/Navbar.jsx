@@ -2,23 +2,50 @@ import React, { useState } from "react";
 import Icons from "../../ultils/Icons";
 import path from "../../ultils/Path";
 import { Link } from "react-router-dom";
+import { getUserRole } from "../../ultils/GetRole";
 
 const SearchBar = () => {
+  const [isOpen, setIsOpen] = useState(false); // Trạng thái mở/đóng thanh tìm kiếm
+
   return (
     <div className="relative w-[400px]">
       <form className="flex items-center md:p-2 rounded-lg shadow-md">
+        {/* Thanh tìm kiếm luôn hiển thị trên desktop */}
         <input
           type="text"
           placeholder="Tìm kiếm..."
           className="w-full bg-[#222129] text-white h-[45px] p-2 rounded-[8px] pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 hidden md:block"
         />
+
+        {/* Nút bấm mở tìm kiếm trên mobile */}
         <button
-          type="submit"
+          type="button"
           className="absolute md:right-4 right-[-5px] text-white md:text-[14px] text-[26px] md:p-2 p-0 hover:text-[#f5ab04] transition-all"
+          onClick={() => setIsOpen(!isOpen)}
         >
           <Icons.Navbar.search />
         </button>
       </form>
+
+      {/* Thanh tìm kiếm hiển thị ngay dưới icon trên mobile */}
+      {isOpen && (
+        <div className="absolute left-[-190px] top-[40px] w-[300px] bg-[#222129] text-white h-[45px] p-2 rounded-[8px] shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 z-50 md:hidden transition-all duration-300">
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            className="w-full h-full bg-transparent p-2 focus:outline-none"
+          />
+
+          {/* Nút bấm mở tìm kiếm trên mobile */}
+          <button
+            type="button"
+            className="absolute md:right-4 right-[16px] top-[12px] text-white md:text-[14px] text-[18px] md:p-2 p-0 hover:text-[#f5ab04] transition-all"
+            //onClick={() => setIsOpen(!isOpen)}
+          >
+            <Icons.Navbar.search />
+          </button>
+        </div>
+      )}
     </div>
   );
 };
@@ -26,6 +53,7 @@ const SearchBar = () => {
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const userRole = getUserRole(); // Lấy role từ token
 
   const toggleMenu = () => {
     setIsMenuOpen((prevState) => !prevState);
@@ -104,12 +132,15 @@ const Navbar = () => {
                 >
                   Chính sách bảo mật
                 </Link>
-                <Link
-                  to={path.DASHBOARD}
-                  className="block p-2 text-white hover:text-[#faab00] cursor-pointer select-none"
-                >
-                  Trang quản trị
-                </Link>
+                {/* Chỉ hiển thị nếu là ADMIN */}
+                {userRole === "ROLE_ADMIN" && (
+                  <Link
+                    to={path.DASHBOARD}
+                    className="block p-2 text-white hover:text-[#faab00]"
+                  >
+                    Trang quản trị
+                  </Link>
+                )}
               </div>
             )}
           </div>
@@ -187,12 +218,14 @@ const Navbar = () => {
                 >
                   Chính sách bảo mật
                 </Link>
-                <Link
-                  to={path.DASHBOARD}
-                  className="block p-2 text-white hover:text-[#faab00] cursor-pointer select-none"
-                >
-                  Trang quản trị
-                </Link>
+                {userRole === "ROLE_ADMIN" && (
+                  <Link
+                    to={path.DASHBOARD}
+                    className="block p-2 text-white hover:text-[#faab00] cursor-pointer select-none"
+                  >
+                    Trang quản trị
+                  </Link>
+                )}
               </div>
             )}
           </div>

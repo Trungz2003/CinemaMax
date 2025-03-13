@@ -2,8 +2,10 @@ package org.example.cinemamax_server.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.example.cinemamax_server.enums.MovieStatus;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,9 +33,6 @@ public class Movies {
     @Column(name = "duration")
     private Integer duration;
 
-    @ManyToOne
-    @JoinColumn(name = "id_genre")
-    private Genre genre;
 
     @Column(name = "video_url")
     private String videoUrl;
@@ -51,14 +50,23 @@ public class Movies {
     private String country;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING) // Lưu Enum dưới dạng chuỗi trong DB
+    private MovieStatus status;
 
     @Column(name = "view")
     private Integer view;
 
-    @Column(name = "category")
-    private String category;
-
+    // Many-to-Many với Genre
+    @ManyToMany
+    @JoinTable(
+            name = "movie_genre", // Tạo bảng trung gian
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    private List<Genre> genres; // Danh sách thể loại của phim
     // Getters and Setters
+
+    @Column(name = "created_at")
+    private LocalDate createdAt; // Thêm trường createdAt
 }
 

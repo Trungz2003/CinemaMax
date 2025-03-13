@@ -1,4 +1,5 @@
 package org.example.cinemamax_server.service;
+import com.google.firebase.auth.FirebaseToken;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -9,30 +10,33 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
-import org.example.cinemamax_server.dto.request.AuthenticationRequest;
-import org.example.cinemamax_server.dto.request.IntrospectRequest;
-import org.example.cinemamax_server.dto.request.LogoutRequest;
-import org.example.cinemamax_server.dto.request.RefreshRequest;
+import org.example.cinemamax_server.constant.PredefinedRole;
+import org.example.cinemamax_server.dto.request.*;
 import org.example.cinemamax_server.dto.response.AuthenticationResponse;
 import org.example.cinemamax_server.dto.response.IntrospectResponse;
+import org.example.cinemamax_server.dto.response.UserResponse;
 import org.example.cinemamax_server.entity.InvalidatedToken;
+import org.example.cinemamax_server.entity.Role;
 import org.example.cinemamax_server.entity.User;
 import org.example.cinemamax_server.exception.AppException;
 import org.example.cinemamax_server.exception.ErrorCode;
+import org.example.cinemamax_server.mapper.UserMapper;
 import org.example.cinemamax_server.repository.InvalidatedTokenRepository;
+import org.example.cinemamax_server.repository.RoleRepository;
 import org.example.cinemamax_server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +45,9 @@ import java.util.UUID;
 public class AuthenticationService {
     UserRepository repository;
     InvalidatedTokenRepository invalidatedTokenRepository;
+    UserMapper userMapper;
+    RoleRepository roleRepository;
+    FirebaseAuthService firebaseAuthService;
 
     @NonFinal
     @Value("${jwt.valid-duration}")
@@ -59,6 +66,9 @@ public class AuthenticationService {
         var user = repository
                 .findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if(user.getEnabled() == false){
+            throw new AppException(ErrorCode.USER_NOT_ACTIVATED);
+        }
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
@@ -73,6 +83,64 @@ public class AuthenticationService {
                 .token(token)
                 .build();
     }
+
+    public UserResponse loginWithGG(String idToken) throws Exception {
+        // Xác thực token Firebase
+        FirebaseToken decodedToken = firebaseAuthService.verifyToken(idToken);
+        String email = decodedToken.getEmail();
+        String thumbnail = decodedToken.getPicture();
+        String userName = (String) decodedToken.getClaims().get("name");
+
+        // Kiểm tra xem email đã tồn tại chưa
+        Optional<User> existingUser = repository.findByEmail(email);
+
+        User user;
+        if (existingUser.isPresent()) {
+            user = existingUser.get();
+
+            // Nếu provider là "system", không cho phép đăng nhập qua Google
+            if ("system".equals(user.getProvider())) {
+                throw new AppException(ErrorCode.EMAIL_REGISTERED_WITH_SYSTEM);
+            }
+
+            // Nếu provider là "google", cập nhật lại tài khoản
+            if ("google".equals(user.getProvider())) {
+                // Cập nhật thông tin nếu cần
+                user.setThumbnail(thumbnail);
+                user.setUserName(userName);
+                user.setEnabled(true); // Đảm bảo người dùng có thể đăng nhập
+                repository.save(user);
+            }
+        } else {
+            // Nếu người dùng chưa tồn tại, tạo mới
+            user = new User();
+            user.setEmail(email);
+            user.setProvider("google");
+            user.setThumbnail(thumbnail);
+            user.setUserName(userName);
+            user.setEnabled(true);
+
+            // Tạo roles cho người dùng
+            HashSet<Role> roles = new HashSet<>();
+            roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
+            user.setRoles(roles);
+
+            // Tạo token của server
+            String serverToken = generateToken(user);
+            user.setToken(serverToken);
+
+            try {
+                repository.save(user);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        // Chuyển đổi User sang UserResponse
+        return userMapper.toUserResponse(user);
+    }
+
+
 
     private String generateToken(User user) {
         // Khởi tạo thuật toán bằng thuật toán mã hóa HS512
@@ -139,10 +207,12 @@ public class AuthenticationService {
             InvalidatedToken invalidatedToken =
                     InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
 
-            // Lưu vào database
+            if (invalidatedTokenRepository.existsById(jit)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token đã bị vô hiệu hóa.");
+            }
             invalidatedTokenRepository.save(invalidatedToken);
         } catch (AppException exception) {
-            log.info("Token already expired");
+            throw exception;
         }
     }
 
@@ -164,7 +234,7 @@ public class AuthenticationService {
         // Lấy tên của email trong token
         var email = signedJWT.getJWTClaimsSet().getSubject();
 
-        // Lấy user bằng phương thức tìm kiếm theo tên
+        // Lấy user bằng phương thức tìm kiếm theo email
         var user =
                 repository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
@@ -197,10 +267,10 @@ public class AuthenticationService {
         // xác minh jwt với khóa bí mật, nếu token hợp lệ, chữ kí khớp thì trả về true
         var verified = signedJWT.verify(verifier);
 
-        log.info("verify token started");
-        log.info("Token payload: {}", signedJWT.getJWTClaimsSet());
-        log.info("Token expiry time: {}", expiryTime);
-        log.info("Current time: {}", new Date());
+//        log.info("verify token started");
+//        log.info("Token payload: {}", signedJWT.getJWTClaimsSet());
+//        log.info("Token expiry time: {}", expiryTime);
+//        log.info("Current time: {}", new Date());
 
         // Nếu token không hợp lệ hoặc thời gian hết hạn
         if (!(verified && expiryTime.after(new Date()))) throw new AppException(ErrorCode.UNAUTHENTICATED);

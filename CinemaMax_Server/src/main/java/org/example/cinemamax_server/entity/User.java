@@ -41,8 +41,14 @@ public class User {
     @Column(name = "thumbnail")
     private String thumbnail;
 
+    @Column(name = "provider")
+    private String provider;
+
     @Column(name = "token")
     private String token;
+
+    @Column(name = "enabled")
+    private Boolean enabled = false; // Chỉ kích hoạt khi xác thực email
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

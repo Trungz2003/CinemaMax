@@ -2,6 +2,7 @@ package org.example.cinemamax_server.controller;
 
 import com.nimbusds.jose.JOSEException;
 import io.micrometer.common.util.StringUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,9 +17,13 @@ import org.example.cinemamax_server.dto.response.IntrospectResponse;
 import org.example.cinemamax_server.exception.AppException;
 import org.example.cinemamax_server.exception.ErrorCode;
 import org.example.cinemamax_server.service.AuthenticationService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
 
@@ -54,16 +59,47 @@ public class AuthenticationController {
         return ApiResponse.<IntrospectResponse>builder().result(result).build();
     }
 
+//    @PostMapping("/logout")
+//    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+//        service.logout(request);
+//        return ApiResponse.<Void>builder().build();
+//    }
+
     @PostMapping("/logout")
-    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
-        service.logout(request);
-        return ApiResponse.<Void>builder().build();
+    public ApiResponse<Void> logout(HttpServletRequest request) throws ParseException, JOSEException {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tiêu đề ủy quyền bị thiếu hoặc không hợp lệ");
+        }
+
+        String token = authHeader.substring(7); // Cắt bỏ "Bearer "
+        // Tạo đối tượng LogoutRequest
+        LogoutRequest logoutRequest = new LogoutRequest(token);
+        service.logout(logoutRequest);
+
+        return ApiResponse.<Void>builder()
+                .message("Logged out successfully")
+                .code(HttpStatus.OK.value())
+                .build();
     }
 
+
+
     @PostMapping("/refresh")
-    ApiResponse<AuthenticationResponse> authenticate(@RequestBody RefreshRequest request)
+    public ApiResponse<AuthenticationResponse> refreshToken(HttpServletRequest request)
             throws ParseException, JOSEException {
-        var result = service.refreshToken(request);
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing or invalid Authorization header");
+        }
+
+        String refreshToken = authHeader.substring(7); // Cắt bỏ "Bearer "
+        RefreshRequest refreshRequest = new RefreshRequest(refreshToken);
+        var result = service.refreshToken(refreshRequest); // Gọi service với refresh token
+
         return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
+
 }

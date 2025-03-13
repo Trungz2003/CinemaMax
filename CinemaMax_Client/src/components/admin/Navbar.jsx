@@ -2,10 +2,10 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom"; // Import Link và useLocation
 import Icons from "../../ultils/Icons";
 import path from "../../ultils/Path";
-import { useState } from "react";
-
-const pemistion = "admin";
-const code = 1234;
+import { useState, useEffect } from "react";
+import { getInfoAdmin } from "../../apis/server/Menu";
+import defaultAvatar from "../../assets/img_user/img_user_not_avata.png";
+import LogoutAdmin from "./LogoutAdmin";
 
 const RenderNavBar = () => {
   const location = useLocation(); // Lấy đường dẫn hiện tại
@@ -48,33 +48,58 @@ const RenderNavBar = () => {
   );
 };
 
-const RenderInfor = () => {
+const RenderInfo = () => {
+  const [adminInfo, setAdminInfo] = useState(() => {
+    const savedAdminInfo = localStorage.getItem("adminInfo");
+    return savedAdminInfo ? JSON.parse(savedAdminInfo) : {};
+  });
+
+  useEffect(() => {
+    const handleGetInfoAdmin = async () => {
+      try {
+        const response = await getInfoAdmin();
+        if (response.code === 0) {
+          setAdminInfo(response.result);
+          localStorage.setItem("adminInfo", JSON.stringify(response.result));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (!adminInfo.id) {
+      handleGetInfoAdmin();
+    }
+  }, []);
+
   return (
     <div className="w-full md:px-[2%] px-[1%] md:flex md:flex-row flex-col md:h-[80px] border-b border-[#222129] box-border">
       <div className="w-full px-[10px] h-full flex items-center justify-between">
         <div className="flex md:w-full w-[75%] md:pt-0 pt-[20px]">
           {/* Thông tin người dùng (Tên và ID) */}
           <div className="md:w-full w-[600px] h-full flex items-center justify-start mb-4 md:mb-0">
-            <div className="w-[40px] h-[40px] rounded bg-[#212026] flex justify-center items-center">
-              <Icons.MovieDetails.persion className="w-[100%] h-[100%]" />
+            <div className="w-[40px] h-[40px] rounded-full bg-[#212026] flex justify-center items-center">
+              <img
+                src={adminInfo.thumbnail || defaultAvatar}
+                alt="User Avatar"
+                className="w-[100%] object-cover rounded-full h-full"
+              />
             </div>
 
-            <div className="h-full w-full ml-[20px] relative">
+            <div className="h-full w-[70%] ml-[20px] relative">
               <div className="absolute top-1/2 left-0 transform -translate-y-1/2">
-                <p className="text-[12px] text-left">{pemistion}</p>
+                <p className="text-[12px] text-left">
+                  {adminInfo?.role?.[0]?.name}
+                </p>
                 <p className="font-bold text-left flex gap-1 items-center">
-                  John Doe{" "}
+                  {adminInfo.name + " "}
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className=" h-full w-[20%] items-center flex gap-[15px] justify-end">
-          <button className="w-[32px] h-[32px] rounded-[8px] bg-[rgba(41,180,116,0.1)] hover:bg-[rgba(41,180,116,0.2)] text-[#29B474] flex font-bold justify-center items-center">
-            <Icons.Catalog.lock />
-          </button>
-        </div>
+        <LogoutAdmin />
       </div>
     </div>
   );
@@ -109,7 +134,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      <RenderInfor />
+      <RenderInfo />
 
       {/* Phần menu trên mobile */}
       <div className={`md:flex hidden md:w-full md:py-[20px] md:px-[26px] `}>

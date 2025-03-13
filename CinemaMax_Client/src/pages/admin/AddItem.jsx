@@ -2,130 +2,279 @@ import React, { useEffect } from "react";
 import Navbar from "../../components/admin/Navbar";
 import Icons from "../../ultils/Icons";
 import { useState } from "react";
-import { getDataCountry } from "../../apis/AddItem";
+import {
+  getGenres,
+  getDataCountry,
+  saveMovie,
+  getMovieById,
+  updateMovieById,
+} from "../../apis/server/AddItem";
+import { ShowToast } from "../../ultils/ToastUtils";
+import { uploadFile } from "../../cloudinary/upload";
+import Filter from "../../components/admin/Filter";
+import { useParams } from "react-router-dom";
 
-const Filter = ({ options, onSortChange, dropdownWidth = "200px", test }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedOption, setSelectedOption] = useState(
-    test ? test : options[0]
-  );
+const RenderAddItem = () => {
+  const [title, setTitle] = useState(""); // State lưu tên phim
+  const [isUploading, setIsUploading] = useState(false); // Trạng thái tải lên
+  const [countries, setCountries] = useState([]); // Lưu dữ liệu tên quốc gia được chọn
+  const [description, setDescription] = useState(""); // Lưu mô tả của phim
+  const [actor, setActor] = useState(""); // Lưu danh sách các diễn viên
+  const [cast, setCast] = useState(""); // Lưu tên các tác giả
+  const [releaseDate, setReleaseDate] = useState(""); // Lưu ngày công chiếu
+  const [duration, setDuration] = useState(""); // Lưu thời gian chạy
+  const [genres, setGenres] = useState([]);
+  // Lưu dữ liệu tên thể loại
+  const [genresRender, setGenresRender] = useState([]);
+  const [isFetching, setIsFetching] = useState(false); // Cờ kiểm tra để tránh gọi lại
+  const [countriesRender, setCountriesRender] = useState([]); // Lưu dữ liệu tên quốc gia
 
-  const toggleDropdown = () => setIsOpen(!isOpen);
-
-  const handleOptionSelect = (option) => {
-    setSelectedOption(option);
-    setIsOpen(false);
-    if (onSortChange) {
-      onSortChange(option); // Gọi callback khi chọn option
+  const [image, setImage] = useState(null); // Lưu url ảnh tải lên
+  const [video, setVideo] = useState(null); // Lưu url video tải lên
+  const { id } = useParams();
+  const fetchDataCountry = async () => {
+    try {
+      let dataCountry = await getDataCountry();
+      // Lưu dữ liệu vào state
+      setCountriesRender(
+        dataCountry.map((country) => ({ name: country.name }))
+      );
+      console.log(countriesRender);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
-  const handleSearchChange = (e) => setSearchTerm(e.target.value);
+  const fetchDataGenres = async () => {
+    if (!isFetching) {
+      setIsFetching(true); // Đánh dấu là đang fetch dữ liệu
 
-  const filteredOptions = options.filter((option) =>
-    option.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      try {
+        let dataGenres = await getGenres();
 
-  const shouldShowSearchBar = options.length > 5; // Hiển thị thanh tìm kiếm nếu có hơn 5 tùy chọn
+        if (dataGenres) {
+          // Nếu dataGenres.result là một mảng thể loại, bạn có thể duyệt qua từng phần tử và lấy tên
+          let dataGenres = await getGenres();
 
-  return (
-    <div className="relative w-full mt-[11px]">
-      {/* Dropdown Trigger */}
-      <div
-        className="h-[45px] rounded-[8px] bg-[#222129] flex items-center px-4 cursor-pointer gap-[5px]"
-        role="combobox"
-        tabIndex="0"
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        onClick={toggleDropdown}
-      >
-        <div className="flex-1 text-white text-left">{selectedOption}</div>
-        <div className="flex items-center">
-          <svg
-            className={`w-2 h-2 text-white transform transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
-            viewBox="0 0 100 100"
-          >
-            <path
-              d="M10,30 L50,70 L90,30"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="10"
-            ></path>
-          </svg>
-        </div>
-      </div>
-
-      {/* Dropdown Content */}
-      {isOpen && (
-        <div
-          className="absolute bg-[#222129] w-[200px] mt-2 rounded-[8px] shadow-lg z-10 text-left "
-          style={{ width: dropdownWidth }}
-        >
-          {/* Search Bar (Hiển thị nếu có nhiều tùy chọn) */}
-          {shouldShowSearchBar && (
-            <div className="px-4 py-2">
-              <input
-                type="text"
-                className="w-full p-2 bg-[#333] text-white rounded-md focus:ring-2 focus:ring-[#f9ab00] focus:outline-none"
-                placeholder="Tìm kiếm..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-            </div>
-          )}
-          {/* Options List */}
-          <div className="max-h-[150px] overflow-y-auto">
-            {filteredOptions.map((option, index) => (
-              <div
-                key={index}
-                className={`px-4 py-2 cursor-pointer text-white hover:text-[#f9ab00] ${
-                  selectedOption === option ? "font-bold" : ""
-                }`}
-                onClick={() => handleOptionSelect(option)}
-              >
-                {option}
-              </div>
-            ))}
-            {filteredOptions.length === 0 && (
-              <div className="px-4 py-2 text-gray-400">Không có kết quả</div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-const RenderAddItem = () => {
-  const [countries, setCountries] = useState([]);
-  const fetchDataCountry = async () => {
-    try {
-      // Kiểm tra localStorage
-      let dataCountry = JSON.parse(localStorage.getItem("countries"));
-      if (!dataCountry) {
-        console.log("Fetching data from API...");
-        // Nếu chưa có dữ liệu trong localStorage, gọi API
-        dataCountry = await getDataCountry();
-        // Lưu dữ liệu vào localStorage
-        localStorage.setItem("countries", JSON.stringify(dataCountry));
-      } else {
-        console.log("Data loaded from localStorage");
+          if (dataGenres) {
+            // Lưu toàn bộ đối tượng { id, name } thay vì chỉ lưu name
+            setGenresRender(dataGenres);
+          } else {
+            console.error("Không có dữ liệu thể loại.");
+          }
+        } else {
+          console.error("Không có dữ liệu thể loại.");
+        }
+      } catch (error) {
+        console.error("Đã xảy ra lỗi khi lấy dữ liệu thể loại: ", error);
       }
-      // Lưu dữ liệu vào state
-      setCountries(dataCountry);
+    }
+  };
+
+  const handleTitleChange = (event) => {
+    setTitle(event.target.value); // Cập nhật tên phim khi người dùng nhập
+  };
+
+  const handleDescriptionChange = (event) => {
+    setDescription(event.target.value); // Cập nhật tên phim khi người dùng nhập
+  };
+
+  const handleActorChange = (event) => {
+    setActor(event.target.value); // Cập nhật tên phim khi người dùng nhập
+  };
+
+  const handleCastChange = (event) => {
+    setCast(event.target.value); // Cập nhật tên phim khi người dùng nhập
+  };
+
+  const handleCountriesChange = (selectedCountries) => {
+    setCountries(selectedCountries); // Cập nhật tên phim khi người dùng nhập
+  };
+
+  const handleGenreChange = (selectedGenres) => {
+    setGenres(selectedGenres);
+  };
+
+  const handleDurationChange = (event) => {
+    setDuration(event.target.value);
+  };
+
+  const handelReleaseDateChange = (event) => {
+    setReleaseDate(event.target.value);
+  };
+
+  const handleImageChange = async (event) => {
+    if (title === "" || title === null) {
+      ShowToast("error", "Chưa nhập đầy đủ các thông tin trên!");
+      return;
+    }
+    const file = event.target.files[0];
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+
+    setIsUploading(true); // Bắt đầu quá trình tải lên
+
+    try {
+      const data = await uploadFile(file, "image", `StreamPhim/image/${title}`); // Upload ảnh vào folder động
+      setIsUploading(false); // Bắt đầu quá trình tải lên
+      setImage(data.secure_url);
+      console.log("Ảnh đã upload:", data.secure_url);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Lỗi upload ảnh:", error);
+    }
+  };
+
+  // Xử lý chọn video và lấy tên folder
+  const handleVideoChange = async (event) => {
+    if (title === "") {
+      ShowToast("error", "Chưa nhập đầy đủ các thông tin trên!");
+      return;
+    }
+
+    const file = event.target.files[0];
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+
+    setIsUploading(true); // Bắt đầu quá trình tải lên
+
+    try {
+      const data = await uploadFile(
+        file,
+        "video",
+        `StreamPhim/movies/${title}`
+      );
+      setIsUploading(false); // Kết thúc quá trình tải lên
+      setVideo(data.secure_url);
+      console.log("Video uploaded:", data.secure_url);
+    } catch (error) {
+      console.error("Lỗi upload video:", error);
     }
   };
 
   useEffect(() => {
     fetchDataCountry();
   }, []);
+
+  useEffect(() => {
+    console.log("Genres cập nhật:", genres);
+  }, [genres]);
+
+  useEffect(() => {
+    console.log("Countries cập nhật:", countries);
+  }, [countries]);
+
+  const handleSaveMovie = async () => {
+    if (
+      !title.trim() ||
+      !image ||
+      !video ||
+      !description.trim() ||
+      !releaseDate ||
+      !duration ||
+      !actor.trim() ||
+      !cast.trim() ||
+      (!countries && !countries?.name) ||
+      !genres?.length
+    ) {
+      ShowToast("error", "Vui lòng nhập đầy đủ thông tin.");
+      return;
+    }
+
+    if (id && id > 0) {
+      const movieData = {
+        title,
+        description,
+        releaseDate,
+        duration,
+        videoUrl: video, // URL video đã tải lên
+        thumbnail: image, // URL ảnh đã tải lên
+        actor,
+        cast,
+        country: countries && countries.name ? countries.name : "",
+        genres, // Danh sách thể loại đã chọn
+      };
+      // Nếu movieId hợp lệ thì gọi API update
+      try {
+        const response = await updateMovieById(id, movieData);
+        if (response.code === 0) {
+          ShowToast("success", "Cập nhật phim thành công!");
+        } else {
+          ShowToast("error", "Không thể cập nhật phim!");
+        }
+      } catch (error) {
+        console.error("Lỗi khi cập nhật phim:", error);
+      }
+    } else {
+      const movieData = {
+        title,
+        description,
+        releaseDate,
+        duration,
+        videoUrl: video, // URL video đã tải lên
+        thumbnail: image, // URL ảnh đã tải lên
+        actor,
+        cast,
+        country: countries.name,
+        status: "PRIVATE",
+        view: 0,
+        genres, // Danh sách thể loại đã chọn
+      };
+      // Nếu không có movieId hợp lệ thì gọi API save (thêm mới phim)
+      try {
+        const token = localStorage.getItem("token"); // Lấy token từ localStorage
+        const response = await saveMovie(token, movieData);
+        if (response.code === 0) {
+          ShowToast("success", "Thêm phim thành công!");
+        } else {
+          ShowToast("error", "Không thể thêm phim!");
+        }
+      } catch (error) {
+        console.error("Lỗi khi lưu phim:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!isNaN(id) && id > 0) {
+        // Nếu ID hợp lệ -> Lấy dữ liệu từ API
+        const response = await getMovieById(id);
+        console.log(response);
+
+        if (response.code === 0) {
+          const movie = response.result;
+          setTitle(movie.title);
+          setDescription(movie.description);
+          setReleaseDate(movie.releaseDate);
+          setDuration(movie.duration);
+          setVideo(movie.videoUrl);
+          setImage(movie.thumbnail);
+          setActor(movie.actor);
+          setCast(movie.cast);
+          setCountries({ name: movie.country });
+          setGenres(movie.genres);
+
+          console.log(countries);
+        } else {
+          ShowToast("error", "Không lấy được dữ liệu phim!");
+        }
+      }
+    };
+
+    fetchData();
+  }, [id]);
   return (
     <div className="md:px-[2%] px-[4%] w-full text-[14px] mb-[40px]">
+      {/* Spinner khi đang tải lên */}
+      {isUploading && (
+        <div className="flex justify-center items-center mt-4">
+          <div className="animate-spin rounded-full border-t-4 border-blue-500 w-8 h-8"></div>
+        </div>
+      )}
       <div className="text-left text-[32px] w-full h-full border-b border-[#222129] box-border md:h-[80px] flex justify-start items-center">
         Thêm mục mới
       </div>
@@ -137,6 +286,8 @@ const RenderAddItem = () => {
               name="title"
               type="text"
               placeholder="Tiêu đề"
+              value={title} // Liên kết state với input
+              onChange={handleTitleChange} // Cập nhật state khi người dùng nhập
               className="block w-full h-[45px] bg-[#222129] mt-[10px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
             />
 
@@ -145,64 +296,65 @@ const RenderAddItem = () => {
               name="Description"
               type="text"
               placeholder="Miêu tả"
+              value={description}
+              onChange={handleDescriptionChange}
               className="block w-full h-[100px] bg-[#222129] mt-[20px] text-white rounded-[8px] py-[10px] px-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
             />
-
+            {/* Chọn ảnh */}
             <div className="w-full md:flex justify-between">
-              <div className="md:w-[49%] mt-[20px]">
+              <div
+                className="w-full mt-[20px]"
+                onClick={() => {
+                  if (title === "" || title === null) {
+                    ShowToast("error", "Chưa nhập đầy đủ các thông tin trên!");
+                    return; // Nếu chưa nhập title, không mở hộp thoại chọn file
+                  }
+                  document.getElementById("fileInput").click(); // Nếu đã có title, mở hộp thoại chọn file
+                }}
+              >
                 <div className="w-full h-[45px] cursor-pointer hover:border-[#f9ab00] border-[2px] border-[#222129] rounded-[8px] bg-[#222129] flex justify-between items-center px-[20px]">
-                  <span>Tải lên ảnh bìa (240 x 340)</span>
+                  <span className="truncate w-[80%] overflow-hidden text-ellipsis whitespace-nowrap">
+                    {image ? image : "Tải lên ảnh bìa (240 x 340)"}
+                  </span>
                   <div className="text-[20px]">
                     <Icons.Setting.img />
                   </div>
                 </div>
+                <input
+                  id="fileInput"
+                  type="file"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
               </div>
-
-              <input
-                id="title"
-                name="title"
-                type="text"
-                placeholder="Liên kết đến nền (1920x1280)"
-                className="block md:w-[49%] w-full h-[45px] bg-[#222129] mt-[20px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
-              />
             </div>
           </div>
           <div className="md:w-[38%] md:mt-0 mt-[20px]">
             <div className="w-full md:flex justify-between">
-              <div className="md:w-[49%] w-full">
-                <Filter
-                  options={["Full HD", "HD"]} // Truyền đúng kiểu mảng
-                  //onSortChange={handleSortChange}
-                />
-              </div>
               <input
-                id="age"
-                name="age"
+                id="actor"
+                name="actor"
                 type="text"
-                placeholder="Tuổi"
-                className="block md:w-[49%] w-full h-[45px] bg-[#222129] md:mt-[10px] mt-[20px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
+                placeholder="Nhập tên tác giả"
+                value={actor}
+                onChange={handleActorChange}
+                className="block w-full h-[45px] bg-[#222129] md:mt-[10px] mt-[20px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
               />
             </div>
-            <div className="w-full mt-[20px]">
+            <div className="w-full mt-[20px]" onClick={fetchDataGenres}>
               <Filter
-                options={[
-                  "Hoạt động",
-                  "Hoạt hình",
-                  "Hài kịch",
-                  "Tội phạm",
-                  "Nhịp điệu",
-                  "Tưởng tượng",
-                  "Lịch sử",
-                  "Kinh dị",
-                  "Lãng mạn",
-                  "Khoa học viễn tưởng",
-                  "Giật gân",
-                  "Phương Tây",
-                  "Khác",
-                ]}
-                //onSortChange={handleSortChange}
+                options={genresRender.map((genre) => ({
+                  id: genre.id,
+                  name: genre.name,
+                }))}
+                onSortChange={handleGenreChange}
                 dropdownWidth="100%"
-                test="Thể loại"
+                test={
+                  genres.length > 0
+                    ? genres.map((g) => g.name).join(", ")
+                    : "Chọn thể loại"
+                }
+                multiSelect={true}
               />
             </div>
             <div className="w-full md:flex justify-between md:mt-0 mt-[20px]">
@@ -211,52 +363,79 @@ const RenderAddItem = () => {
                 name="RunTime"
                 type="text"
                 placeholder="Thời gian chạy"
+                value={duration}
+                onChange={handleDurationChange}
                 className="block md:w-[49%] w-full h-[45px] bg-[#222129] mt-[10px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
               />
               <input
                 id="PremiereDate"
                 name="PremiereDate"
-                type="text"
+                type="date"
                 placeholder="Ngày công chiếu"
+                value={releaseDate}
+                onChange={handelReleaseDateChange}
                 className="block md:w-[49%] w-full h-[45px] bg-[#222129] text-white rounded-[8px] py-1 pl-[20px] md:mt-[10px] mt-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
               />
             </div>
             <div className="w-full mt-[19px]">
               <Filter
-                options={countries}
-                //onSortChange={handleSortChange}
+                options={Array.isArray(countriesRender) ? countriesRender : []}
+                onSortChange={handleCountriesChange}
                 dropdownWidth="100%"
-                test="Quốc gia"
+                test={
+                  countries.name && countries.name.length > 0
+                    ? countries.name
+                    : "Quốc gia"
+                }
               />
             </div>
           </div>
         </div>
+        {/* Diễn viên */}
         <div className="w-full md:flex justify-between mt-[20px]">
           <input
-            id="director"
-            name="director"
-            type="text"
-            placeholder="Nhâp tên tác giả"
-            className="block md:w-[49%] w-full h-[45px] bg-[#222129] md:mt-[10px] mt-[20px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
-          />
-          <input
-            id="actor"
-            name="actor"
+            id="cast"
+            name="cast"
             type="text"
             placeholder="Nhập tên các diễn viên(cách nhau bởi dấu ,)"
-            className="block md:w-[49%] w-full h-[45px] bg-[#222129] md:mt-[10px] mt-[20px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
+            value={cast}
+            onChange={handleCastChange}
+            className="block w-full h-[45px] bg-[#222129] md:mt-[10px] mt-[20px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
           />
         </div>
+        {/* Video */}
         <div className="w-full mt-[20px]">
-          <div className="w-full h-[45px] mt-[10px] cursor-pointer hover:border-[#f9ab00] border-[2px] border-[#222129] rounded-[8px] bg-[#222129] flex justify-between items-center px-[20px]">
-            <span>Tải video lên</span>
+          <div
+            className="w-full h-[45px] mt-[10px] cursor-pointer hover:border-[#f9ab00] border-[2px] border-[#222129] rounded-[8px] bg-[#222129] flex justify-between items-center px-[20px]"
+            onClick={() => {
+              if (title === "" || title === null) {
+                ShowToast("error", "Chưa nhập đầy đủ các thông tin trên!");
+                return; // Nếu chưa nhập title, không mở hộp thoại chọn file
+              }
+              document.getElementById("videoInput").click(); // Nếu đã có title, mở hộp thoại chọn file
+            }}
+          >
+            <span className="truncate w-[80%] overflow-hidden text-ellipsis whitespace-nowrap">
+              {video ? video : "Tải video lên"}
+            </span>
             <div className="text-[20px]">
               <Icons.AddItem.video />
             </div>
           </div>
+          <input
+            id="videoInput"
+            type="file"
+            className="hidden"
+            accept="video/*" // Chỉ cho phép chọn video
+            onChange={handleVideoChange}
+          />
         </div>
 
-        <button className="w-[120px] h-[45px] rounded-[8px] border-[2px] border-[#f9ab00] text-[16px] mt-[20px]">
+        <button
+          className="w-[120px] h-[45px] rounded-[8px] border-[2px] border-[#f9ab00] text-[16px] mt-[20px]"
+          type="button"
+          onClick={handleSaveMovie}
+        >
           Xuất bản
         </button>
       </div>

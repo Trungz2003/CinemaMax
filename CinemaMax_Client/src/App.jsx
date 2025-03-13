@@ -25,33 +25,41 @@ import Reviews from "./pages/admin/Reviews";
 import Setting from "./pages/admin/Setting";
 import EditUser from "./pages/admin/EditUser";
 import AddItem from "./pages/admin/AddItem";
+import PrivateRoute from "./ultils/PrivateRoute";
 
 // Cấu hình router với createBrowserRouter
 const router = createBrowserRouter([
-  //{ path: "/", element: <></>, loader: () => redirect(path.LOGIN) }, // Điều hướng về /login khi người dùng vào trang chủ
-  { path: path.LOGIN, element: <Login /> },
-  { path: path.SIGNUP, element: <SignUp /> },
-  { path: path.FORGOT, element: <Forgot /> },
-  { path: path.NOT_FOUND, element: <NotFound /> },
-  { path: path.HOME, element: <Home /> },
-  { path: path.PRIVACY, element: <Privacy /> },
-  { path: path.ABOUT, element: <AboutUs /> },
-  { path: path.PRICING, element: <PricingPlan /> },
-  { path: path.FAQ, element: <HelpCenter /> },
-  { path: path.DETAILS, element: <MovieDetails /> },
-  { path: path.CATALOG, element: <Catalog /> },
-  { path: path.CONTACTS, element: <Contacts /> },
-  { path: path.MYCINEMAMAX, element: <MyCinemaMax /> },
+  {
+    element: <PrivateRoute />, // Check quyền admin trước khi vào
+    children: [
+      //{ path: "/", element: <></>, loader: () => redirect(path.LOGIN) }, // Điều hướng về /login khi người dùng vào trang chủ
+      { path: path.LOGIN, element: <Login /> },
+      { path: path.SIGNUP, element: <SignUp /> },
+      { path: path.FORGOT, element: <Forgot /> },
+      { path: path.NOT_FOUND, element: <NotFound /> },
+      { path: path.HOME, element: <Home /> },
+      { path: path.PRIVACY, element: <Privacy /> },
+      { path: path.ABOUT, element: <AboutUs /> },
+      { path: path.PRICING, element: <PricingPlan /> },
+      { path: path.FAQ, element: <HelpCenter /> },
+      { path: path.DETAILS, element: <MovieDetails /> },
+      { path: path.CATALOG, element: <Catalog /> },
+      { path: path.CONTACTS, element: <Contacts /> },
+      { path: path.MYCINEMAMAX, element: <MyCinemaMax /> },
 
-  // Path admin
-  { path: path.DASHBOARD, element: <Dashboard /> },
-  { path: path.CATALOGS, element: <Catalogs /> },
-  { path: path.USERS, element: <Users /> },
-  { path: path.COMMENTS, element: <Comments /> },
-  { path: path.REVIEWS, element: <Reviews /> },
-  { path: path.SETTING, element: <Setting /> },
-  { path: path.EDITUSER, element: <EditUser /> },
-  { path: path.ADDITEM, element: <AddItem /> },
+      // Path admin
+      // Routes admin (bảo vệ bằng PrivateRoute)
+
+      { path: path.DASHBOARD, element: <Dashboard /> },
+      { path: path.CATALOGS, element: <Catalogs /> },
+      { path: path.USERS, element: <Users /> },
+      { path: path.COMMENTS, element: <Comments /> },
+      { path: path.REVIEWS, element: <Reviews /> },
+      { path: path.SETTING, element: <Setting /> },
+      { path: path.EDITUSER, element: <EditUser /> },
+      { path: path.ADDITEM, element: <AddItem /> },
+    ],
+  },
 ]);
 
 function App() {

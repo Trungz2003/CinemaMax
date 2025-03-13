@@ -5,14 +5,17 @@ import { ShowToast } from "../../ultils/ToastUtils";
 import { Link, useNavigate } from "react-router-dom";
 import path from "../../ultils/Path";
 import Icons from "../../ultils/Icons";
+import { signup } from "../../apis/client/Auth";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [userName, setUserName] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [isAgree, setIsAgree] = useState(false);
 
   // Toggle password visibility
   const handleTogglePassword = () => {
@@ -65,41 +68,30 @@ const SignUp = () => {
     }
   };
 
-  // Form submission
-  //   async function handleSubmit(e) {
-  //     e.preventDefault();
-  //     const isEmailValid = validateEmail(email);
-  //     const isPasswordValid = validatePassword(password);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const isEmailValid = validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+    if (!isAgree) {
+      ShowToast("error", "Bạn phải đồng ý với chính sách bảo mật!");
+      return;
+    }
 
-  //     if (isEmailValid && isPasswordValid) {
-  //       const data = {
-  //         email: email,
-  //         password: password,
-  //       };
+    if (isEmailValid && isPasswordValid) {
+      try {
+        const response = await signup(email, password, userName);
 
-  //       ApiLogin(data)
-  //         .then((response) => {
-  //           if (response.status === 200) {
-  //             ShowToast("success", "Đăng nhập thành công!");
-  //             navigate(path.HOME);
-  //           }
-  //         })
-  //         .catch((error) => {
-  //           if (!error.response) {
-  //             ShowToast(
-  //               "error",
-  //               "Không thể kết nối đến server. Vui lòng kiểm tra lại!"
-  //             );
-  //           } else if (error.response && error.response.status === 404) {
-  //             ShowToast("error", "Tài khoản hoặc mật khẩu không chính xác!");
-  //           } else {
-  //             console.log(error);
-
-  //             ShowToast("error", "Đã xảy ra lỗi không xác định!");
-  //           }
-  //         });
-  //     }
-  //   }
+        if (response.code === 1000) {
+          ShowToast("success", response.message);
+          navigate(path.LOGIN);
+        } else if (response.code === 409) {
+          ShowToast("error", "Email đã tồn tại trong hệ thống!");
+        }
+      } catch {
+        ShowToast("error", "Đăng kí không thành công, vui lòng thử lại!");
+      }
+    }
+  };
 
   return (
     <div className="flex justify-center items-center md:h-[100%]  h-full w-full text-[14px]">
@@ -126,6 +118,8 @@ const SignUp = () => {
                 name="name"
                 type="name"
                 placeholder="Name"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)} // Cập nhật giá trị tên người dùng
                 className="block w-full h-[45px] bg-[#222129] text-white rounded-md py-1.5 pl-3 focus:ring-2 focus:ring-indigo-600 focus:outline-none"
               />
             </div>
@@ -177,8 +171,8 @@ const SignUp = () => {
             <div className="flex items-center space-x-2 mt-[20px]">
               <input
                 type="checkbox"
-                //checked={rememberMe}
-                //onChange={() => setRememberMe(!rememberMe)}
+                checked={isAgree}
+                onChange={() => setIsAgree(!isAgree)}
                 className="h-5 w-5 bg-[#261e2a] appearance-none border-2 border-gray-500 rounded-md checked:before:content-['✔'] checked:before:text-[12px] checked:before:text-[#F9AB00] checked:before:flex checked:before:justify-center checked:before:items-center cursor-pointer"
               />
               <div className="flex items-center">
@@ -197,29 +191,13 @@ const SignUp = () => {
               href="#"
               type="submit"
               className="border-[2px] border-[#d6ac5a] text-[#d6ac5a] w-full h-[45px] hover:bg-[#d6ac5a] hover:text-white px-4 py-2 rounded-md"
+              onClick={handleSubmit}
             >
               XÁC NHẬN
             </button>
           </div>
           <div className="w-full flex justify-center mt-[10px]">
             <p className="text-white">hoặc</p>
-          </div>
-          <div className="mt-[10px]">
-            <button
-              type="submit"
-              className="bg-[#3b5999] text-white w-full h-[40px] hover:bg-white hover:text-[#3b5999] px-4 py-2 rounded-md flex justify-center items-center"
-            >
-              Đăng nhập với <Icons.Login.facebook className="ml-1" />
-            </button>
-          </div>
-
-          <div className="mt-[15px]">
-            <button
-              type="submit"
-              className="bg-[#df4a32] text-white w-full h-[40px] hover:bg-white hover:text-[#df4a32] px-4 py-2 rounded-md flex justify-center items-center"
-            >
-              Đăng nhập với <Icons.Login.google className="ml-1" />
-            </button>
           </div>
 
           <div className="w-full flex justify-center mt-[20px]">

@@ -15,6 +15,33 @@ export const FilterBar = () => {
     setOpenDropdown(openDropdown === key ? null : key);
   };
 
+  // State để mở dropdown
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isRatingOpen, setIsRatingOpen] = useState(false);
+  const [isTimeOpen, setIsTimeOpen] = useState(false);
+
+  // State để lưu lựa chọn
+  const [selectedCategory, setSelectedCategory] = useState("Thể loại");
+  const [selectedRating, setSelectedRating] = useState("Đánh giá");
+  const [selectedTime, setSelectedTime] = useState("Thời gian");
+
+  // Hàm mở dropdown tương ứng và đóng các dropdown khác
+  const toggleDropdownDesktop = (dropdown) => {
+    if (dropdown === "category") {
+      setIsCategoryOpen(!isCategoryOpen);
+      setIsRatingOpen(false);
+      setIsTimeOpen(false);
+    } else if (dropdown === "rating") {
+      setIsRatingOpen(!isRatingOpen);
+      setIsCategoryOpen(false);
+      setIsTimeOpen(false);
+    } else if (dropdown === "time") {
+      setIsTimeOpen(!isTimeOpen);
+      setIsCategoryOpen(false);
+      setIsRatingOpen(false);
+    }
+  };
+
   return (
     <div className="w-full h-[80px] border-b border-gray-600 flex justify-center">
       {/* Nút filter icon */}
@@ -115,25 +142,94 @@ export const FilterBar = () => {
       {/* Nội dung giao diện desktop */}
       <div className="hidden md:flex w-[84%]">
         <div className="flex h-full w-[70%] gap-4">
-          <div className="mt-[20px]">
-            <button className="bg-[#222129] text-white w-full px-[10px] py-[5px] h-[40px] rounded-md transition flex justify-center items-center">
-              Thể loại <Icons.Home.down className="p-[2px]" />
+          {/* Thể loại */}
+          <div className="relative mt-[20px]">
+            <button
+              className="bg-[#222129] text-white px-[10px] py-[5px] h-[40px] rounded-md transition flex justify-between items-center w-[150px]"
+              onClick={() => toggleDropdownDesktop("category")}
+            >
+              {selectedCategory} <Icons.Home.down className="p-[2px]" />
             </button>
+            {isCategoryOpen && (
+              <div className="absolute left-0  bg-[#333] text-white mt-2 p-4 rounded-md shadow-md w-full z-50">
+                {["Phim hành động", "Phim hài", "Phim tâm lý"].map((item) => (
+                  <div
+                    key={item}
+                    className="cursor-pointer hover:text-[#faab00] text-left"
+                    onClick={() => {
+                      setSelectedCategory(item);
+                      setIsCategoryOpen(false);
+                    }}
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="mt-[20px]">
-            <button className="bg-[#222129] text-white px-[10px] py-[5px] h-[40px] rounded-md transition flex justify-center items-center">
-              Đánh giá <Icons.Home.down className="p-[2px]" />
+
+          {/* Đánh giá */}
+          <div className="relative mt-[20px]">
+            <button
+              className="bg-[#222129] text-white px-[10px] py-[5px] h-[40px] rounded-md transition flex justify-between items-center w-[150px]"
+              onClick={() => toggleDropdownDesktop("rating")}
+            >
+              {selectedRating} <Icons.Home.down className="p-[2px]" />
             </button>
+            {isRatingOpen && (
+              <div className="absolute left-0  bg-[#333] text-white mt-2 p-4 rounded-md shadow-md w-full z-50">
+                {["5 sao", "4 sao", "3 sao"].map((item) => (
+                  <div
+                    key={item}
+                    className="cursor-pointer hover:text-[#faab00] text-left"
+                    onClick={() => {
+                      setSelectedRating(item);
+                      setIsRatingOpen(false);
+                    }}
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="mt-[20px]">
-            <button className="bg-[#222129] text-white px-[10px] py-[5px] h-[40px] rounded-md transition flex justify-center items-center">
-              Thời gian <Icons.Home.down className="p-[2px]" />
+
+          {/* Thời gian */}
+          <div className="relative mt-[20px]">
+            <button
+              className="bg-[#222129] text-white px-[10px] py-[5px] h-[40px] rounded-md transition flex justify-between items-center w-[150px]"
+              onClick={() => toggleDropdownDesktop("time")}
+            >
+              {selectedTime} <Icons.Home.down className="p-[2px]" />
             </button>
+            {isTimeOpen && (
+              <div className="absolute left-0  bg-[#333] text-white mt-2 p-4 rounded-md shadow-md w-full z-50">
+                {["1 ngày", "1 tuần", "1 tháng"].map((item) => (
+                  <div
+                    key={item}
+                    className="cursor-pointer hover:text-[#faab00] text-left"
+                    onClick={() => {
+                      setSelectedTime(item);
+                      setIsTimeOpen(false);
+                    }}
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Nút ÁP DỤNG */}
         <div className="flex w-[30%] justify-end">
           <div className="mt-[20px]">
-            <button className="bg-transparent text-white px-[10px] py-[5px] w-[110px] h-[40px] border-[2px] border-[#faab00] rounded-md hover:bg-[#f2d19480] transition">
+            <button
+              className="bg-transparent text-white px-[10px] py-[5px] w-[110px] h-[40px] border-[2px] border-[#faab00] rounded-md hover:bg-[#f2d19480] transition"
+              onClick={() =>
+                console.log({ selectedCategory, selectedRating, selectedTime })
+              }
+            >
               ÁP DỤNG
             </button>
           </div>

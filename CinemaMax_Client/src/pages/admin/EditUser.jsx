@@ -5,364 +5,33 @@ import CommentUser from "./CommentUser";
 import ReviewUser from "./ReviewUser";
 import Icons from "../../ultils/Icons";
 import { useState } from "react";
+import { getUserDetailsById } from "../../apis/server/EditUser";
+import { ShowToast } from "../../ultils/ToastUtils";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { updateUserStatus, deleteUser } from "../../apis/server/User";
+import StatusModal from "../../components/admin/StatusModal";
+import { useNavigate } from "react-router-dom";
+import defaultAvatar from "../../assets/img_user/img_user_not_avata.png";
 
-const code = 67089;
-const userStatus = "Đã phê duyệt";
-
-const dataReview = [
-  {
-    id: 1,
-    title: "Tôi mơ bằng một ngôn ngữ khác",
-    author: "Charlize Theron",
-    description: "Khi một nhà khảo cổ học nổi tiếng đi...",
-    rating: 7.3, // Random rating
-    creationDate: "2024-01-05", // Adjusted date format to yyyy-mm-dd
-  },
-  {
-    id: 2,
-    title: "Hành trình của những vì sao",
-    author: "Chris Hemsworth",
-    description: "Một cuộc phiêu lưu đến những thế giới xa xôi...",
-    rating: 8.1, // Random rating
-    creationDate: "2024-01-06",
-  },
-  {
-    id: 3,
-    title: "Những bí mật không lời",
-    author: "Emma Watson",
-    description: "Khám phá một bí mật giấu kín hàng thế kỷ...",
-    rating: 6.9, // Random rating
-    creationDate: "2024-01-07",
-  },
-  {
-    id: 4,
-    title: "Bí ẩn đại dương sâu thẳm",
-    author: "Leonardo DiCaprio",
-    description: "Một cuộc hành trình vào lòng biển cả...",
-    rating: 7.6, // Random rating
-    creationDate: "2024-01-08",
-  },
-  {
-    id: 5,
-    title: "Câu chuyện cổ tích hiện đại",
-    author: "Anne Hathaway",
-    description: "Một câu chuyện tình yêu trong thế giới tương lai...",
-    rating: 8.3, // Random rating
-    creationDate: "2024-01-09",
-  },
-  {
-    id: 6,
-    title: "Sự trở lại của ánh sáng",
-    author: "Tom Holland",
-    description: "Cuộc chiến chống lại bóng tối...",
-    rating: 7.5, // Random rating
-    creationDate: "2024-01-10",
-  },
-  {
-    id: 7,
-    title: "Những ngày không kết thúc",
-    author: "Margot Robbie",
-    description: "Cuộc sống trong một vòng lặp vô tận...",
-    rating: 6.8, // Random rating
-    creationDate: "2024-01-11",
-  },
-  {
-    id: 8,
-    title: "Hành trình vượt thời gian",
-    author: "Robert Downey Jr.",
-    description:
-      "Khám phá quá khứ và tương lai trong chuyến du hành thời gian...",
-    rating: 9.0, // Random rating
-    creationDate: "2024-01-12",
-  },
-  {
-    id: 9,
-    title: "Người bạn kỳ diệu",
-    author: "Scarlett Johansson",
-    description: "Một người bạn từ hành tinh khác...",
-    rating: 7.2, // Random rating
-    creationDate: "2024-01-13",
-  },
-  {
-    id: 10,
-    title: "Thành phố dưới lòng đất",
-    author: "Chris Evans",
-    description: "Cuộc sống ở một thế giới ngầm...",
-    rating: 6.5, // Random rating
-    creationDate: "2024-01-14",
-  },
-  {
-    id: 11,
-    title: "Hành tinh màu xanh",
-    author: "Zoe Saldana",
-    description: "Khám phá một hành tinh hoàn toàn khác lạ...",
-    rating: 7.7, // Random rating
-    creationDate: "2024-01-15",
-  },
-  {
-    id: 12,
-    title: "Bí mật trên đỉnh Everest",
-    author: "Brad Pitt",
-    description: "Những điều chưa từng được kể về Everest...",
-    rating: 7.4, // Random rating
-    creationDate: "2024-01-16",
-  },
-  {
-    id: 13,
-    title: "Giấc mơ và thực tại",
-    author: "Jennifer Lawrence",
-    description: "Phân định giữa mơ và thực...",
-    rating: 8.0, // Random rating
-    creationDate: "2024-01-17",
-  },
-  {
-    id: 14,
-    title: "Những bóng tối trong tâm trí",
-    author: "Benedict Cumberbatch",
-    description: "Một cuộc chiến tâm lý đầy căng thẳng...",
-    rating: 6.7, // Random rating
-    creationDate: "2024-01-18",
-  },
-  {
-    id: 15,
-    title: "Vùng đất lãng quên",
-    author: "Gal Gadot",
-    description: "Một cuộc hành trình khám phá một thế giới bị lãng quên...",
-    rating: 8.2, // Random rating
-    creationDate: "2024-01-19",
-  },
-  {
-    id: 16,
-    title: "Ngày tận thế",
-    author: "Matt Damon",
-    description: "Khi thế giới đối mặt với ngày tận thế...",
-    rating: 7.1, // Random rating
-    creationDate: "2024-01-20",
-  },
-  {
-    id: 17,
-    title: "Chuyến đi vô tận",
-    author: "Natalie Portman",
-    description: "Một hành trình không điểm dừng...",
-    rating: 8.5, // Random rating
-    creationDate: "2024-01-21",
-  },
-  {
-    id: 18,
-    title: "Người bảo vệ thời gian",
-    author: "Chris Pratt",
-    description: "Một người bảo vệ giữ cân bằng thời gian...",
-    rating: 7.8, // Random rating
-    creationDate: "2024-01-22",
-  },
-  {
-    id: 19,
-    title: "Hội nghị vũ trụ",
-    author: "Vin Diesel",
-    description: "Khi các nền văn minh trong vũ trụ hội họp...",
-    rating: 6.6, // Random rating
-    creationDate: "2024-01-23",
-  },
-  {
-    id: 20,
-    title: "Người máy và nhân loại",
-    author: "Ryan Reynolds",
-    description: "Sự cộng sinh giữa con người và máy móc...",
-    rating: 8.0, // Random rating
-    creationDate: "2024-01-24",
-  },
-];
-
-const dataCommment = [
-  {
-    id: 1,
-    title: "Tôi mơ bằng một ngôn ngữ khác",
-    author: "Charlize Theron",
-    description: "Khi một nhà khảo cổ học nổi tiếng đi...",
-    like: 12,
-    dislike: 7,
-    creationDate: "2023-02-10",
-  },
-  {
-    id: 2,
-    title: "Hành trình của những vì sao",
-    author: "Chris Hemsworth",
-    description: "Một cuộc phiêu lưu đến những thế giới xa xôi...",
-    like: 13,
-    dislike: 8,
-    creationDate: "2023-02-15",
-  },
-  {
-    id: 3,
-    title: "Những bí mật không lời",
-    author: "Emma Watson",
-    description: "Khám phá một bí mật giấu kín hàng thế kỷ...",
-    like: 14,
-    dislike: 6,
-    creationDate: "2023-02-07",
-  },
-  {
-    id: 4,
-    title: "Bí ẩn đại dương sâu thẳm",
-    author: "Leonardo DiCaprio",
-    description: "Một cuộc hành trình vào lòng biển cả...",
-    like: 15,
-    dislike: 5,
-    creationDate: "2023-02-08",
-  },
-  {
-    id: 5,
-    title: "Câu chuyện cổ tích hiện đại",
-    author: "Anne Hathaway",
-    description: "Một câu chuyện tình yêu trong thế giới tương lai...",
-    like: 16,
-    dislike: 4,
-    creationDate: "2023-02-09",
-  },
-  {
-    id: 6,
-    title: "Sự trở lại của ánh sáng",
-    author: "Tom Holland",
-    description: "Cuộc chiến chống lại bóng tối...",
-    like: 17,
-    dislike: 3,
-    creationDate: "2023-02-10",
-  },
-  {
-    id: 7,
-    title: "Những ngày không kết thúc",
-    author: "Margot Robbie",
-    description: "Cuộc sống trong một vòng lặp vô tận...",
-    like: 18,
-    dislike: 2,
-    creationDate: "2023-02-11",
-  },
-  {
-    id: 8,
-    title: "Hành trình vượt thời gian",
-    author: "Robert Downey Jr.",
-    description:
-      "Khám phá quá khứ và tương lai trong chuyến du hành thời gian...",
-    like: 19,
-    dislike: 1,
-    creationDate: "2023-02-12",
-  },
-  {
-    id: 9,
-    title: "Người bạn kỳ diệu",
-    author: "Scarlett Johansson",
-    description: "Một người bạn từ hành tinh khác...",
-    like: 20,
-    dislike: 0,
-    creationDate: "2023-02-13",
-  },
-  {
-    id: 10,
-    title: "Thành phố dưới lòng đất",
-    author: "Chris Evans",
-    description: "Cuộc sống ở một thế giới ngầm...",
-    like: 21,
-    dislike: 1,
-    creationDate: "2023-02-14",
-  },
-  {
-    id: 11,
-    title: "Hành tinh màu xanh",
-    author: "Zoe Saldana",
-    description: "Khám phá một hành tinh hoàn toàn khác lạ...",
-    like: 22,
-    dislike: 2,
-    creationDate: "2023-02-15",
-  },
-  {
-    id: 12,
-    title: "Bí mật trên đỉnh Everest",
-    author: "Brad Pitt",
-    description: "Những điều chưa từng được kể về Everest...",
-    like: 23,
-    dislike: 3,
-    creationDate: "2023-02-16",
-  },
-  {
-    id: 13,
-    title: "Giấc mơ và thực tại",
-    author: "Jennifer Lawrence",
-    description: "Phân định giữa mơ và thực...",
-    like: 24,
-    dislike: 4,
-    creationDate: "2023-02-17",
-  },
-  {
-    id: 14,
-    title: "Những bóng tối trong tâm trí",
-    author: "Benedict Cumberbatch",
-    description: "Một cuộc chiến tâm lý đầy căng thẳng...",
-    like: 25,
-    dislike: 5,
-    creationDate: "2023-02-18",
-  },
-  {
-    id: 15,
-    title: "Vùng đất lãng quên",
-    author: "Gal Gadot",
-    description: "Một cuộc hành trình khám phá một thế giới bị lãng quên...",
-    like: 26,
-    dislike: 6,
-    creationDate: "2023-02-19",
-  },
-  {
-    id: 16,
-    title: "Ngày tận thế",
-    author: "Matt Damon",
-    description: "Khi thế giới đối mặt với ngày tận thế...",
-    like: 27,
-    dislike: 7,
-    creationDate: "2023-02-20",
-  },
-  {
-    id: 17,
-    title: "Chuyến đi vô tận",
-    author: "Natalie Portman",
-    description: "Một hành trình không điểm dừng...",
-    like: 28,
-    dislike: 8,
-    creationDate: "2023-02-21",
-  },
-  {
-    id: 18,
-    title: "Người bảo vệ thời gian",
-    author: "Chris Pratt",
-    description: "Một người bảo vệ giữ cân bằng thời gian...",
-    like: 29,
-    dislike: 9,
-    creationDate: "2023-02-22",
-  },
-  {
-    id: 19,
-    title: "Hội nghị vũ trụ",
-    author: "Vin Diesel",
-    description: "Khi các nền văn minh trong vũ trụ hội họp...",
-    like: 30,
-    dislike: 10,
-    creationDate: "2023-02-23",
-  },
-  {
-    id: 20,
-    title: "Người máy và nhân loại",
-    author: "Ryan Reynolds",
-    description: "Sự cộng sinh giữa con người và máy móc...",
-    like: 31,
-    dislike: 11,
-    creationDate: "2023-02-24",
-  },
-];
-
-const ContentNavbar = ({ index }) => {
+const ContentNavbar = ({
+  index,
+  userInfo,
+  setUserInfo,
+  userComments,
+  setUserComments,
+  userReviews,
+  setUserReviews,
+}) => {
   return (
     <div className="w-full">
-      {index === 0 && <ProfileUser />}
-      {index === 1 && <CommentUser data={dataCommment} />}
-      {index === 2 && <ReviewUser data={dataReview} />}
+      {index === 0 && <ProfileUser user={userInfo} setData={setUserInfo} />}
+      {index === 1 && (
+        <CommentUser data={userComments} setData={setUserComments} />
+      )}
+      {index === 2 && (
+        <ReviewUser data={userReviews} setData={setUserReviews} />
+      )}
     </div>
   );
 };
@@ -398,7 +67,106 @@ const RenderNavBar = ({ activeIndex, setActiveIndex }) => {
 };
 
 const RenderEditUser = () => {
+  const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0); // Theo dõi mục đang
+  const [userInfo, setUserInfo] = useState({
+    id: null,
+    userName: "",
+    fullName: "",
+    email: "",
+    thumbnail: "",
+    status: "",
+    role: "",
+    subscriptionName: "",
+  });
+
+  const [userComments, setUserComments] = useState([]); // Lưu dữ liệu comment
+  const [userReviews, setUserReviews] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [actionType, setActionType] = useState("");
+
+  const { id } = useParams(); // Lấy id từ URL
+  const handleUserDetailsById = async () => {
+    if (!id) {
+      ShowToast("error", "Không tìm thấy ID người dùng!");
+      return;
+    }
+
+    const result = await getUserDetailsById(id); // Giả sử hàm này nhận ID và token
+    console.log("kết quả: ", result);
+
+    if (result.code === 0) {
+      setUserInfo(result.result.user);
+      setUserComments(result.result.comments);
+      setUserReviews(result.result.reviews);
+    } else {
+      ShowToast("error", "Không thể lấy thông tin người dùng!");
+    }
+  };
+
+  const handleOpenModal = (userId, type) => {
+    setSelectedUserId(userId);
+    setIsModalOpen(true);
+    setActionType(type);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedUserId(null);
+    setActionType("");
+  };
+
+  const handleConfirmAction = async (userId) => {
+    let result;
+    if (actionType === "update") {
+      result = await updateUserStatus(userId);
+      console.log(result);
+
+      if (result.code === 0) {
+        // ✅ Cập nhật trạng thái mới của userInfo
+        setUserInfo((prevUser) => ({
+          ...prevUser,
+          status: result.result, // Giả sử API trả về trạng thái mới
+        }));
+      }
+    } else if (actionType === "delete") {
+      result = await deleteUser(userId);
+      if (result.code === 0) {
+        navigate("/admin/users");
+      }
+    }
+
+    if (result?.code === 0) {
+      ShowToast(
+        "success",
+        `${actionType === "delete" ? "Xóa" : "Cập nhật"} thành công!`
+      );
+    } else if (result.code === 401) {
+      ShowToast("error", "Token hết hạn!");
+    } else {
+      ShowToast(
+        "error",
+        `${actionType === "delete" ? "Xóa" : "Cập nhật"} thất bại!`
+      );
+    }
+
+    handleCloseModal();
+  };
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchData = async () => {
+      try {
+        await handleUserDetailsById(); // Lấy thông tin user
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu user:", error);
+      }
+    };
+
+    fetchData();
+  }, [id]);
 
   return (
     <div className="md:px-[2%] px-[4%] w-full text-[14px] mb-[40px]">
@@ -412,29 +180,42 @@ const RenderEditUser = () => {
               <div className="flex md:w-full w-[75%] md:pt-0 pt-[20px]">
                 {/* Thông tin người dùng (Tên và ID) */}
                 <div className="md:w-full w-[600px] h-full flex items-center justify-start mb-4 md:mb-0">
-                  <div className="w-[40px] h-[40px] rounded bg-[#212026] flex justify-center items-center">
-                    <Icons.MovieDetails.persion className="w-[70%] h-[70%]" />
+                  <div className="w-[40px] h-[40px] rounded-full bg-[#212026] flex justify-center items-center">
+                    <img
+                      src={userInfo.thumbnail || defaultAvatar}
+                      alt="User Avatar"
+                      className="w-[100%] object-cover rounded-full h-full"
+                    />
                   </div>
 
-                  <div className="h-full w-full ml-[20px] relative">
+                  <div className="h-full w-[80%] ml-[10px] relative">
                     <div className="absolute top-1/2 left-0 transform -translate-y-1/2">
                       <p className="font-bold text-left flex gap-1 items-center">
-                        John Doe{" "}
-                        <p className="text-[12px] text-[#29B474]">
-                          ({userStatus})
+                        {userInfo.userName}{" "}
+                        <p className="text-[12px] text-[#29B474] mt-[2px]">
+                          ({userInfo.status})
                         </p>
                       </p>
-                      <p className="text-left">id: {code}</p>
+                      <p className="text-left">id: {userInfo.id}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="md:hidden h-full w-[20%] items-center flex gap-[15px] justify-end">
-                <button className="w-[32px] h-[32px] rounded-[8px] bg-[rgba(41,180,116,0.1)] hover:bg-[rgba(41,180,116,0.2)] text-[#29B474] flex font-bold justify-center items-center">
+                <button
+                  className="w-[32px] h-[32px] rounded-[8px] bg-[rgba(41,180,116,0.1)] hover:bg-[rgba(41,180,116,0.2)] text-[#29B474] flex font-bold justify-center items-center"
+                  onClick={() => {
+                    handleOpenModal(userInfo.id, "update");
+                  }}
+                >
                   <Icons.Catalog.lock />
                 </button>
-                <button className="w-[32px] h-[32px] rounded-[8px] bg-[rgba(235,87,87,0.1)] hover:bg-[rgba(235,87,87,0.2)] text-[#EB5757] flex font-bold justify-center items-center">
+
+                <button
+                  className="w-[32px] h-[32px] rounded-[8px] bg-[rgba(235,87,87,0.1)] hover:bg-[rgba(235,87,87,0.2)] text-[#EB5757] flex font-bold justify-center items-center"
+                  onClick={() => handleOpenModal(userInfo.id, "delete")}
+                >
                   <Icons.Catalog.trash />
                 </button>
               </div>
@@ -449,17 +230,42 @@ const RenderEditUser = () => {
             </div>
 
             <div className="hidden h-full w-[20%] items-center md:flex gap-[15px] justify-end">
-              <button className="w-[32px] h-[32px] rounded-[8px] bg-[rgba(41,180,116,0.1)] hover:bg-[rgba(41,180,116,0.2)] text-[#29B474] flex font-bold justify-center items-center">
+              <button
+                className="w-[32px] h-[32px] rounded-[8px] bg-[rgba(41,180,116,0.1)] hover:bg-[rgba(41,180,116,0.2)] text-[#29B474] flex font-bold justify-center items-center"
+                onClick={() => {
+                  handleOpenModal(userInfo.id, "update");
+                }}
+              >
                 <Icons.Catalog.lock />
               </button>
-              <button className="w-[32px] h-[32px] rounded-[8px] bg-[rgba(235,87,87,0.1)] hover:bg-[rgba(235,87,87,0.2)] text-[#EB5757] flex font-bold justify-center items-center">
+              <button
+                className="w-[32px] h-[32px] rounded-[8px] bg-[rgba(235,87,87,0.1)] hover:bg-[rgba(235,87,87,0.2)] text-[#EB5757] flex font-bold justify-center items-center"
+                onClick={() => handleOpenModal(userInfo.id, "delete")}
+              >
                 <Icons.Catalog.trash />
               </button>
             </div>
           </div>
 
+          <StatusModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            onConfirm={() => handleConfirmAction(selectedUserId)}
+            userId={selectedUserId}
+            actionType={actionType}
+            name="tài khoản"
+          />
+
           <div className=" w-full  pt-[35px] pb-[70px]">
-            <ContentNavbar index={activeIndex} />
+            <ContentNavbar
+              index={activeIndex}
+              userInfo={userInfo}
+              setUserInfo={setUserInfo}
+              userComments={userComments}
+              setUserComments={setUserComments}
+              userReviews={userReviews}
+              setUserReviews={setUserReviews}
+            />
           </div>
         </div>
       </div>

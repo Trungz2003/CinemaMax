@@ -21,4 +21,5 @@ public class UserRequest {
     String thumbnail;
     String token;
     String userName;
+    String provider;
 }

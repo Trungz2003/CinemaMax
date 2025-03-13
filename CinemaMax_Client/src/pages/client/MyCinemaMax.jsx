@@ -9,6 +9,11 @@ import Setting from "./Setting";
 
 import Icons from "../../ultils/Icons";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import path from "../../ultils/Path";
+import { logout } from "../../apis/client/Auth";
+import { auth, logOut } from "../../firebase/firebaseConfig";
+import { ShowToast } from "../../ultils/ToastUtils";
 
 const code = 45123156;
 
@@ -198,6 +203,35 @@ const RenderNavBar = ({ activeIndex, setActiveIndex }) => {
 
 const RenderMyCinemaMax = () => {
   const [activeIndex, setActiveIndex] = useState(0); // Theo dõi mục đang được chọn
+  const navigate = useNavigate(); // Dùng để chuyển trang sau khi logout
+  const handleLogout = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      console.warn("Không có token, điều hướng về trang đăng nhập!");
+      navigate(path.LOGIN);
+      return;
+    }
+
+    try {
+      // 1. Gọi API backend để logout
+      await logout(token);
+
+      // 2. Xóa token khỏi localStorage
+      localStorage.removeItem("token");
+
+      // 3. Đăng xuất khỏi Firebase
+      await logOut(auth);
+      console.log("Đã đăng xuất khỏi Firebase");
+
+      // 4. Hiển thị thông báo và điều hướng về trang đăng nhập
+      ShowToast("success", "Đăng xuất thành công!");
+      navigate(path.LOGIN);
+    } catch (error) {
+      console.error("Lỗi khi đăng xuất:", error);
+      ShowToast("error", "Lỗi khi đăng xuất!");
+    }
+  };
 
   return (
     <div className="bg-[#1a191f] text-white w-full border-b border-gray-600 box-border text-[16px] pt-[80px]">
@@ -237,9 +271,13 @@ const RenderMyCinemaMax = () => {
 
           {/* Nút Logout với Text (Chỉ hiển thị trên desktop) */}
           <div className="md:block hidden  w-[120px] h-[40px] rounded-[8px] border-[2px] border-[#f9ab00] cursor-pointer hover:text-[#f9ab00] md:mt-[20px] md:ml-[135px]">
-            <div className="w-full h-full select-none flex justify-center items-center">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="w-full h-full select-none flex justify-center items-center"
+            >
               LOGOUT
-            </div>
+            </button>
           </div>
         </div>
 
