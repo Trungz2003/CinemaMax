@@ -3,28 +3,36 @@ package org.example.cinemamax_server.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.example.cinemamax_server.enums.ReactionType;
+
+import java.io.Serializable;
 
 @Entity
-@Table(name = "comment_reactions")
+@Table(name = "comment_reactions", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "comment_id"})
+})
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CommentReactions {
+public class CommentReactions{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "comment_id")
+    @JoinColumn(name = "comment_id", nullable = false)
     private Comment comment;
 
-    @Column(name = "like_count")
-    private Integer likeCount = 0;  // Đếm số lượt thích
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "dislike_count")
-    private Integer dislikeCount = 0;  // Đếm số lượt không thích
+    @Enumerated(EnumType.STRING)
+    @Column(name = "reaction_type", nullable = false)
+    private ReactionType reactionType; // LIKE hoặc DISLIKE
 }
+

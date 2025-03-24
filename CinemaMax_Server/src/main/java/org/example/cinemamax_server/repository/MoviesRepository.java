@@ -4,6 +4,7 @@ import org.example.cinemamax_server.dto.response.GetCommentByUserIdResponse;
 import org.example.cinemamax_server.dto.response.GetMoviesAdminResponse;
 import org.example.cinemamax_server.dto.response.MovieDashboardResponse;
 import org.example.cinemamax_server.entity.Movies;
+import org.example.cinemamax_server.enums.MovieStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -106,5 +107,6 @@ public interface MoviesRepository extends JpaRepository<Movies, Integer> {
     """, nativeQuery = true)
     List<Object[]> findLatestRatedMovies();
 
+    List<Movies> findByStatus(MovieStatus status);
 
 }

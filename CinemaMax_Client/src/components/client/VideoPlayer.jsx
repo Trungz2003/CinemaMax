@@ -1,8 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { IoSettingsOutline } from "react-icons/io5";
+import { checkVideoAccess } from "../../apis/client/MovieDetails";
+import { useNavigate } from "react-router-dom";
+import { ShowToast } from "../../ultils/ToastUtils";
+import path from "../../ultils/Path";
 
-const VideoPlayer = ({ nameFile }) => {
-  const [resolution, setResolution] = useState("720p"); // Độ phân giải mặc định
+const VideoPlayer = ({ videoPath }) => {
+  const [resolution, setResolution] = useState("360p"); // Độ phân giải mặc định
   const [showSettings, setShowSettings] = useState(false); // Hiển thị menu cài đặt
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
   const [videoTime, setVideoTime] = useState(0); // Thời gian video đã phát
@@ -10,22 +14,91 @@ const VideoPlayer = ({ nameFile }) => {
   const videoRef = useRef(null); // Tham chiếu tới phần tử video
   const settingsRef = useRef(null); // Tham chiếu tới menu cài đặt
   const settingsIconRef = useRef(null); // Tham chiếu tới icon cài đặt
+  const [userSubscription, setUserSubscription] = useState("");
+  const [resolutionOptions, setResolutionOptions] = useState([]);
+  const [statusVideo, setStatus] = useState(0);
 
-  // Các URL Cloudinary tương ứng với các độ phân giải
+  const navigate = useNavigate();
+
   const videoSources = {
-    "360p": `https://res.cloudinary.com/dqnncyd7t/video/upload/c_scale,w_640/${nameFile}`,
-    "480p": `https://res.cloudinary.com/dqnncyd7t/video/upload/c_scale,w_854/${nameFile}`,
-    "720p": `https://res.cloudinary.com/dqnncyd7t/video/upload/c_scale,w_1280/${nameFile}`,
-    "1080p": `https://res.cloudinary.com/dqnncyd7t/video/upload/c_scale,w_1920/${nameFile}`,
+    "360p": videoPath.replace("/upload/", "/upload/c_scale,w_640/"),
+    "480p": videoPath.replace("/upload/", "/upload/c_scale,w_854/"),
+    "720p": videoPath.replace("/upload/", "/upload/c_scale,w_1280/"),
+    "1080p": videoPath.replace("/upload/", "/upload/c_scale,w_1920/"),
+    "1440p": videoPath.replace("/upload/", "/upload/c_scale,w_2560/"),
   };
 
-  const handleChangeResolution = (event) => {
-    setResolution(event.target.value); // Cập nhật độ phân giải
+  const [duration, setDuration] = useState(0);
+
+  const handleMetadataLoaded = () => {
     if (videoRef.current) {
-      videoRef.current.src = videoSources[event.target.value];
-      videoRef.current.load(); // Tải lại video với nguồn mới
+      setTimeout(() => {
+        const videoDuration = videoRef.current.duration;
+        console.log("Final Total Duration:", videoDuration);
+        if (videoDuration > 0) setDuration(videoDuration);
+      }, 5000);
     }
-    setShowSettings(false); // Ẩn menu sau khi chọn độ phân giải
+  };
+
+  const playVideo = async (event) => {
+    try {
+      if (statusVideo === 401) {
+        ShowToast("error", "Vui lòng đăng nhập để thưởng thức phim!");
+        navigate(path.LOGIN);
+        return;
+      } else if (statusVideo === 403) {
+        ShowToast("error", "Vui lòng đăng nhập để thưởng thức phim!");
+        navigate(path.PRICING);
+        return null;
+      }
+    } catch (error) {
+      event.target.pause();
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const handleCheckVideoAccess = async (event) => {
+      try {
+        const response = await checkVideoAccess(); // Không truyền navigate
+        if (response && response.code === 0) {
+          const subscriptionName = response.result.subscriptions.name;
+          setUserSubscription(subscriptionName);
+
+          let availableResolutions = ["360p", "480p"];
+          if (subscriptionName === "Premium") {
+            availableResolutions = ["360p", "480p", "720p", "1080p"];
+          } else if (subscriptionName === "Cinematic") {
+            availableResolutions = ["360p", "480p", "720p", "1080p", "1440p"];
+          }
+          setResolutionOptions(availableResolutions);
+        } else {
+          setStatus(response.code);
+        }
+      } catch (error) {
+        event.target.pause();
+        console.log(error);
+      }
+    };
+
+    handleCheckVideoAccess();
+  }, []); // Chạy một lần khi component mount
+
+  const handleChangeResolution = async (event) => {
+    if (videoRef.current) {
+      const currentTime = videoRef.current.currentTime;
+      const newResolution = event.target.value;
+
+      videoRef.current.src = videoSources[newResolution];
+      await videoRef.current.load(); // Chờ video load xong
+
+      videoRef.current.onloadedmetadata = () => {
+        videoRef.current.currentTime = currentTime; // Giữ nguyên thời gian
+        setDuration(videoRef.current.duration);
+      };
+    }
+    setResolution(event.target.value);
+    setShowSettings(false);
   };
 
   // Đóng menu khi click ra ngoài
@@ -79,6 +152,21 @@ const VideoPlayer = ({ nameFile }) => {
     }
   };
 
+  useEffect(() => {
+    console.log("Video Path:", videoPath);
+  }, [videoPath]);
+
+  useEffect(() => {
+    const preloadMetadata = async () => {
+      for (const res of Object.keys(videoSources)) {
+        const video = document.createElement("video");
+        video.src = videoSources[res];
+        video.preload = "metadata"; // Chỉ tải metadata, không tải toàn bộ video
+      }
+    };
+    preloadMetadata();
+  }, []);
+
   return (
     <div className="relative w-full h-full">
       {/* Video phát */}
@@ -93,6 +181,8 @@ const VideoPlayer = ({ nameFile }) => {
           controlsList="nodownload"
           onContextMenu={(e) => e.preventDefault()}
           onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleMetadataLoaded} // Gọi khi video load xong metadata
+          onPlay={playVideo} // Kiểm tra quyền khi ấn play
         ></video>
         {/* Icon cài đặt */}
         <div
@@ -117,10 +207,11 @@ const VideoPlayer = ({ nameFile }) => {
               onChange={handleChangeResolution}
               className="resolution-dropdown"
             >
-              <option value="360p">360p</option>
-              <option value="480p">480p</option>
-              <option value="720p">720p</option>
-              <option value="1080p">1080p</option>
+              {resolutionOptions.map((res) => (
+                <option key={res} value={res}>
+                  {res}
+                </option>
+              ))}
             </select>
           </div>
         )}

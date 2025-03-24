@@ -1,26 +1,33 @@
 package org.example.cinemamax_server.service;
 
+import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cinemamax_server.dto.request.IntrospectRequest;
 import org.example.cinemamax_server.dto.request.MoviesRequest;
 import org.example.cinemamax_server.dto.request.UpdateMovieByIdRequest;
 import org.example.cinemamax_server.dto.response.*;
-import org.example.cinemamax_server.entity.Genre;
-import org.example.cinemamax_server.entity.Movies;
-import org.example.cinemamax_server.entity.User;
+import org.example.cinemamax_server.entity.*;
 import org.example.cinemamax_server.enums.MovieStatus;
 import org.example.cinemamax_server.enums.Status;
 import org.example.cinemamax_server.exception.AppException;
 import org.example.cinemamax_server.exception.ErrorCode;
 import org.example.cinemamax_server.mapper.MoviesMapper;
 import org.example.cinemamax_server.repository.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,6 +44,8 @@ public class MoviesService {
     FavoritesRepository favoritesRepository;
     GenresRepository genresRepository;
     UserRepository userRepository;
+    AuthenticationService authenticationService;
+    UserSubscriptionRepository userSubscriptionRepository;
 
     @PostAuthorize("hasRole('ADMIN')")
     public AddMoviesRespone saveMovie(MoviesRequest request) {
@@ -114,6 +123,11 @@ public class MoviesService {
     @PostAuthorize("hasRole('ADMIN')")
     public boolean deleteMovie(int id) {
 
+        // Kiểm tra xem phim có tồn tại không trước khi xóa
+        if (!moviesRepository.existsById(id)) {
+            throw new AppException(ErrorCode.ID_NOT_EXISTED);
+        }
+
         commentRepository.deleteCommentsByMovieId(id);
 
         ratingsRepository.deleteRatingsByMovieId(id);
@@ -149,9 +163,11 @@ public class MoviesService {
 
 
     public GetMoviesByIdResponse getMovieById(int id) {
+        if (id <= 0) {
+            throw new AppException(ErrorCode.ID_NOT_EXISTED);
+        }
         Movies movie = moviesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Movie not found with ID: " + id));
-
 
 
         return new GetMoviesByIdResponse(
@@ -218,4 +234,115 @@ public class MoviesService {
         // Trả về một object chứa toàn bộ dữ liệu
         return new DashboardResponse(statistics, latestUsers, latestMovies, topRatedMovies, latestRatedMovies);
     }
+
+    public AllMovieInfoResponse getAllMovieUser(String email) {
+        if(email == null || email.isEmpty()) {
+            List<MovieDTO> allMoviesPublic = moviesMapper.toResponseList(
+                    moviesRepository.findByStatus(MovieStatus.PUBLIC), null
+                     // Truyền userId vào để xác định isFavorite
+            );
+
+            List<MovieDTO> allMoviesPrivate = moviesMapper.toResponseList(
+                    moviesRepository.findByStatus(MovieStatus.PRIVATE), null
+            );
+
+            return new AllMovieInfoResponse(allMoviesPublic, allMoviesPrivate);
+        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        List<MovieDTO> allMoviesPublic = moviesMapper.toResponseList(
+                moviesRepository.findByStatus(MovieStatus.PUBLIC),
+                user.getId() // Truyền userId vào để xác định isFavorite
+        );
+
+        List<MovieDTO> allMoviesPrivate = moviesMapper.toResponseList(
+                moviesRepository.findByStatus(MovieStatus.PRIVATE),
+                user.getId() // Truyền userId vào để xác định isFavorite
+        );
+        return new AllMovieInfoResponse(allMoviesPublic, allMoviesPrivate);
+    }
+
+
+    public List<MovieDTO> getMovieSuggest(String email) {
+        if (email == null || email.isEmpty()) {
+            List<MovieDTO> allMoviesPublic = moviesMapper.toResponseList(
+                    moviesRepository.findByStatus(MovieStatus.PUBLIC), null
+            );
+
+            // Lấy 6 bộ phim ngẫu nhiên từ danh sách phim PUBLIC
+            List<MovieDTO> randomMoviesPublic = getRandomMovies(allMoviesPublic, 6);
+
+
+            return randomMoviesPublic;
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        List<MovieDTO> allMoviesPublic = moviesMapper.toResponseList(
+                moviesRepository.findByStatus(MovieStatus.PUBLIC), user.getId()
+        );
+
+        // Lấy 6 bộ phim ngẫu nhiên từ danh sách phim PUBLIC
+        List<MovieDTO> randomMoviesPublic = getRandomMovies(allMoviesPublic, 6);
+
+        return randomMoviesPublic;
+    }
+
+    public List<MovieDTO> getRandomMovies(List<MovieDTO> movies, int limit) {
+        if (movies.size() <= limit) {
+            return new ArrayList<>(movies); // Trả về danh sách có thể chỉnh sửa
+        }
+
+        List<MovieDTO> mutableMovies = new ArrayList<>(movies); // Tạo danh sách có thể chỉnh sửa
+        Collections.shuffle(mutableMovies); // Xáo trộn danh sách
+        return mutableMovies.stream().limit(limit).collect(Collectors.toList());
+    }
+
+
+    public VideoAccessResponse checkVideoAccess(IntrospectRequest introspectRequest, String email) throws ParseException, JOSEException {
+        // Kiểm tra token
+        IntrospectResponse introspect = authenticationService.introspect(introspectRequest);
+        if (!introspect.isValid()){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        // Tìm người dùng theo email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Lấy danh sách subscriptions của user theo ID
+        Optional<UserSubscriptions> optionalSubscription = userSubscriptionRepository.findByUserId(user.getId());
+
+
+        // Lấy gói đăng ký thực tế từ Optional
+        UserSubscriptions userSubscription = optionalSubscription.get();
+        if (optionalSubscription.isEmpty()) {
+            throw new AppException(ErrorCode.SUBSCRIPTION_NOT_FOUND);
+        }
+
+        // Kiểm tra trạng thái của gói đăng ký
+        switch (userSubscription.getStatus()) {
+            case ACTIVE:
+                if (userSubscription.getEndDate().isBefore(LocalDateTime.now())) {
+                    // Cập nhật trạng thái thành EXPIRED
+                    userSubscription.setStatus(UserSubscriptions.Status.EXPIRED);
+                    userSubscriptionRepository.save(userSubscription);
+                    throw new AppException(ErrorCode.SUBSCRIPTION_EXPIRED);
+                }
+                return new VideoAccessResponse(introspect, userSubscription.getSubscription());
+
+            case EXPIRED:
+                throw new AppException(ErrorCode.SUBSCRIPTION_EXPIRED);
+
+            case CANCELLED:
+                throw new AppException(ErrorCode.SUBSCRIPTION_CANCELLED);
+
+            default:
+                throw new AppException(ErrorCode.SUBSCRIPTION_NOT_ACTIVE);
+        }
+    }
+
+
+
 }

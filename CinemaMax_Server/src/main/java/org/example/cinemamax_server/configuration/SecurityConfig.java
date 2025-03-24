@@ -22,7 +22,7 @@ import org.springframework.web.filter.CorsFilter;
 @EnableMethodSecurity
 public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS_POST = {"/api/users/add", "/auth/token", "/auth/login", "/auth/refresh", "/api/users/reset-password", "/auth/login-gg"};
-    private static final String[] PUBLIC_ENDPOINTS_GET = {"/api/users/verify-email", "/api/admin/getGenres", "/api/movie/**"};
+    private static final String[] PUBLIC_ENDPOINTS_GET = {"/api/users/verify-email", "/api/admin/getGenres", "/api/movie/**", "/api/user/movie", "/api/user/movie/suggest", "/api/user/movie/comment/**", "/api/user/movie/rating/**"};
     private final CustomJwtDecoder customJwtDecoder;
 
     public SecurityConfig(CustomJwtDecoder customJwtDecoder) {

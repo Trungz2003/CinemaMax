@@ -59,12 +59,6 @@ public class AuthenticationController {
         return ApiResponse.<IntrospectResponse>builder().result(result).build();
     }
 
-//    @PostMapping("/logout")
-//    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
-//        service.logout(request);
-//        return ApiResponse.<Void>builder().build();
-//    }
-
     @PostMapping("/logout")
     public ApiResponse<Void> logout(HttpServletRequest request) throws ParseException, JOSEException {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);

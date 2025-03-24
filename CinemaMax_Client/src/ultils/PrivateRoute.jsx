@@ -33,13 +33,14 @@ const PrivateRoute = () => {
     path.FAQ,
     path.CATALOG,
     path.CONTACTS,
+    path.DETAILS,
   ];
 
   // Kiểm tra đường dẫn có phải trang admin không
   const isAdminPath = location.pathname.startsWith("/admin");
 
   // Danh sách các trang client mà USER được truy cập
-  const clientPaths = [path.DETAILS, path.MYCINEMAMAX];
+  const clientPaths = [path.MYCINEMAMAX];
   const isClientPath = clientPaths.includes(location.pathname);
 
   // Nếu token hết hạn và đang truy cập các route quan trọng (admin hoặc client), xóa token và điều hướng đến login
@@ -62,7 +63,7 @@ const PrivateRoute = () => {
 
   // Nếu chưa đăng nhập, chỉ cho phép vào trang public
   if (!userRole) {
-    return publicPaths.includes(location.pathname) ? (
+    return publicPaths.some((path) => location.pathname.startsWith(path)) ? (
       <Outlet />
     ) : (
       <Navigate to={path.LOGIN} replace />

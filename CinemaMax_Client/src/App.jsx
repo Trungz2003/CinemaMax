@@ -42,7 +42,7 @@ const router = createBrowserRouter([
       { path: path.ABOUT, element: <AboutUs /> },
       { path: path.PRICING, element: <PricingPlan /> },
       { path: path.FAQ, element: <HelpCenter /> },
-      { path: path.DETAILS, element: <MovieDetails /> },
+      { path: `${path.DETAILS}/:id`, element: <MovieDetails /> },
       { path: path.CATALOG, element: <Catalog /> },
       { path: path.CONTACTS, element: <Contacts /> },
       { path: path.MYCINEMAMAX, element: <MyCinemaMax /> },

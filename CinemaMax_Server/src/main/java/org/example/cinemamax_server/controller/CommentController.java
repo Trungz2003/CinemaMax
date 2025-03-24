@@ -4,11 +4,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.example.cinemamax_server.dto.response.ApiResponse;
-import org.example.cinemamax_server.dto.response.CommentRespone;
-import org.example.cinemamax_server.dto.response.GetCommentByUserIdResponse;
+import org.example.cinemamax_server.dto.response.*;
+import org.example.cinemamax_server.entity.Comment;
 import org.example.cinemamax_server.service.CommentService;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -40,4 +43,29 @@ public class CommentController {
                 .build();
     }
 
+    @GetMapping("user/movie/comment/{movieId}")
+    public ApiResponse<List<CommentResponseDTO>> getCommentsByMovie(@PathVariable Long movieId, Authentication authentication) {
+        String email = (authentication != null) ? authentication.getName() : null; // ✅ Nếu chưa đăng nhập, email = null
+        List<CommentResponseDTO> response = commentService.getCommentsByMovieId(movieId, email);
+        return ApiResponse.<List<CommentResponseDTO>>builder()
+
+                .message("Lấy danh sách comment thành công!")
+                .result(response)
+                .build();
+    }
+
+    @PostMapping("user/movie/comment/{movieId}")
+    @PreAuthorize("isAuthenticated()") // ✅ Chỉ cho phép user đã đăng nhập
+    public ApiResponse<CommentResponseDTO> addComment(@PathVariable int movieId, Authentication authentication, @RequestBody AddCommentRequest request) {
+        if (authentication == null || authentication.getName() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bạn cần đăng nhập để bình luận!");
+        }
+
+        String email = authentication.getName(); // ✅ Đã đăng nhập thì lấy email
+        CommentResponseDTO response = commentService.addComment(movieId, email, request.getContent());
+        return ApiResponse.<CommentResponseDTO>builder()
+                .message("Thêm bình luận thành công!")
+                .result(response)
+                .build();
+    }
 }

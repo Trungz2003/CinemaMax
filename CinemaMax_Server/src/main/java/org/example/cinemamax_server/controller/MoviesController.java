@@ -1,6 +1,7 @@
 package org.example.cinemamax_server.controller;
 
 
+import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -15,7 +16,14 @@ import org.example.cinemamax_server.exception.AppException;
 import org.example.cinemamax_server.exception.ErrorCode;
 import org.example.cinemamax_server.service.AuthenticationService;
 import org.example.cinemamax_server.service.MoviesService;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.text.ParseException;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -59,8 +67,12 @@ public class MoviesController {
                     .result(moviesReponse)
                     .message("Add movie success!")
                     .build();
+        } catch (AppException e) {
+            // Nếu lỗi đã biết, ném lại luôn (không làm mất lỗi gốc)
+            throw e;
         } catch (Exception e) {
-            // Nếu có lỗi, trả về HTTP 500 và thông báo lỗi
+            // Nếu lỗi không mong muốn, log lại rồi ném lỗi chung
+            log.error("Unexpected error when adding movie", e);
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
     }
@@ -77,6 +89,9 @@ public class MoviesController {
 
     @DeleteMapping("/admin/movie/{id}")
     public ApiResponse<?> deleteMovie(@PathVariable int id) {
+        if (id <= 0) {
+            throw new AppException(ErrorCode.ID_NOT_EXISTED);
+        }
         try {
             // Gọi service để thêm phim và trả về response
             var moviesReponse = movieService.deleteMovie(id);
@@ -86,7 +101,7 @@ public class MoviesController {
                     .build();
         } catch (Exception e) {
             // Nếu có lỗi, trả về HTTP 500 và thông báo lỗi
-            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+            throw e;
         }
     }
 
@@ -142,4 +157,74 @@ public class MoviesController {
                 .message("Movie status updated successfully")
                 .build();
     }
+
+    @GetMapping("/user/movie")
+    public ApiResponse<AllMovieInfoResponse> getAllMoviesUser(Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            AllMovieInfoResponse response = movieService.getAllMovieUser(null);
+            return ApiResponse.<AllMovieInfoResponse>builder()
+                    .result(response)
+                    .message("Đã lấy tất cả phim!")
+                    .build();
+        }
+        String email = authentication.getName(); // Lấy email từ JWT token
+
+        AllMovieInfoResponse response = movieService.getAllMovieUser(email);
+        // Trả về ApiResponse khi thành công
+        return ApiResponse.<AllMovieInfoResponse>builder()
+                .result(response)
+                .message("Đã lấy tất cả phim!")
+                .build();
+    }
+
+    @GetMapping("/user/movie/suggest")
+    public ApiResponse<List<MovieDTO>> getMovieSuggest(Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            List<MovieDTO> response = movieService.getMovieSuggest(null);
+            return ApiResponse.<List<MovieDTO>>builder()
+                    .result(response)
+                    .message("Đã lấy 6 bộ phim!")
+                    .build();
+        }
+        String email = authentication.getName(); // Lấy email từ JWT token
+
+        List<MovieDTO> response = movieService.getMovieSuggest(email);
+        // Trả về ApiResponse khi thành công
+        return ApiResponse.<List<MovieDTO>>builder()
+                .result(response)
+                .message("Đã lấy 6 bộ phim!")
+                .build();
+    }
+
+    @PostMapping("/user/movie/videoAccess")
+    @PreAuthorize("isAuthenticated()")
+    public ApiResponse<VideoAccessResponse> checkVideoAccess(@RequestHeader("Authorization") String authorizationHeader,
+                                                             Authentication authentication) {
+        // Check if the user is authenticated
+        if (authentication == null || authentication.getName() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bạn cần đăng nhập để xem video!");
+        }
+
+        // Extract the token from the Authorization header
+        String token = authorizationHeader.replace("Bearer ", "");
+        String email = authentication.getName();
+
+        try {
+            // Call the service to check video access
+            VideoAccessResponse response = movieService.checkVideoAccess(new IntrospectRequest(token), email);
+
+            return ApiResponse.<VideoAccessResponse>builder()
+                    .result(response)
+                    .message("Đủ điều kiện xem video!")
+                    .build();
+        } catch (ParseException e) {
+            // Handle ParseException
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lỗi định dạng dữ liệu: " + e.getMessage());
+        } catch (JOSEException e) {
+            // Handle JOSEException
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Lỗi xác thực JWT: " + e.getMessage());
+        }
+    }
+
+
 }

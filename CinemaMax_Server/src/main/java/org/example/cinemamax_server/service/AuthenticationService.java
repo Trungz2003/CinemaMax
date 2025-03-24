@@ -18,6 +18,7 @@ import org.example.cinemamax_server.dto.response.UserResponse;
 import org.example.cinemamax_server.entity.InvalidatedToken;
 import org.example.cinemamax_server.entity.Role;
 import org.example.cinemamax_server.entity.User;
+import org.example.cinemamax_server.enums.Status;
 import org.example.cinemamax_server.exception.AppException;
 import org.example.cinemamax_server.exception.ErrorCode;
 import org.example.cinemamax_server.mapper.UserMapper;
@@ -70,13 +71,38 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.USER_NOT_ACTIVATED);
         }
 
+        // 🔹 Kiểm tra trạng thái
+        if (user.getStatus() != Status.ACTIVE) {
+            throw new AppException(ErrorCode.ACCOUNT_LOCKED);
+        }
+
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
         if (!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
+        if (user.getToken() != null) {
+            try {
+                var signToken = verifyToken(user.getToken(), true);
+                String jit = signToken.getJWTClaimsSet().getJWTID();
+                Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+
+                InvalidatedToken invalidatedToken =
+                        InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
+
+                if (!invalidatedTokenRepository.existsById(jit)) {
+                    invalidatedTokenRepository.save(invalidatedToken);
+                    log.info("Token cũ {} đã bị vô hiệu hóa.", jit);
+                }
+            } catch (AppException | ParseException | JOSEException e) {
+                log.error("Lỗi khi vô hiệu hóa token cũ.", e);
+            }
+        }
+
         var token = generateToken(user);
+        user.setToken(token);
+        repository.save(user); // 🔹 Lưu token vào database
 
         return AuthenticationResponse.builder()
                 .authenticate(authenticated)
@@ -266,11 +292,6 @@ public class AuthenticationService {
 
         // xác minh jwt với khóa bí mật, nếu token hợp lệ, chữ kí khớp thì trả về true
         var verified = signedJWT.verify(verifier);
-
-//        log.info("verify token started");
-//        log.info("Token payload: {}", signedJWT.getJWTClaimsSet());
-//        log.info("Token expiry time: {}", expiryTime);
-//        log.info("Current time: {}", new Date());
 
         // Nếu token không hợp lệ hoặc thời gian hết hạn
         if (!(verified && expiryTime.after(new Date()))) throw new AppException(ErrorCode.UNAUTHENTICATED);

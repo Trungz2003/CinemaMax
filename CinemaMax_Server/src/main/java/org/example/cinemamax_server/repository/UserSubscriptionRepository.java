@@ -10,5 +10,8 @@ import java.util.Optional;
 public interface UserSubscriptionRepository extends JpaRepository<UserSubscriptions, Integer> {
     void deleteByUserId(int userId);
     Optional<UserSubscriptions> findByUserId(Long userId);
+
+    // Tìm gói đăng ký đang hoạt động của user
+    Optional<UserSubscriptions> findByUserIdAndStatus(Long userId, UserSubscriptions.Status status);
 }
    

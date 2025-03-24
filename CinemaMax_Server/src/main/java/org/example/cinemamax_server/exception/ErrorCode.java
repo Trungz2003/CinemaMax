@@ -9,7 +9,6 @@ public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(500, "ngoại lệ chưa được phân loại", HttpStatus.INTERNAL_SERVER_ERROR),
     USER_EXISTED(409, "username đã tồn tại", HttpStatus.CONFLICT),
     USER_ID_EXISTED(404, "user không tồn tại", HttpStatus.BAD_REQUEST),
-    USER_ID_EMPTY(400, "chua truyen id", HttpStatus.BAD_REQUEST),
     INVALID_KEY(400, "key không hợp lệ", HttpStatus.BAD_REQUEST),
     RESOURCE_NOT_ALLOWED(405, "Không được phép truy cập", HttpStatus.NOT_FOUND),
     ENDPOINT_NOT_FOUND(404, "endpoint không hợp lệ", HttpStatus.NOT_FOUND),
@@ -21,7 +20,7 @@ public enum ErrorCode {
     UNAUTHORIZED(1008, "user không có quyền truy cập", HttpStatus.FORBIDDEN),
     DATA_NOT_COMPLETE(400, "Dữ liệu không đầy đủ", HttpStatus.BAD_REQUEST),
     USER_NOT_EXISTED(405, "User not existed", HttpStatus.NOT_FOUND),
-    EMAIL_ALREADY_EXISTS(409, "email already exists", HttpStatus.CONFLICT),
+    EMAIL_ALREADY_EXISTS(409, "email đã tồn tại", HttpStatus.CONFLICT),
     USER_NOT_ACTIVATED(403, "Tài khoản chưa được kích hoạt", HttpStatus.FORBIDDEN),
     EMAIL_REGISTERED_WITH_SYSTEM(400, "Email đã được đăng ký với phương thức hệ thống", HttpStatus.BAD_REQUEST),
     NOT_FOUND(404, "Không tìm thấy thể loại nào", HttpStatus.NOT_FOUND),
@@ -32,7 +31,13 @@ public enum ErrorCode {
     SUBSCRIPTION_NOT_FOUND(404, "Subscription not existed", HttpStatus.NOT_FOUND),
     INCORRECT_PASSWORD(400, "Mật khẩu cũ không đúng!", HttpStatus.BAD_REQUEST),
     ACCOUNT_IS_NOT_SYSTEM_ACCOUNT(400, "This account is not a system account and cannot change the password", HttpStatus.BAD_REQUEST),
-    GENRES_IS_NOT(400, "Không tìm thấy thể loại với ID!", HttpStatus.NOT_FOUND)
+    GENRES_IS_NOT(400, "Không tìm thấy thể loại với ID!", HttpStatus.NOT_FOUND),
+    EMAIL_NOT_MATCH(400, "Email không trùng khớp!", HttpStatus.BAD_REQUEST),
+    ACCOUNT_LOCKED(403, "Tài khoản của bạn đã bị khóa!", HttpStatus.FORBIDDEN),
+    SUBSCRIPTION_EXPIRED(403, "Gói đăng ký của bạn đã hết hạn!", HttpStatus.FORBIDDEN),
+    SUBSCRIPTION_NOT_ACTIVE(403, "Tài khoản của bạn chưa được kích hoạt gói đăng kí!", HttpStatus.FORBIDDEN),
+    SUBSCRIPTION_CANCELLED(403, "Gói đăng ký của bạn đã bị hủy!", HttpStatus.FORBIDDEN),
+    ALREADY_RATED(400, "Bạn đã đánh giá bộ phim này trước đó!", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

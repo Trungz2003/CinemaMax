@@ -38,5 +38,8 @@ public class Ratings {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "average_rating")
+    private Float averageRating;
 }
 

@@ -125,7 +125,7 @@ export const forgotPassword = async (id, passwordData) => {
   try {
     const token = localStorage.getItem("token");
     const response = await axios.put(
-      `${API_URL}/users/update-password/${id}`,
+      `${API_URL}/api/update-password/${id}`,
       passwordData,
       {
         headers: {

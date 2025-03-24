@@ -208,7 +208,6 @@ const ProfileUser = ({ user, setData }) => {
       }
     } catch (error) {
       console.error("Lỗi cập nhật thông tin:", error);
-      ShowToast("Đã xảy ra lỗi khi cập nhật.", "error");
     }
   };
 

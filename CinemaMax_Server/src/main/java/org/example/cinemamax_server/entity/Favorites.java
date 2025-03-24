@@ -25,5 +25,11 @@ public class Favorites {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    // ✅ Thêm constructor phù hợp
+    public Favorites(User user, Movies movie) {
+        this.user = user;
+        this.movie = movie;
+    }
 }
 

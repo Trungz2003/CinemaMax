@@ -4,200 +4,53 @@ import Icons from "../../ultils/Icons";
 import React, { useState, useEffect, useRef } from "react";
 import MovieItem from "../../components/client/MovieItem";
 import VideoPlayer from "../../components/client/VideoPlayer";
+import {
+  getMovieSuggest,
+  getCommentMovie,
+  updateReaction,
+  addCommentByMovie,
+  getRatingMovie,
+} from "../../apis/client/MovieDetails";
+import { ShowToast } from "../../ultils/ToastUtils";
+import { useParams, useNavigate } from "react-router-dom";
+import defaultAvatar from "../../assets/img_user/img_user_not_avata.png";
 
-const data = [
-  {
-    id: 1,
-    title: "I Dream in Another Language",
-    rating: 9.2,
-    categories: ["Hoạt động", "Giật gân"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 2,
-    title: "The Silent Voice",
-    rating: 8.7,
-    categories: ["Hoạt hình", "Tình cảm"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 3,
-    title: "Interstellar",
-    rating: 9.5,
-    categories: ["Khoa học", "Phiêu lưu"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 4,
-    title: "Parasite",
-    rating: 8.6,
-    categories: ["Tâm lý", "Giật gân"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 5,
-    title: "The Dark Knight",
-    rating: 9.0,
-    categories: ["Hành động", "Tội phạm"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 6,
-    title: "Inception",
-    rating: 8.8,
-    categories: ["Khoa học", "Giật gân"],
-    image: "src/assets/test/cover.png",
-  },
-];
-
-const movie = {
-  title: "City of Lost Secrets",
-  coverImage: "src/assets/test/cover.png",
-  rating: 8.4,
-  favorite: true,
-  director: "Vince Gilligan",
-  cast: [
-    "Bryan Cranston",
-    "Jesse Plemons",
-    "Matt Jones",
-    "Jonathan Banks",
-    "Charles Baker",
-    "Tess Harper",
-  ],
-  genres: ["Hành động", "Triler"],
-  releaseYear: 2019,
-  runtime: "128 phút",
-  country: "Hoa Kỳ",
-  videoLink: "v1736699428/Test_ahko4y.mp4",
-  description: `
-      Khi một nhà khảo cổ học nổi tiếng mất tích, con gái ông bắt đầu một hành trình nguy hiểm đến trung tâm của rừng nhiệt đới Amazon để tìm ông. Trên đường đi, cô phát hiện ra một thành phố ẩn giấu và một âm mưu nguy hiểm đe dọa đến sự cân bằng quyền lực trên thế giới.
-      Với sự giúp đỡ của một kẻ lưu manh quyến rũ, cô phải vượt qua địa hình hiểm trở và đánh bại những kẻ thù mạnh mẽ để cứu cha mình và khám phá ra những bí mật của thành phố đã mất.
-    `,
-};
-
-const comments = [
-  {
-    id: 1,
-    name: "John Doe",
-    time: "30.08.2018, 17:53",
-    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-    upvotes: 12,
-    downvotes: 7,
-  },
-  {
-    id: 2,
-    name: "John Doe",
-    time: "24.08.2018, 16:41",
-    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-    upvotes: 8,
-    downvotes: 3,
-  },
-  {
-    id: 3,
-    name: "John Doe",
-    time: "11.08.2018, 11:11",
-    text: "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form.",
-    upvotes: 11,
-    downvotes: 1,
-  },
-  {
-    id: 4,
-    name: "John Doe",
-    time: "07.08.2018, 14:33",
-    text: "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form.",
-    upvotes: 99,
-    downvotes: 35,
-  },
-  {
-    id: 5,
-    name: "John Doe",
-    time: "02.08.2018, 15:24",
-    text: "Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text.",
-    upvotes: 74,
-    downvotes: 13,
-  },
-];
-
-const review = [
-  {
-    title: "Theo tôi thì đây là bộ phim hay nhất của Marvel",
-    name: "John Doe",
-    time: "30.08.2018, 17:53",
-    rating: 9.2,
-    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-  },
-  {
-    title: "Theo tôi thì đây là bộ phim hay nhất của Marvel",
-    name: "John Doe",
-    time: "24.08.2018, 16:41",
-    rating: 9.2,
-    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-  },
-  {
-    title: "Theo tôi thì đây là bộ phim hay nhất của Marvel",
-    name: "John Doe",
-    time: "11.08.2018, 11:11",
-    rating: 9.2,
-    text: "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form.",
-  },
-  {
-    title: "Theo tôi thì đây là bộ phim hay nhất của Marvel",
-    name: "John Doe",
-    time: "07.08.2018, 14:33",
-    rating: 9.2,
-    text: "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form.",
-  },
-  {
-    title: "Theo tôi thì đây là bộ phim hay nhất của Marvel",
-    name: "John Doe",
-    time: "02.08.2018, 15:24",
-    rating: 9.2,
-    text: "Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text.",
-  },
-];
 const TabMenu = () => {
+  const { id } = useParams(); // Lấy id từ URL
+  const navigate = useNavigate();
+
   const tabs = ["BÌNH LUẬN", "ĐÁNH GIÁ"];
   const [activeTab, setActiveTab] = useState(tabs[0]);
+  const [movieData, setMoviDate] = useState([]);
 
-  const [votes, setVotes] = useState(
-    comments.map((comment) => ({
-      id: comment.id,
-      liked: false,
-      disliked: false,
-    }))
-  );
+  const [dataComment, setDataComment] = useState([]);
+  const [dataRating, setDataRating] = useState([]);
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Trạng thái dropdown
   const [selectedRating, setSelectedRating] = useState(""); // Trạng thái giá trị được chọn
   const dropdownRef = useRef(null); // Tham chiếu đến container chứa dropdown
+  const [currentPageMovie, setCurrentPageMovie] = useState(1);
+  const [currentPageRating, setCurrentPageRating] = useState(1);
+  const limitPerPage = 5; // ✅ Số bình luận mỗi trang
+  const [commentText, setCommentText] = useState("");
 
-  const handleLike = (id) => {
-    setVotes((prevVotes) =>
-      prevVotes.map((vote) =>
-        vote.id === id
-          ? {
-              ...vote,
-              liked: !vote.liked,
-              disliked: vote.liked ? vote.disliked : false,
-            }
-          : vote
-      )
-    );
-  };
+  // ✅ Tính tổng số trang dựa trên tổng số bình luận
+  const totalPagesMovie = Math.ceil(dataComment.length / limitPerPage);
 
-  const handleDislike = (id) => {
-    setVotes((prevVotes) =>
-      prevVotes.map((vote) =>
-        vote.id === id
-          ? {
-              ...vote,
-              disliked: !vote.disliked,
-              liked: vote.disliked ? vote.liked : false,
-            }
-          : vote
-      )
-    );
-  };
+  // ✅ Lấy danh sách bình luận cho trang hiện tại
+  const paginatedComments = dataComment.slice(
+    (currentPageMovie - 1) * limitPerPage,
+    currentPageMovie * limitPerPage
+  );
+
+  // ✅ Tính tổng số trang dựa trên tổng số bình luận
+  const totalPagesRating = Math.ceil(dataRating.length / limitPerPage);
+
+  // ✅ Lấy danh sách bình luận cho trang hiện tại
+  const paginatedRating = dataRating.slice(
+    (currentPageRating - 1) * limitPerPage,
+    currentPageRating * limitPerPage
+  );
 
   const toggleDropdown = () => {
     setIsDropdownVisible((prev) => !prev);
@@ -210,6 +63,74 @@ const TabMenu = () => {
     }
   };
 
+  const handleReaction = async (commentId, reactionType) => {
+    try {
+      setDataComment((prev) =>
+        prev.map((comment) => {
+          if (comment.commentId !== commentId) return comment;
+
+          let likeChange = 0;
+          let dislikeChange = 0;
+
+          if (reactionType === "LIKE") {
+            if (comment.userReaction === "LIKE") {
+              likeChange = -1; // Hủy like
+            } else if (comment.userReaction === "DISLIKE") {
+              likeChange = 1; // Đổi từ dislike sang like
+              dislikeChange = -1;
+            } else {
+              likeChange = 1; // Bình thường bấm like
+            }
+          } else if (reactionType === "DISLIKE") {
+            if (comment.userReaction === "DISLIKE") {
+              dislikeChange = -1; // Hủy dislike
+            } else if (comment.userReaction === "LIKE") {
+              dislikeChange = 1; // Đổi từ like sang dislike
+              likeChange = -1;
+            } else {
+              dislikeChange = 1; // Bình thường bấm dislike
+            }
+          }
+
+          return {
+            ...comment,
+            userReaction:
+              comment.userReaction === reactionType ? "NONE" : reactionType,
+            likeCount: comment.likeCount + likeChange,
+            dislikeCount: comment.dislikeCount + dislikeChange,
+          };
+        })
+      );
+
+      // Gửi API (vẫn giữ nguyên reactionType)
+      const response = await updateReaction(commentId, reactionType, navigate);
+
+      if (response?.code !== 0) {
+        console.error("API update reaction failed:", response);
+      }
+    } catch (error) {
+      console.error("Error in handleReaction:", error);
+    }
+  };
+
+  const handleAddComment = async (content) => {
+    try {
+      if (!commentText.trim()) {
+        ShowToast("error", "Vui lòng nhập bình luận!");
+        return;
+      }
+      const response = await addCommentByMovie(id, content, navigate);
+
+      if (response.code === 0) {
+        setDataComment((prev) => [...prev, response.result]); // ✅ Thêm vào cuối mảng
+        ShowToast("success", "Thêm bình luận thành công!");
+        setCommentText("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     // Lắng nghe sự kiện click trên document
     document.addEventListener("mousedown", handleClickOutside);
@@ -217,6 +138,48 @@ const TabMenu = () => {
       // Dọn dẹp sự kiện khi component bị unmount
       document.removeEventListener("mousedown", handleClickOutside);
     };
+  }, []);
+
+  const fetchDataMovie = async () => {
+    try {
+      const response = await getCommentMovie(id);
+      console.log("Comment response:", response); // Debug API response
+
+      if (response.code === 0) {
+        setDataComment(response.result);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchDataRating = async () => {
+    try {
+      const response = await getRatingMovie(id);
+      console.log("rating: ", response);
+      if (response.code === 0) {
+        setDataRating(response.result);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchAllMovie = async () => {
+    try {
+      const response = await getMovieSuggest();
+      if (response.code === 0) {
+        setMoviDate(response.result);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllMovie();
+    fetchDataMovie();
+    fetchDataRating();
   }, []);
 
   // Xử lý khi chọn một giá trị
@@ -255,45 +218,55 @@ const TabMenu = () => {
           {activeTab === "BÌNH LUẬN" && (
             <div className="mt-5 rounded-lg shadow-lg">
               <ul>
-                {comments.map((comment) => {
-                  const vote = votes.find((v) => v.id === comment.id); // Lấy trạng thái của bình luận hiện tại
-
+                {paginatedComments.map((comment) => {
                   return (
-                    <li className="mb-5" key={comment.id}>
+                    <li className="mb-5" key={comment.commentId}>
                       <div className="flex items-center space-x-2">
-                        <div className="w-[40px] h-[40px] rounded bg-[#212026] flex justify-center items-center">
-                          <Icons.MovieDetails.persion className="w-[70%] h-[70%]" />
+                        <div className="w-[35px] h-[35px] rounded-[8px] bg-[#212026] flex justify-center items-center">
+                          <img
+                            src={comment.userAvatar || defaultAvatar}
+                            alt="User Avatar"
+                            className="w-[100%] object-cover rounded-[8px] h-full"
+                          />
                         </div>
                         <div className="text-left ml-[10px]">
                           <div className="text-[16px] font-semibold">
-                            {comment.name}
+                            {comment.userName}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {comment.time}
+                            {comment.createdAt}
                           </div>
                         </div>
                       </div>
                       <div className="mt-[16px]">
                         <p className="text-sm text-left py-[20px] px-[30px] rounded-t-[8px] border border-gray-800">
-                          {comment.text}
+                          {comment.content}
                         </p>
                         <div className="flex justify-between items-center px-[30px] py-[15px] rounded-b-[8px] border border-gray-800">
                           <div className="flex gap-2">
                             <button
-                              onClick={() => handleLike(comment.id)}
+                              onClick={() =>
+                                handleReaction(comment.commentId, "LIKE")
+                              }
                               className={`text-sm flex items-center ${
-                                vote?.liked ? "text-blue-500" : "text-gray-500"
+                                comment.userReaction === "LIKE"
+                                  ? "text-blue-500"
+                                  : "text-gray-500"
                               }`}
                             >
                               <i className="mr-1">
                                 <Icons.MovieDetails.like />
                               </i>
-                              {comment.upvotes}
+                              {comment?.likeCount ?? 0}{" "}
+                              {/* ✅ Tránh lỗi nếu comment chưa có dữ liệu */}
                             </button>
+
                             <button
-                              onClick={() => handleDislike(comment.id)}
+                              onClick={() =>
+                                handleReaction(comment.commentId, "DISLIKE")
+                              }
                               className={`text-sm flex items-center ${
-                                vote?.disliked
+                                comment.userReaction === "DISLIKE"
                                   ? "text-red-500"
                                   : "text-gray-500"
                               }`}
@@ -301,7 +274,8 @@ const TabMenu = () => {
                               <i className="mr-1">
                                 <Icons.MovieDetails.disLike />
                               </i>
-                              {comment.downvotes}
+                              {comment?.dislikeCount ?? 0}{" "}
+                              {/* ✅ Tránh lỗi nếu comment chưa có dữ liệu */}
                             </button>
                           </div>
                         </div>
@@ -313,57 +287,79 @@ const TabMenu = () => {
 
               {/* Paginator */}
               <div className="flex justify-between items-center mt-4">
-                <span className="paginator-mob__pages text-sm">
-                  5 trong số 628
+                <span className="text-sm">
+                  Trang {currentPageMovie} / {totalPagesMovie}
                 </span>
-                <div className="paginator-mob__nav flex gap-4">
-                  <button className="text-sm flex items-center">
-                    <i className="ti ti-chevron-left mr-1"></i>Trước đó
+                <div className="flex gap-4">
+                  <button
+                    className="text-sm flex items-center cursor-pointer hover:text-[#f9ab00]"
+                    onClick={() =>
+                      setCurrentPageMovie((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={currentPageMovie === 1}
+                  >
+                    <i className="ti ti-chevron-left mr-1"></i> Trước
                   </button>
-                  <button className="text-sm flex items-center">
-                    Kế tiếp<i className="ti ti-chevron-right ml-1"></i>
+                  <button
+                    className="text-sm flex items-center cursor-pointer hover:text-[#f9ab00]"
+                    onClick={() =>
+                      setCurrentPageMovie((prev) =>
+                        Math.min(prev + 1, totalPagesMovie)
+                      )
+                    }
+                    disabled={currentPageMovie === totalPagesMovie}
+                  >
+                    Kế tiếp <i className="ti ti-chevron-right ml-1"></i>
                   </button>
                 </div>
               </div>
-              <form
-                action="#"
-                className="mt-4 w-[100%] h-[295px] border rounded-[8px] border-gray-800"
-              >
-                <div className="rounded-[8px]  p-[30px] h-[70%]">
+
+              <div className="mt-4 w-[100%] h-[295px] border rounded-[8px] border-gray-800">
+                <div className="rounded-[8px] p-[30px] h-[70%]">
                   <textarea
                     id="text"
                     name="text"
                     className="p-[15px] rounded-[8px] w-full h-[100%] bg-[#222129] resize-none"
                     placeholder="Thêm bình luận"
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key.toLowerCase() === "f") e.stopPropagation(); // Chặn sự kiện full screen
+                    }}
                   ></textarea>
                 </div>
                 <button
                   type="button"
+                  onClick={() => handleAddComment(commentText)}
                   className="mt-[15px] border-[2px] border-[#f9ab00] hover:bg-[#f2d19480] text-white p-2 rounded-lg w-[140px] h-[45px]"
                 >
                   Gửi
                 </button>
-              </form>
+              </div>
             </div>
           )}
 
           {activeTab === "ĐÁNH GIÁ" && (
             <div className="mt-5 rounded-lg shadow-lg">
               <ul>
-                {review.map((review, index) => (
+                {paginatedRating.map((review, index) => (
                   <li className="mb-5" key={index}>
                     <div className=" flex items-center space-x-2">
                       <div className="w-[85%] flex">
-                        <div className=" w-[40px] h-[40px] rounded bg-[#212026] flex justify-center items-center">
-                          <Icons.MovieDetails.persion className="w-[70%] h-[70%]" />
+                        <div className="w-[35px] h-[35px] rounded-[8px] bg-[#212026] flex justify-center items-center">
+                          <img
+                            src={review.thumbnail || defaultAvatar}
+                            alt="User Avatar"
+                            className="w-[100%] object-cover rounded-[8px] h-full"
+                          />
                         </div>
                         <div className=" text-left ml-[10px]">
                           <div className="text-[16px] font-semibold">
                             {review.title}
                           </div>
                           <div className=" text-xs text-gray-500 flex gap-1">
-                            <div>{review.time}</div> {" bởi "}
-                            <div>{review.name}</div>
+                            <div>{review.createdAt}</div> {" bởi "}
+                            <div>{review.userName}</div>
                           </div>
                         </div>
                       </div>
@@ -378,7 +374,7 @@ const TabMenu = () => {
                     </div>
                     <div className="mt-[16px]">
                       <p className=" text-sm text-left py-[20px] px-[30px] rounded-[8px] border border-gray-800 ">
-                        {review.text}
+                        {review.content}
                       </p>
                     </div>
                   </li>
@@ -387,13 +383,25 @@ const TabMenu = () => {
               {/* Paginator */}
               <div className="flex justify-between items-center mt-4">
                 <span className="paginator-mob__pages text-sm">
-                  5 trong số 628
+                  Trang {currentPageRating} / {totalPagesRating}
                 </span>
                 <div className="paginator-mob__nav flex gap-4">
-                  <button className="text-sm flex items-center">
+                  <button
+                    className="text-sm flex items-center cursor-pointer hover:text-[#f9ab00]"
+                    onClick={() =>
+                      setCurrentPageRating((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={totalPagesRating === 1}
+                  >
                     <i className="ti ti-chevron-left mr-1"></i>Trước đó
                   </button>
-                  <button className="text-sm flex items-center">
+                  <button
+                    className="text-sm flex items-center cursor-pointer hover:text-[#f9ab00]"
+                    onClick={() =>
+                      setCurrentPageRating((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={totalPagesRating === 1}
+                  >
                     Kế tiếp<i className="ti ti-chevron-right ml-1"></i>
                   </button>
                 </div>
@@ -474,7 +482,7 @@ const TabMenu = () => {
             Bạn cũng có thể thích...
           </div>
           <div className="w-full flex flex-wrap gap-[30px] justify-center">
-            {data.map((item) => (
+            {movieData.map((item) => (
               <MovieItem key={item.id} item={item} />
             ))}
           </div>
@@ -485,6 +493,13 @@ const TabMenu = () => {
 };
 
 const RenderMovieDetals = () => {
+  const [movie, setMovie] = useState({});
+  useEffect(() => {
+    const movie = localStorage.getItem("selectedMovie");
+    if (movie) {
+      setMovie(JSON.parse(movie));
+    }
+  }, []);
   return (
     <div className="bg-[#1a191f] text-white w-full border-b border-gray-600 box-border">
       <div className="w-full md:px-[8%] px-[4%] py-[70px] border-b border-gray-600 box-border">
@@ -499,7 +514,7 @@ const RenderMovieDetals = () => {
                 {/* Phần ảnh */}
                 <div className="w-full h-full rounded-[8px] relative hover:bg-black hover:bg-opacity-10">
                   <img
-                    src={movie.coverImage}
+                    src={movie.thumbnail}
                     alt={movie.title}
                     className="w-full rounded-[8px] object-cover"
                   />
@@ -508,7 +523,7 @@ const RenderMovieDetals = () => {
                 {/* Phần rating */}
                 <div className="absolute left-0 flex items-center md:px-[15px] px-[8px] md:top-[20px] top-[10px] z-20">
                   <p className="rounded-full md:w-[35px] md:h-[35px]  w-[18px] h-[18px] md:text-[14px] text-[10px] border-2 border-green-500 flex justify-center items-center text-white font-bold bg-[rgba(23,20,20,0.5)]">
-                    {movie.rating}
+                    {movie.averageRating}
                   </p>
                 </div>
 
@@ -525,45 +540,33 @@ const RenderMovieDetals = () => {
             <div className="md:w-[55%] w-[100%] text-left text-[16px]">
               <div className="w-full flex gap-2">
                 <div className="text-[#f9ab00]">Giám đốc: </div>
-                {movie.director}
+                {movie.actor}
               </div>
               <div className="w-full flex">
                 <div className="text-[#f9ab00] w-[22%]">Diễn viên: </div>
-                <div className="flex w-[78%] flex-wrap gap-2">
-                  {movie.cast.map((item, index) => {
-                    return (
-                      <div key={index}>
-                        {item}
-                        {index !== movie.cast.length - 1 && ", "}
-                      </div>
-                    );
-                  })}
-                </div>
+                <div className="flex w-[78%] flex-wrap gap-2">{movie.cast}</div>
               </div>
 
               <div className="w-full flex justify-start">
                 <div className="text-[#f9ab00] w-[22%]">Thể loại: </div>
                 <div className="flex w-[78%] flex-wrap gap-2">
-                  {movie.genres.map((item, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className=" text-[#f9ab00] hover:underline hover:decoration-[0.5px] cursor-pointer"
-                      >
-                        {item}
-                        {index !== movie.genres.length - 1 && ", "}
-                      </div>
-                    );
-                  })}
+                  {movie.genres?.map((item, index, arr) => (
+                    <div
+                      key={index}
+                      className="text-[#f9ab00] hover:underline hover:decoration-[0.5px] cursor-pointer"
+                    >
+                      {item.name} {index !== arr.length - 1 && ", "}
+                    </div>
+                  ))}
                 </div>
               </div>
               <div className="w-full flex">
                 <div className="text-[#f9ab00] w-[22%]">Ra mắt: </div>
-                <div>{movie.releaseYear}</div>
+                <div>{movie.releaseDate}</div>
               </div>
               <div className="w-full flex">
                 <div className="text-[#f9ab00] w-[22%]">Thời gian: </div>
-                <div>{movie.runtime}</div>
+                <div>{movie.duration}</div>
               </div>
               <div className="w-full flex">
                 <div className="text-[#f9ab00] w-[22%]">Quốc gia: </div>
@@ -578,7 +581,12 @@ const RenderMovieDetals = () => {
 
           {/* Render video phim */}
           <div className="md:w-[49%] w-[100%] md:h-full h-[250px] md:p-4 p-0 md:mt-0 mt-4">
-            <VideoPlayer nameFile={movie.videoLink} />
+            {/* <VideoPlayer videoPath={movie.videoUrl} /> */}
+            {movie?.videoUrl ? (
+              <VideoPlayer videoPath={movie.videoUrl} />
+            ) : (
+              <p className="text-red-500">Video không khả dụng</p>
+            )}
           </div>
         </div>
       </div>

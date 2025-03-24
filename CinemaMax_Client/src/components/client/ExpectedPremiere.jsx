@@ -1,8 +1,13 @@
 import React from "react";
 import Icons from "../../ultils/Icons";
+import { updateFavorites } from "../../apis/client/MovieItem";
+import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
-const ExpectedPremiere = ({ data }) => {
-  const scrollContainerRef = React.useRef();
+const ExpectedPremiere = ({ data, onUpdateFavorites, isFavorite = false }) => {
+  const scrollContainerRef = useRef();
+  const [favoriteState, setFavoriteState] = useState({});
+  const navigate = useNavigate();
 
   // Hàm xử lý cuộn trái/phải
   const handleScroll = (direction) => {
@@ -12,6 +17,21 @@ const ExpectedPremiere = ({ data }) => {
       left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
     });
+  };
+
+  const handleToggleFavorite = async (id) => {
+    try {
+      const response = await updateFavorites(id, navigate);
+      if (response.code === 0) {
+        setFavoriteState((prev) => ({
+          ...prev,
+          [id]: !prev[id], // Cập nhật trạng thái yêu thích của phim có id đó
+        }));
+        onUpdateFavorites(id, isFavorite); // Cập nhật danh sách phim yêu thích trong component cha
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -59,11 +79,16 @@ const ExpectedPremiere = ({ data }) => {
             <div className="relative w-full flex items-center mt-[20px] group justify-center">
               <div className="absolute left-0 flex items-center md:px-[15px] px-[8px] md:top-[20px] top-[10px] z-20">
                 <p className="rounded-full md:w-[35px] md:h-[35px]  w-[18px] h-[18px] md:text-[14px] text-[10px] border-2 border-green-500 flex justify-center items-center text-white font-bold bg-[rgba(23,20,20,0.5)]">
-                  {item.rating}
+                  {item.averageRating}
                 </p>
               </div>
               <div className="absolute right-0 flex items-center md:px-[15px] px-[8px] md:top-[20px] top-[10px] opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto z-20">
-                <button className="md:w-[36px] md:h-[36px] w-[18px] h-[18px] text-white font-bold text-[16px] flex justify-center items-center bg-black rounded-[8px]">
+                <button
+                  onClick={() => handleToggleFavorite(item.id)}
+                  className={`md:w-[36px] md:h-[36px] w-[18px] h-[18px] font-bold text-[16px] flex justify-center items-center bg-black rounded-[8px] ${
+                    favoriteState[item.id] ? "text-[#faab00]" : "text-white"
+                  }`}
+                >
                   <Icons.Home.bookmark />
                 </button>
               </div>
@@ -79,7 +104,7 @@ const ExpectedPremiere = ({ data }) => {
               </div>
               <div className="md:w-full h-full rounded-[8px] relative hover:bg-black hover:bg-opacity-10">
                 <img
-                  src={item.image}
+                  src={item.thumbnail}
                   alt={item.title}
                   className="w-full h-full rounded-[8px] object-cover"
                 />
@@ -92,13 +117,13 @@ const ExpectedPremiere = ({ data }) => {
               </p>
             </div>
             <div className="w-full text-[#f9ab00] md:text-[14px] text-[10px] flex gap-1">
-              {item.categories.map((category, index) => (
+              {item.genres.map((genre, index) => (
                 <p
                   key={index}
                   className="hover:underline decoration-[1px] hover:cursor-pointer"
                 >
-                  {category}
-                  {index < item.categories.length - 1 && ","}
+                  {genre.name}
+                  {index < item.genres.length - 1 && ","}
                 </p>
               ))}
             </div>

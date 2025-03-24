@@ -14,159 +14,42 @@ import path from "../../ultils/Path";
 import { logout } from "../../apis/client/Auth";
 import { auth, logOut } from "../../firebase/firebaseConfig";
 import { ShowToast } from "../../ultils/ToastUtils";
+import { getProfileUser } from "../../apis/client/user";
+import { useEffect } from "react";
+import defaultAvatar from "../../assets/img_user/img_user_not_avata.png";
 
-const code = 45123156;
-
-const fakeData = [
-  {
-    id: 1,
-    title: "I Dream in Another Language",
-    rating: 9.2,
-    categories: ["Hoạt động", "Giật gân"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 2,
-    title: "The Silent Voice",
-    rating: 8.7,
-    categories: ["Hoạt hình", "Tình cảm"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 3,
-    title: "Interstellar",
-    rating: 9.5,
-    categories: ["Khoa học", "Phiêu lưu"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 4,
-    title: "Parasite",
-    rating: 8.6,
-    categories: ["Tâm lý", "Giật gân"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 5,
-    title: "The Dark Knight",
-    rating: 9.0,
-    categories: ["Hành động", "Tội phạm"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 6,
-    title: "Inception",
-    rating: 8.8,
-    categories: ["Khoa học", "Giật gân"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 7,
-    title: "The Matrix",
-    rating: 9.3,
-    categories: ["Khoa học", "Hành động"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 8,
-    title: "Coco",
-    rating: 8.4,
-    categories: ["Gia đình", "Hoạt hình"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 9,
-    title: "Avatar",
-    rating: 8.2,
-    categories: ["Phiêu lưu", "Khoa học"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 10,
-    title: "Spirited Away",
-    rating: 9.1,
-    categories: ["Hoạt hình", "Phiêu lưu"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 11,
-    title: "The Godfather",
-    rating: 9.2,
-    categories: ["Tội phạm", "Tâm lý"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 12,
-    title: "The Shawshank Redemption",
-    rating: 9.7,
-    categories: ["Tâm lý", "Cổ điển"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 13,
-    title: "Pulp Fiction",
-    rating: 9.0,
-    categories: ["Tội phạm", "Tâm lý"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 14,
-    title: "The Lion King",
-    rating: 8.5,
-    categories: ["Gia đình", "Hoạt hình"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 15,
-    title: "Frozen",
-    rating: 8.0,
-    categories: ["Hoạt hình", "Gia đình"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 16,
-    title: "Whiplash",
-    rating: 8.9,
-    categories: ["Tâm lý", "Âm nhạc"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 17,
-    title: "Avengers: Endgame",
-    rating: 8.4,
-    categories: ["Hành động", "Phiêu lưu"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 18,
-    title: "Joker",
-    rating: 8.6,
-    categories: ["Tâm lý", "Tội phạm"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 19,
-    title: "Toy Story 4",
-    rating: 8.3,
-    categories: ["Gia đình", "Hoạt hình"],
-    image: "src/assets/test/cover.png",
-  },
-  {
-    id: 20,
-    title: "Black Panther",
-    rating: 8.2,
-    categories: ["Hành động", "Khoa học"],
-    image: "src/assets/test/cover.png",
-  },
-];
-
-const ContentNavbar = ({ index }) => {
+const ContentNavbar = ({
+  index,
+  totalCommentUser,
+  totalRatingUser,
+  userSubscriptions,
+  topRatedMovies,
+  latestRatedMovies,
+  favoriteMovies,
+  handleUpdateFavorite,
+  myInfo,
+  setMyInfo,
+}) => {
   return (
     <div className="w-full">
-      {index === 0 && <Profile />}
+      {index === 0 && (
+        <Profile
+          totalCommentUser={totalCommentUser}
+          totalRatingUser={totalRatingUser}
+          userSubscriptions={userSubscriptions}
+          topRatedMovies={topRatedMovies}
+          latestRatedMovies={latestRatedMovies}
+        />
+      )}
       {index === 1 && <Subscription />}
-      {index === 2 && <RenderListMovie data={fakeData} />}
-      {index === 3 && <Setting />}
+      {index === 2 && (
+        <RenderListMovie
+          data={favoriteMovies}
+          onUpdateFavorites={handleUpdateFavorite}
+          isFavoriteList={true}
+        />
+      )}
+      {index === 3 && <Setting myInfo={myInfo} setMyInfo={setMyInfo} />}
     </div>
   );
 };
@@ -204,6 +87,13 @@ const RenderNavBar = ({ activeIndex, setActiveIndex }) => {
 const RenderMyCinemaMax = () => {
   const [activeIndex, setActiveIndex] = useState(0); // Theo dõi mục đang được chọn
   const navigate = useNavigate(); // Dùng để chuyển trang sau khi logout
+  const [myInfo, setMyInfo] = useState({});
+  const [totalCommentUser, setTotalCommentUser] = useState(0);
+  const [totalRatingUser, setTotalRatingUser] = useState(0);
+  const [userSubscriptions, setUserSubscriptions] = useState({});
+  const [topRatedMovies, setTopRatedMovies] = useState([]);
+  const [latestRatedMovies, setLatestRatedMovies] = useState([]);
+  const [favoriteMovies, setFavoriteMovies] = useState([]);
   const handleLogout = async () => {
     const token = localStorage.getItem("token");
 
@@ -222,7 +112,6 @@ const RenderMyCinemaMax = () => {
 
       // 3. Đăng xuất khỏi Firebase
       await logOut(auth);
-      console.log("Đã đăng xuất khỏi Firebase");
 
       // 4. Hiển thị thông báo và điều hướng về trang đăng nhập
       ShowToast("success", "Đăng xuất thành công!");
@@ -233,6 +122,38 @@ const RenderMyCinemaMax = () => {
     }
   };
 
+  const handleUpdateFavorite = (movieId, isCurrentlyFavorite) => {
+    setFavoriteMovies((prevFavorites) =>
+      prevFavorites.map((movie) =>
+        movie.id === movieId
+          ? { ...movie, isFavorite: !isCurrentlyFavorite }
+          : movie
+      )
+    );
+  };
+
+  useEffect(() => {
+    const fetchProfileUser = async () => {
+      try {
+        const response = await getProfileUser();
+
+        if (response.code === 0) {
+          setMyInfo(response.result.user);
+          setTotalCommentUser(response.result.totalCommentUser);
+          setTotalRatingUser(response.result.totalRatingUser);
+          setUserSubscriptions(response.result.userSubscriptions);
+          setTopRatedMovies(response.result.topRatedMovies);
+          setLatestRatedMovies(response.result.latestRatedMovies);
+          setFavoriteMovies(response.result.favoriteMovies);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchProfileUser();
+  }, []);
+
   return (
     <div className="bg-[#1a191f] text-white w-full border-b border-gray-600 box-border text-[16px] pt-[80px]">
       <PageTitle title={"Hồ sơ"} />
@@ -242,13 +163,17 @@ const RenderMyCinemaMax = () => {
             {/* Thông tin người dùng (Tên và ID) */}
             <div className="md:w-full w-[600px] h-full flex items-center justify-start mb-4 md:mb-0">
               <div className="w-[40px] h-[40px] rounded bg-[#212026] flex justify-center items-center">
-                <Icons.MovieDetails.persion className="w-[70%] h-[70%]" />
+                <img
+                  src={myInfo.thumbnail || defaultAvatar}
+                  alt="User Avatar"
+                  className="w-[100%] object-cover rounded-full h-full"
+                />
               </div>
 
-              <div className="h-full w-full ml-[20px] relative">
+              <div className="h-full w-[80%] ml-[20px] relative">
                 <div className="absolute top-1/2 left-0 transform -translate-y-1/2">
-                  <p className="font-bold text-left">John Doe</p>
-                  <p className="text-left">id: {code}</p>
+                  <p className="font-bold text-left">{myInfo.userName}</p>
+                  <p className="text-left">id: {myInfo.id}</p>
                 </div>
               </div>
             </div>
@@ -282,7 +207,18 @@ const RenderMyCinemaMax = () => {
         </div>
 
         <div className=" w-full  pt-[35px] pb-[70px]">
-          <ContentNavbar index={activeIndex} />
+          <ContentNavbar
+            index={activeIndex}
+            totalCommentUser={totalCommentUser}
+            totalRatingUser={totalRatingUser}
+            userSubscriptions={userSubscriptions}
+            topRatedMovies={topRatedMovies}
+            latestRatedMovies={latestRatedMovies}
+            favoriteMovies={favoriteMovies}
+            handleUpdateFavorite={handleUpdateFavorite}
+            myInfo={myInfo}
+            setMyInfo={setMyInfo}
+          />
         </div>
       </div>
     </div>

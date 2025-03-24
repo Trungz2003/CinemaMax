@@ -11,9 +11,11 @@ import org.example.cinemamax_server.dto.request.UserRequest;
 import org.example.cinemamax_server.dto.request.UserUpdateRequest;
 import org.example.cinemamax_server.dto.response.*;
 import org.example.cinemamax_server.entity.*;
+import org.example.cinemamax_server.enums.MovieStatus;
 import org.example.cinemamax_server.enums.Status;
 import org.example.cinemamax_server.exception.AppException;
 import org.example.cinemamax_server.exception.ErrorCode;
+import org.example.cinemamax_server.mapper.MoviesMapper;
 import org.example.cinemamax_server.mapper.UserMapper;
 import org.example.cinemamax_server.repository.*;
 import org.example.cinemamax_server.utils.PasswordUtils;
@@ -55,6 +57,8 @@ public class UserService {
     UserSubscriptionsService userSubscriptionsService;
     FirebaseStorageService firebaseStorageService;
     CloudinaryService cloudinaryService;
+    MoviesRepository moviesRepository;
+    MoviesMapper moviesMapper;
 
     public UserResponse createUser(UserRequest request) {
 
@@ -254,13 +258,107 @@ public class UserService {
         return response;
     }
 
-    public UserResponse getMyInfo() {
-        var context = SecurityContextHolder.getContext();
-        String email = context.getAuthentication().getName();
+    @PreAuthorize("isAuthenticated()")
+    public UpdateUserByIdResponse userUpdateUser(String email, UserUpdateRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if (request.getFullName() != null && !request.getFullName().isEmpty()) {
+            user.setFullName(request.getFullName());
+        }
 
-        return userMapper.toUserResponse(user);
+        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
+            user.setUserName(request.getUserName());
+        }
+
+        if (request.getThumbnail() != null && !request.getThumbnail().isEmpty()) {
+            String oldThumbnail = user.getThumbnail();
+            String newThumbnail = request.getThumbnail();
+            if (!newThumbnail.equals(oldThumbnail)) {
+                if (oldThumbnail != null && !oldThumbnail.isEmpty()) {
+                    cloudinaryService.deleteImageByUrl(oldThumbnail);
+                }
+                user.setThumbnail(newThumbnail);
+            }
+        }
+
+
+
+        UpdateUserByIdResponse response = UpdateUserByIdResponse.builder()
+                .id(user.getId().intValue())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .userName(user.getUserName())
+                .thumbnail(user.getThumbnail())
+                .build();
+
+
+        userRepository.save(user);
+        return response;
+    }
+
+    @PreAuthorize("isAuthenticated()") // Chỉ cần user đã đăng nhập
+    public ProfileResponse getUserProfile(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Gán null để không trả về password & status
+        user.setPassword(null);
+        user.setStatus(null);
+
+        // Lấy tổng số comment của user
+        int totalCommentUser = commentRepository.countByUserId(user.getId());
+
+        // Lấy tổng số rating của user
+        int totalRatingUser = ratingsRepository.countByUserId(user.getId());
+
+        // Lấy gói đăng ký đang hoạt động
+        Subscriptions subscription = userSubscriptionRepository
+                .findByUserIdAndStatus(user.getId(), UserSubscriptions.Status.ACTIVE)
+                .map(UserSubscriptions::getSubscription) // Chỉ lấy subscription
+                .orElse(null);
+
+        // Lấy danh sách phim có đánh giá cao nhất
+        List<MovieDashboardResponse> topRatedMovies = moviesRepository.findTopRatedMovies().stream()
+                .map(row -> new MovieDashboardResponse(
+                        ((Number) row[0]).longValue(),  // ID
+                        (String) row[1],               // Title
+                        (String) row[2],               // Genres
+                        row[3] != null ? ((Number) row[3]).doubleValue() : 0.0  // Rating
+                ))
+                .collect(Collectors.toList());
+
+        // Lấy danh sách phim user mới đánh giá gần đây
+        List<MovieLatestRatedResponse> latestRatedMovies = moviesRepository.findLatestRatedMovies().stream()
+                .map(row -> new MovieLatestRatedResponse(
+                        ((Number) row[0]).longValue(),  // ID
+                        (String) row[1],               // Title
+                        (String) row[2],               // Actor
+                        row[3] != null ? ((Number) row[3]).doubleValue() : 0.0  // Rating
+                ))
+                .collect(Collectors.toList());
+
+        // Lấy danh sách phim yêu thích & chuyển thành DTO
+        List<MovieDTO> favoriteMovies = moviesMapper.toResponseList(
+                favoritesRepository.findByUserId(user.getId()).stream()
+                        .map(Favorites::getMovie)
+                        .filter(movie -> movie.getStatus() == MovieStatus.PUBLIC) // 🔥 Lọc phim có status PUBLIC
+                        .toList(),
+                user.getId()
+        );
+
+
+
+        // Trả về tất cả dữ liệu
+        return ProfileResponse.builder()
+                .user(userMapper.toUserResponse(user))
+                .totalCommentUser(totalCommentUser)
+                .totalRatingUser(totalRatingUser)
+                .userSubscriptions(subscription)
+                .topRatedMovies(topRatedMovies)
+                .latestRatedMovies(latestRatedMovies)
+                .favoriteMovies(favoriteMovies)
+                .build();
     }
 
     @PreAuthorize("hasRole('ADMIN')")

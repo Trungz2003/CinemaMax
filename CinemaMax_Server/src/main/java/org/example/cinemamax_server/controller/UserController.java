@@ -1,5 +1,6 @@
 package org.example.cinemamax_server.controller;
 
+import com.google.api.gax.rpc.ApiException;
 import io.micrometer.common.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,8 @@ import org.example.cinemamax_server.service.UserService;
 import org.example.cinemamax_server.service.UserSubscriptionsService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -85,12 +88,16 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("/my-info")
-    ApiResponse<UserResponse> getMyInfo() {
-        return ApiResponse.<UserResponse>builder()
-                .result(service.getMyInfo())
+    @GetMapping("user/userProfile")
+    public ApiResponse<ProfileResponse> getUserProfile(Authentication authentication) {
+        String email = authentication.getName(); // Lấy email từ JWT token
+
+        ProfileResponse user = service.getUserProfile(email);
+        return ApiResponse.<ProfileResponse>builder()
+                .result(user)
                 .build();
     }
+
 
     @DeleteMapping("/admin/{userId}")
     ApiResponse<String> deleteUser(@PathVariable int userId) {
@@ -99,9 +106,23 @@ public class UserController {
     }
 
     @PutMapping("/admin/{userId}")
-    ApiResponse<UpdateUserByIdResponse> updateUser(@PathVariable int userId, @RequestBody UserUpdateRequest request) {
+    ApiResponse<UpdateUserByIdResponse> adminUpdateUser(@PathVariable int userId, @RequestBody UserUpdateRequest request) {
         return ApiResponse.<UpdateUserByIdResponse>builder()
                 .result(service.adminUpdateUser(userId, request))
+                .build();
+    }
+
+    @PutMapping("/user")
+    ApiResponse<UpdateUserByIdResponse> userUpdateUser(@RequestBody UserUpdateRequest request,
+                                                       Authentication authentication) {
+        String emailFromToken = authentication.getName(); // Lấy email từ JWT token
+        String emailFromRequest = request.getEmail(); // Lấy email từ request
+        // Kiểm tra email trong request có khớp với email từ token không
+        if (!emailFromToken.equals(emailFromRequest)) {
+            throw new AppException(ErrorCode.EMAIL_NOT_MATCH);
+        }
+        return ApiResponse.<UpdateUserByIdResponse>builder()
+                .result(service.userUpdateUser(emailFromRequest, request))
                 .build();
     }
 

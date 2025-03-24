@@ -104,31 +104,47 @@ const RenderAddItem = () => {
   };
 
   const handleImageChange = async (event) => {
-    if (title === "" || title === null) {
+    if (!title) {
       ShowToast("error", "Chưa nhập đầy đủ các thông tin trên!");
       return;
     }
+
     const file = event.target.files[0];
     if (!file) {
       console.error("No file selected");
+      return;
+    }
+
+    // Kiểm tra loại file
+    const validImageTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+    if (!validImageTypes.includes(file.type)) {
+      ShowToast(
+        "error",
+        "Vui lòng chọn một file ảnh hợp lệ (JPEG, PNG, GIF, WebP)"
+      );
       return;
     }
 
     setIsUploading(true); // Bắt đầu quá trình tải lên
 
     try {
-      const data = await uploadFile(file, "image", `StreamPhim/image/${title}`); // Upload ảnh vào folder động
-      setIsUploading(false); // Bắt đầu quá trình tải lên
+      const data = await uploadFile(file, "image", `StreamPhim/image/${title}`);
+      setIsUploading(false);
       setImage(data.secure_url);
-      console.log("Ảnh đã upload:", data.secure_url);
     } catch (error) {
       console.error("Lỗi upload ảnh:", error);
+      setIsUploading(false);
+      ShowToast("error", "Lỗi khi tải ảnh lên, vui lòng thử lại!");
     }
   };
 
-  // Xử lý chọn video và lấy tên folder
   const handleVideoChange = async (event) => {
-    if (title === "") {
+    if (!title) {
       ShowToast("error", "Chưa nhập đầy đủ các thông tin trên!");
       return;
     }
@@ -136,6 +152,22 @@ const RenderAddItem = () => {
     const file = event.target.files[0];
     if (!file) {
       console.error("No file selected");
+      return;
+    }
+
+    // Kiểm tra loại file
+    const validVideoTypes = [
+      "video/mp4",
+      "video/mkv",
+      "video/avi",
+      "video/mov",
+      "video/webm",
+    ];
+    if (!validVideoTypes.includes(file.type)) {
+      ShowToast(
+        "error",
+        "Vui lòng chọn một file video hợp lệ (MP4, MKV, AVI, MOV, WEBM)"
+      );
       return;
     }
 
@@ -152,6 +184,8 @@ const RenderAddItem = () => {
       console.log("Video uploaded:", data.secure_url);
     } catch (error) {
       console.error("Lỗi upload video:", error);
+      setIsUploading(false);
+      ShowToast("error", "Lỗi khi tải video lên, vui lòng thử lại!");
     }
   };
 
@@ -180,7 +214,7 @@ const RenderAddItem = () => {
       (!countries && !countries?.name) ||
       !genres?.length
     ) {
-      ShowToast("error", "Vui lòng nhập đầy đủ thông tin.");
+      ShowToast("error", "Vui lòng nhập đầy đủ thông tin!");
       return;
     }
 

@@ -1,6 +1,7 @@
 package org.example.cinemamax_server.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.example.cinemamax_server.entity.Genre;
@@ -18,6 +19,7 @@ public class MoviesRequest {
     private String title;
     private String description;
     private LocalDate releaseDate;
+    @Min(value = 1, message = "Thời lượng phải lớn hơn 0")
     private Integer duration;
     private String videoUrl;
     private String thumbnail;
