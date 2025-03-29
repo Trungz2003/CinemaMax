@@ -115,8 +115,8 @@ const RenderPrivacy = () => {
         <p>
           Nếu bạn có bất kỳ câu hỏi hoặc yêu cầu nào, vui lòng liên hệ với chúng
           tôi qua email:{" "}
-          <a href="mailto:support@example.com" className="text-blue-400">
-            support@example.com
+          <a href="quangtrunghytq203@gmail.com" className="text-blue-400">
+            quangtrunghytq203@gmail.com
           </a>{" "}
           hoặc hotline:{" "}
           <a href="tel:1900123456" className="text-blue-400">

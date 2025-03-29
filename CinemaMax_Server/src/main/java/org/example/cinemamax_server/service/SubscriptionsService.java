@@ -18,7 +18,7 @@ import java.util.List;
 public class SubscriptionsService {
     protected SubscriptionsRepository subscriptionsRepository;
 
-    public Subscriptions getSubscriptionsFree(int id){
+    public Subscriptions getSubscriptionsFree(long id){
         return subscriptionsRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
@@ -30,4 +30,6 @@ public class SubscriptionsService {
                 .map(subscription -> new NameSubscriptionResponse(subscription.getName()))
                 .toList();
     }
+
+
 }

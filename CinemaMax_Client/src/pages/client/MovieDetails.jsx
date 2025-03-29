@@ -14,6 +14,8 @@ import {
 import { ShowToast } from "../../ultils/ToastUtils";
 import { useParams, useNavigate } from "react-router-dom";
 import defaultAvatar from "../../assets/img_user/img_user_not_avata.png";
+import { useMovies } from "../../ultils/MovieContext";
+import path from "../../ultils/Path";
 
 const TabMenu = () => {
   const { id } = useParams(); // Lấy id từ URL
@@ -494,12 +496,29 @@ const TabMenu = () => {
 
 const RenderMovieDetals = () => {
   const [movie, setMovie] = useState({});
+  const { id } = useParams(); // Lấy id từ URL
+  const { moviesPublic, moviesPrivate } = useMovies();
+  const navigate = useNavigate();
+
+  const handleGenreClick = (genre) => {
+    navigate(`${path.CATALOG}?genre=${encodeURIComponent(genre)}`); // Chuyển hướng sang /catalog với query params
+  };
+
   useEffect(() => {
-    const movie = localStorage.getItem("selectedMovie");
-    if (movie) {
-      setMovie(JSON.parse(movie));
+    if (id && (moviesPublic.length > 0 || moviesPrivate.length > 0)) {
+      const allMovies = [...moviesPublic, ...moviesPrivate]; // 🔥 Gộp cả hai danh sách phim
+
+      const selectedMovie = allMovies.find((m) => m.id === parseInt(id, 10));
+
+      if (selectedMovie) {
+        setMovie(selectedMovie);
+      } else {
+        console.warn("Không tìm thấy phim với ID:", id);
+        navigate(path.NOT_FOUND, { replace: true }); // 🔥 Chuyển hướng nếu không tìm thấy
+      }
     }
-  }, []);
+  }, [id, moviesPublic, moviesPrivate, navigate]);
+
   return (
     <div className="bg-[#1a191f] text-white w-full border-b border-gray-600 box-border">
       <div className="w-full md:px-[8%] px-[4%] py-[70px] border-b border-gray-600 box-border">
@@ -554,6 +573,9 @@ const RenderMovieDetals = () => {
                     <div
                       key={index}
                       className="text-[#f9ab00] hover:underline hover:decoration-[0.5px] cursor-pointer"
+                      onClick={() => {
+                        handleGenreClick(item.name);
+                      }}
                     >
                       {item.name} {index !== arr.length - 1 && ", "}
                     </div>

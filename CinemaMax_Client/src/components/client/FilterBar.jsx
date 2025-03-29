@@ -1,45 +1,59 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Icons from "../../ultils/Icons";
+import { getGenres } from "../../apis/server/AddItem";
+import Filter from "../admin/Filter";
 
-export const FilterBar = () => {
+export const FilterBar = ({ setGenre, setRating }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const [openDropdown, setOpenDropdown] = useState(null); // Kiểm soát dropdown nào đang mở
+  const [genres, setGenres] = useState([]);
+  const [genresRender, setGenresRender] = useState([]);
+  const [isFetching, setIsFetching] = useState(false); // Cờ kiểm tra để tránh gọi lại
+  const [selectedRating, setSelectedRating] = useState(""); // Trạng thái giá trị được chọn
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const toggleDropdown = (key) => {
-    // Toggle trạng thái của dropdown theo key
-    setOpenDropdown(openDropdown === key ? null : key);
+  const fetchDataGenres = async () => {
+    if (!isFetching) {
+      setIsFetching(true); // Đánh dấu là đang fetch dữ liệu
+
+      try {
+        let dataGenres = await getGenres();
+
+        if (dataGenres) {
+          // Nếu dataGenres.result là một mảng thể loại, bạn có thể duyệt qua từng phần tử và lấy tên
+          let dataGenres = await getGenres();
+
+          if (dataGenres) {
+            // Lưu toàn bộ đối tượng { id, name } thay vì chỉ lưu name
+            setGenresRender(dataGenres);
+          } else {
+            console.error("Không có dữ liệu thể loại.");
+          }
+        } else {
+          console.error("Không có dữ liệu thể loại.");
+        }
+      } catch (error) {
+        console.error("Đã xảy ra lỗi khi lấy dữ liệu thể loại: ", error);
+      }
+    }
   };
 
-  // State để mở dropdown
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isRatingOpen, setIsRatingOpen] = useState(false);
-  const [isTimeOpen, setIsTimeOpen] = useState(false);
+  const handleGenreChange = (selectedGenres) => {
+    setGenres(selectedGenres);
+    setGenre(selectedGenres);
+  };
 
-  // State để lưu lựa chọn
-  const [selectedCategory, setSelectedCategory] = useState("Thể loại");
-  const [selectedRating, setSelectedRating] = useState("Đánh giá");
-  const [selectedTime, setSelectedTime] = useState("Thời gian");
+  // Fake data từ 1 sao đến 10 sao
+  const ratings = Array.from({ length: 10 }, (_, i) => ({
+    id: i + 1,
+    name: `${i + 1} sao`,
+  }));
 
-  // Hàm mở dropdown tương ứng và đóng các dropdown khác
-  const toggleDropdownDesktop = (dropdown) => {
-    if (dropdown === "category") {
-      setIsCategoryOpen(!isCategoryOpen);
-      setIsRatingOpen(false);
-      setIsTimeOpen(false);
-    } else if (dropdown === "rating") {
-      setIsRatingOpen(!isRatingOpen);
-      setIsCategoryOpen(false);
-      setIsTimeOpen(false);
-    } else if (dropdown === "time") {
-      setIsTimeOpen(!isTimeOpen);
-      setIsCategoryOpen(false);
-      setIsRatingOpen(false);
-    }
+  const handleRatingChange = (rating) => {
+    setSelectedRating(rating); // Cập nhật rating khi chọn
+    setRating(rating);
   };
 
   return (
@@ -73,69 +87,30 @@ export const FilterBar = () => {
             </span>
           </div>
           {/* Thể loại */}
-          <div className="relative mb-4">
-            <button
-              className="bg-[#222129] text-white w-full px-[10px] py-[5px] h-[40px] rounded-md transition flex justify-between items-center"
-              onClick={() => toggleDropdown("category")}
-            >
-              Thể loại <Icons.Home.down className="p-[2px]" />
-            </button>
-            {openDropdown === "category" && (
-              <div
-                className="absolute bg-[#333] text-white text-left mt-2 p-4 rounded-md shadow-md w-full"
-                style={{ zIndex: 50 }} // Thêm z-index
-              >
-                <div>Phim hành động</div>
-                <div>Phim hài</div>
-                <div>Phim tâm lý</div>
-              </div>
-            )}
-          </div>
+          <Filter
+            options={genresRender.map((genre) => ({
+              id: genre.id,
+              name: genre.name,
+            }))}
+            onSortChange={handleGenreChange}
+            dropdownWidth="100%"
+            test={
+              Array.isArray(genres) && genres.length > 0
+                ? genres.map((g) => g.name).join(", ")
+                : "Chọn thể loại"
+            }
+          />
 
-          {/* Đánh giá */}
-          <div className="relative mb-4">
-            <button
-              className="bg-[#222129] text-white w-full px-[10px] py-[5px] h-[40px] rounded-md transition flex justify-between items-center"
-              onClick={() => toggleDropdown("rating")}
-            >
-              Đánh giá <Icons.Home.down className="p-[2px]" />
-            </button>
-            {openDropdown === "rating" && (
-              <div
-                className="absolute bg-[#333] text-white mt-2 p-4 rounded-md shadow-md w-full"
-                style={{ zIndex: 50 }} // Thêm z-index
-              >
-                <div>5 sao</div>
-                <div>4 sao</div>
-                <div>3 sao</div>
-              </div>
-            )}
-          </div>
-
-          {/* Thời gian */}
-          <div className="relative mb-4">
-            <button
-              className="bg-[#222129] text-white w-full px-[10px] py-[5px] h-[40px] rounded-md transition flex justify-between items-center"
-              onClick={() => toggleDropdown("time")}
-            >
-              Thời gian <Icons.Home.down className="p-[2px]" />
-            </button>
-            {openDropdown === "time" && (
-              <div
-                className="absolute bg-[#333] text-white mt-2 p-4 rounded-md shadow-md w-full"
-                style={{ zIndex: 50 }} // Thêm z-index
-              >
-                <div>1 ngày</div>
-                <div>1 tuần</div>
-                <div>1 tháng</div>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="h-[20%] px-4 flex items-center">
-          <button className="bg-[#faab00] text-white w-full px-[10px] py-[5px] h-[40px] rounded-md transition">
-            ÁP DỤNG
-          </button>
+          <Filter
+            options={ratings} // Truyền danh sách rating vào dropdown
+            onSortChange={handleRatingChange} // Hàm xử lý khi chọn rating
+            dropdownWidth="100%"
+            test={
+              Array.isArray(selectedRating) && selectedRating.length > 0
+                ? selectedRating.map((r) => r.name).join(", ")
+                : "Chọn xếp hạng"
+            }
+          />
         </div>
       </div>
 
@@ -143,95 +118,39 @@ export const FilterBar = () => {
       <div className="hidden md:flex w-[84%]">
         <div className="flex h-full w-[70%] gap-4">
           {/* Thể loại */}
-          <div className="relative mt-[20px]">
-            <button
-              className="bg-[#222129] text-white px-[10px] py-[5px] h-[40px] rounded-md transition flex justify-between items-center w-[150px]"
-              onClick={() => toggleDropdownDesktop("category")}
-            >
-              {selectedCategory} <Icons.Home.down className="p-[2px]" />
-            </button>
-            {isCategoryOpen && (
-              <div className="absolute left-0  bg-[#333] text-white mt-2 p-4 rounded-md shadow-md w-full z-50">
-                {["Phim hành động", "Phim hài", "Phim tâm lý"].map((item) => (
-                  <div
-                    key={item}
-                    className="cursor-pointer hover:text-[#faab00] text-left"
-                    onClick={() => {
-                      setSelectedCategory(item);
-                      setIsCategoryOpen(false);
-                    }}
-                  >
-                    {item}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Đánh giá */}
-          <div className="relative mt-[20px]">
-            <button
-              className="bg-[#222129] text-white px-[10px] py-[5px] h-[40px] rounded-md transition flex justify-between items-center w-[150px]"
-              onClick={() => toggleDropdownDesktop("rating")}
-            >
-              {selectedRating} <Icons.Home.down className="p-[2px]" />
-            </button>
-            {isRatingOpen && (
-              <div className="absolute left-0  bg-[#333] text-white mt-2 p-4 rounded-md shadow-md w-full z-50">
-                {["5 sao", "4 sao", "3 sao"].map((item) => (
-                  <div
-                    key={item}
-                    className="cursor-pointer hover:text-[#faab00] text-left"
-                    onClick={() => {
-                      setSelectedRating(item);
-                      setIsRatingOpen(false);
-                    }}
-                  >
-                    {item}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Thời gian */}
-          <div className="relative mt-[20px]">
-            <button
-              className="bg-[#222129] text-white px-[10px] py-[5px] h-[40px] rounded-md transition flex justify-between items-center w-[150px]"
-              onClick={() => toggleDropdownDesktop("time")}
-            >
-              {selectedTime} <Icons.Home.down className="p-[2px]" />
-            </button>
-            {isTimeOpen && (
-              <div className="absolute left-0  bg-[#333] text-white mt-2 p-4 rounded-md shadow-md w-full z-50">
-                {["1 ngày", "1 tuần", "1 tháng"].map((item) => (
-                  <div
-                    key={item}
-                    className="cursor-pointer hover:text-[#faab00] text-left"
-                    onClick={() => {
-                      setSelectedTime(item);
-                      setIsTimeOpen(false);
-                    }}
-                  >
-                    {item}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Nút ÁP DỤNG */}
-        <div className="flex w-[30%] justify-end">
-          <div className="mt-[20px]">
-            <button
-              className="bg-transparent text-white px-[10px] py-[5px] w-[110px] h-[40px] border-[2px] border-[#faab00] rounded-md hover:bg-[#f2d19480] transition"
-              onClick={() =>
-                console.log({ selectedCategory, selectedRating, selectedTime })
+          <div
+            className="relative mt-[20px] z-[30] w-[200px]"
+            onClick={fetchDataGenres}
+          >
+            <Filter
+              options={genresRender.map((genre) => ({
+                id: genre.id,
+                name: genre.name,
+              }))}
+              onSortChange={handleGenreChange}
+              dropdownWidth="100%"
+              test={
+                Array.isArray(genres) && genres.length > 0
+                  ? genres.map((g) => g.name).join(", ")
+                  : "Chọn thể loại"
               }
-            >
-              ÁP DỤNG
-            </button>
+            />
+          </div>
+
+          <div
+            className="relative mt-[20px] z-[30] w-[200px]"
+            onClick={fetchDataGenres}
+          >
+            <Filter
+              options={ratings} // Truyền danh sách rating vào dropdown
+              onSortChange={handleRatingChange} // Hàm xử lý khi chọn rating
+              dropdownWidth="100%"
+              test={
+                Array.isArray(selectedRating) && selectedRating.length > 0
+                  ? selectedRating.map((r) => r.name).join(", ")
+                  : "Chọn xếp hạng"
+              }
+            />
           </div>
         </div>
       </div>

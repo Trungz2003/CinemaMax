@@ -3,6 +3,7 @@ import Icons from "../../ultils/Icons";
 import { updateFavorites } from "../../apis/client/MovieItem";
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import path from "../../ultils/Path";
 
 const ExpectedPremiere = ({ data, onUpdateFavorites, isFavorite = false }) => {
   const scrollContainerRef = useRef();
@@ -23,6 +24,8 @@ const ExpectedPremiere = ({ data, onUpdateFavorites, isFavorite = false }) => {
     try {
       const response = await updateFavorites(id, navigate);
       if (response.code === 0) {
+        console.log("Update thành công!");
+
         setFavoriteState((prev) => ({
           ...prev,
           [id]: !prev[id], // Cập nhật trạng thái yêu thích của phim có id đó
@@ -32,6 +35,12 @@ const ExpectedPremiere = ({ data, onUpdateFavorites, isFavorite = false }) => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleSelectMovie = (id) => {
+    console.log(id);
+
+    navigate(`${path.DETAILS}/${id}`);
   };
 
   return (
@@ -92,7 +101,10 @@ const ExpectedPremiere = ({ data, onUpdateFavorites, isFavorite = false }) => {
                   <Icons.Home.bookmark />
                 </button>
               </div>
-              <div className="absolute flex justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto z-10">
+              <div
+                className="absolute flex justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto z-10 cursor-pointer"
+                onClick={() => handleSelectMovie(item.id)}
+              >
                 <div
                   className="md:w-[60px] w-[40px] md:h-[60px] h-[40px] bg-white md:text-[24px] text-[15px] text-[#faab00]
                 flex justify-center items-center rounded-[50%]

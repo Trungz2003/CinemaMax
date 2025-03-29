@@ -10,9 +10,11 @@ import org.example.cinemamax_server.exception.ErrorCode;
 import org.example.cinemamax_server.repository.UserSubscriptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Data
@@ -43,6 +45,19 @@ public class UserSubscriptionsService {
         return userSubscriptionRepository.findByUserIdAndStatus(userId, UserSubscriptions.Status.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
     }
+
+    // Cập nhật trạng thái subscription hết hạn
+    @Transactional
+    public void updateExpiredSubscriptions() {
+        List<UserSubscriptions> expiredSubscriptions =
+                userSubscriptionRepository.findByEndDateBeforeAndStatus(LocalDateTime.now(), UserSubscriptions.Status.ACTIVE);
+        for (UserSubscriptions sub : expiredSubscriptions) {
+            sub.setStatus(UserSubscriptions.Status.EXPIRED);
+            userSubscriptionRepository.save(sub);
+            System.out.println("Cập nhật gói hết hạn: " + sub.getId());
+        }
+    }
+
 
 
 }

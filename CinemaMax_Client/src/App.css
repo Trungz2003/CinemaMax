@@ -131,3 +131,30 @@
   cursor: pointer;
   width: 100%;
 }
+
+/* Đổi màu hình tròn pagination của Swiper */
+.custom-pagination .swiper-pagination-bullet {
+  background-color: gray !important; /* Màu mặc định */
+  width: 8px;
+  height: 8px;
+  transition: all 0.3s ease;
+}
+
+.custom-pagination .swiper-pagination-bullet-active {
+  background-color: #faab00 !important; /* Màu vàng khi active */
+  transform: scale(1.5); /* Tăng kích thước khi active */
+}
+
+/* Tùy chỉnh màu cho nút mũi tên */
+.custom-pagination .swiper-button-prev,
+.custom-pagination .swiper-button-next {
+  color: #faab00 !important; /* Màu vàng */
+  transition: all 0.3s ease-in-out;
+}
+
+/* Hiệu ứng hover */
+.custom-pagination .swiper-button-prev:hover,
+.custom-pagination .swiper-button-next:hover {
+  transform: scale(1.2); /* Phóng to khi hover */
+  color: #ffcc00 !important; /* Vàng sáng hơn */
+}

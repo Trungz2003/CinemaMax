@@ -38,6 +38,15 @@ public enum ErrorCode {
     SUBSCRIPTION_NOT_ACTIVE(403, "Tài khoản của bạn chưa được kích hoạt gói đăng kí!", HttpStatus.FORBIDDEN),
     SUBSCRIPTION_CANCELLED(403, "Gói đăng ký của bạn đã bị hủy!", HttpStatus.FORBIDDEN),
     ALREADY_RATED(400, "Bạn đã đánh giá bộ phim này trước đó!", HttpStatus.BAD_REQUEST),
+    INVALID_PACKAGE_FORMAT(400, "Định dạng gói không hợp lệ!", HttpStatus.BAD_REQUEST),
+    PAYMENT_NOT_FOUND(404, "Không tìm thấy giao dịch thanh toán!", HttpStatus.NOT_FOUND),
+    PAYMENT_EXECUTION_FAILED(500, "Thực hiện thanh toán thất bại!", HttpStatus.INTERNAL_SERVER_ERROR),
+    PAYPAL_ERROR(500, "Lỗi xảy ra khi xử lý với PayPal!", HttpStatus.INTERNAL_SERVER_ERROR),
+    PAYMENT_APPROVAL_URL_NOT_FOUND(404, "Không tìm thấy URL phê duyệt thanh toán!", HttpStatus.NOT_FOUND),
+    INVALID_AMOUNT_FORMAT(400, "Định dạng số tiền không hợp lệ!", HttpStatus.BAD_REQUEST),
+    PAYMENT_REJECTED(400, "Thanh toán bị từ chối!", HttpStatus.BAD_REQUEST),
+    MOVIE_NOT_RELEASED(400, "Phim chưa được công chiếu!", HttpStatus.BAD_REQUEST),
+
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

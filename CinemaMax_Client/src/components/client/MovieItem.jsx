@@ -21,9 +21,8 @@ const MovieItem = ({ item, onUpdateFavorites }) => {
     }
   };
 
-  const handleSelectMovie = (movie) => {
-    localStorage.setItem("selectedMovie", JSON.stringify(movie));
-    navigate(`${path.DETAILS}/${movie.id}`);
+  const handleSelectMovie = (id) => {
+    navigate(`${path.DETAILS}/${id}`);
   };
 
   if (!item) return <p className="text-white">Dữ liệu phim bị lỗi</p>;
@@ -51,13 +50,13 @@ const MovieItem = ({ item, onUpdateFavorites }) => {
 
         <div
           className="absolute flex justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto z-10"
-          onClick={() => handleSelectMovie(item)} // Xử lý click
+          onClick={() => handleSelectMovie(item.id)} // Xử lý click
         >
           <div
             className="md:w-[60px] w-[40px] md:h-[60px] h-[40px] bg-white md:text-[24px] text-[15px] text-[#faab00]
               flex justify-center items-center rounded-[50%]
               md:border-[6px] border-[3px] border-solid border-[#827b7b]
-              box-border hover:border-[#af9660]"
+              box-border hover:border-[#af9660] cursor-pointer"
           >
             <Icons.Home.playFilled />
           </div>

@@ -106,7 +106,7 @@ public class MoviesController {
     }
 
     @PutMapping("/admin/movie/status/{movieId}")
-    ApiResponse<MovieStatus> updateUserStatus(@PathVariable int movieId){
+    ApiResponse<MovieStatus> updateMovieStatus(@PathVariable int movieId){
         return ApiResponse.<MovieStatus>builder()
                 .result(movieService.updateStatusMovie(movieId))
                 .build();
@@ -120,7 +120,7 @@ public class MoviesController {
     }
 
     @PutMapping("/admin/movie/{movieId}")
-    public ApiResponse<GetMoviesByIdResponse> updateMovieStatus(
+    public ApiResponse<GetMoviesByIdResponse> updateMovie(
             @PathVariable int movieId,  // Lấy movieId từ URL
             @RequestBody UpdateMovieByIdRequest request) {  // Lấy dữ liệu từ body) {
         try {
@@ -159,7 +159,7 @@ public class MoviesController {
     }
 
     @GetMapping("/user/movie")
-    public ApiResponse<AllMovieInfoResponse> getAllMoviesUser(Authentication authentication) {
+    public ApiResponse<AllMovieInfoResponse> getAllMoviesFavoritesUser(Authentication authentication) {
         if (authentication == null || authentication.getName() == null) {
             AllMovieInfoResponse response = movieService.getAllMovieUser(null);
             return ApiResponse.<AllMovieInfoResponse>builder()
@@ -196,9 +196,10 @@ public class MoviesController {
                 .build();
     }
 
-    @PostMapping("/user/movie/videoAccess")
+    @PostMapping("/user/movie/videoAccess/{id}")
     @PreAuthorize("isAuthenticated()")
     public ApiResponse<VideoAccessResponse> checkVideoAccess(@RequestHeader("Authorization") String authorizationHeader,
+                                                             @PathVariable("id") int movieId,
                                                              Authentication authentication) {
         // Check if the user is authenticated
         if (authentication == null || authentication.getName() == null) {
@@ -211,7 +212,7 @@ public class MoviesController {
 
         try {
             // Call the service to check video access
-            VideoAccessResponse response = movieService.checkVideoAccess(new IntrospectRequest(token), email);
+            VideoAccessResponse response = movieService.checkVideoAccess(new IntrospectRequest(token), email, movieId);
 
             return ApiResponse.<VideoAccessResponse>builder()
                     .result(response)
@@ -225,6 +226,5 @@ public class MoviesController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Lỗi xác thực JWT: " + e.getMessage());
         }
     }
-
 
 }

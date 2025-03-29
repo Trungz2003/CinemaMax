@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Integer> {
+public interface SubscriptionsRepository extends JpaRepository<Subscriptions, Long> {
     Optional<Subscriptions> findByName(String name);
 }

@@ -2,6 +2,7 @@ package org.example.cinemamax_server.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.example.cinemamax_server.enums.PaymentStatus;
 
 import java.time.LocalDateTime;
 
@@ -30,8 +31,9 @@ public class Payments {
     @Column(name = "payment_method")
     private String paymentMethod;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
-    private String paymentStatus;
+    private PaymentStatus paymentStatus;
 
     @Column(name = "transaction_id")
     private String transactionId;

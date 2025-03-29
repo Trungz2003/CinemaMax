@@ -18,7 +18,7 @@ export const Footer = () => {
           Giới thiệu về chúng tôi
         </Link>
         <Link
-          to={path.FAQ} // Liên kết đến trang Chính sách bảo mật
+          to={path.CONTACTS} // Liên kết đến trang Chính sách bảo mật
           className="text-left cursor-pointer hover:text-[#f9ab00] select-none block md:inline"
         >
           Liên hệ

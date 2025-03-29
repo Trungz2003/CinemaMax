@@ -1,112 +1,62 @@
 import React from "react";
 import Icons from "../../ultils/Icons";
 import { useState } from "react";
+import Filter from "../../components/admin/Filter";
+import { executePayment } from "../../apis/client/SelectPlan";
+import { ShowToast } from "../../ultils/ToastUtils";
+import { useNavigate } from "react-router-dom";
+import path from "../../ultils/Path";
 
-const premium = 39.9;
-const cinematic = 49.9;
-
-const Filter = ({ options, onSortChange, dropdownWidth = "200px", test }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedOption, setSelectedOption] = useState(
-    test ? test : options[0]
-  );
-
-  const toggleDropdown = () => setIsOpen(!isOpen);
-
-  const handleOptionSelect = (option) => {
-    setSelectedOption(option);
-    setIsOpen(false);
-    if (onSortChange) {
-      onSortChange(option); // Gọi callback khi chọn option
-    }
-  };
-
-  const handleSearchChange = (e) => setSearchTerm(e.target.value);
-
-  const filteredOptions = options.filter((option) =>
-    option.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const shouldShowSearchBar = options.length > 5; // Hiển thị thanh tìm kiếm nếu có hơn 5 tùy chọn
-
-  return (
-    <div className="relative w-full mt-[11px]">
-      {/* Dropdown Trigger */}
-      <div
-        className="h-[45px] rounded-[8px] bg-[#222129] flex items-center px-4 cursor-pointer gap-[5px]"
-        role="combobox"
-        tabIndex="0"
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        onClick={toggleDropdown}
-      >
-        <div className="flex-1 text-white text-left">{selectedOption}</div>
-        <div className="flex items-center">
-          <svg
-            className={`w-2 h-2 text-white transform transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
-            viewBox="0 0 100 100"
-          >
-            <path
-              d="M10,30 L50,70 L90,30"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="10"
-            ></path>
-          </svg>
-        </div>
-      </div>
-
-      {/* Dropdown Content */}
-      {isOpen && (
-        <div
-          className="absolute bg-[#222129] w-[200px] mt-2 rounded-[8px] shadow-lg z-10 text-left "
-          style={{ width: dropdownWidth }}
-        >
-          {/* Search Bar (Hiển thị nếu có nhiều tùy chọn) */}
-          {shouldShowSearchBar && (
-            <div className="px-4 py-2">
-              <input
-                type="text"
-                className="w-full p-2 bg-[#333] text-white rounded-md focus:ring-2 focus:ring-[#f9ab00] focus:outline-none"
-                placeholder="Tìm kiếm..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-            </div>
-          )}
-          {/* Options List */}
-          <div className="max-h-[150px] overflow-y-auto">
-            {filteredOptions.map((option, index) => (
-              <div
-                key={index}
-                className={`px-4 py-2 cursor-pointer text-white hover:text-[#f9ab00] ${
-                  selectedOption === option ? "font-bold text-custom" : ""
-                }`}
-                onClick={() => handleOptionSelect(option)}
-              >
-                {option}
-              </div>
-            ))}
-            {filteredOptions.length === 0 && (
-              <div className="px-4 py-2 text-gray-400">Không có kết quả</div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+const lstPayment = [
+  { name: "Premium - $34.99" },
+  { name: "Cinematic - $49.99" },
+];
 
 const SelectPlans = ({ onClose }) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [packageName, setPackageName] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const navigate = useNavigate();
+  const handlePaymentMethodChange = () => {
+    // Nếu đã chọn "Paypal", chuyển sang chữ thường, nếu không thì để trống
+    setPaymentMethod(paymentMethod === "paypal" ? "paypal" : "paypal");
+  };
+
+  const handlePayment = async () => {
+    // Tạo đối tượng userData
+    const userData = {
+      name: name,
+      email: email,
+      packageName: packageName.name,
+      paymentMethod: paymentMethod,
+    };
+    // Gọi hàm executePayment để thực hiện thanh toán
+    const result = await executePayment(userData);
+
+    onClose();
+    if (result.code === 0) {
+      // Xử lý kết quả trả về từ Paypal (thành công)
+      window.open(result.result, "_blank"); // Mở link thanh toán trong tab mới
+    } else if (result.code === 401) {
+      // Xử lý nếu token hết hạn hoặc người dùng chưa đăng nhập
+      navigate(path.LOGIN);
+      ShowToast("error", "Vui lòng đăng nhập để thanh toán!");
+    } else if (result.code === 403) {
+      // Xử lý nếu có lỗi từ phía Paypal
+      ShowToast("error", "Lỗi bên phía Paypal");
+      return;
+    }
+  };
   return (
     <div className="fixed inset-0 bg-opacity-50 flex justify-center items-center z-50 text-white text-[14px]">
       <div className="bg-[#2E2D35] md:h-[680px] md:w-[420px] w-full px-[30px] py-[35px] rounded-lg shadow-lg relative">
         <div className="text-[24px] flex justify-between">
           <p>Chọn kế hoạch</p>
-          <button className="text-[24px]" onClick={onClose}>
+          <button
+            className="text-[24px] hover:text-[#f9ab00]"
+            onClick={onClose}
+          >
             <Icons.Navbar.close />
           </button>
         </div>
@@ -116,6 +66,8 @@ const SelectPlans = ({ onClose }) => {
             id="username"
             name="username"
             type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             placeholder="Họ tên đầy đủ"
             className="block  w-full h-[45px] bg-[#222129] md:mt-[10px] mt-[20px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
           />
@@ -126,6 +78,8 @@ const SelectPlans = ({ onClose }) => {
             id="email"
             name="email"
             type="text"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="ví dụ@tên miền.com"
             className="block  w-full h-[45px] bg-[#222129] md:mt-[10px] mt-[20px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
           />
@@ -133,9 +87,10 @@ const SelectPlans = ({ onClose }) => {
         <div className="w-full mt-[20px]">
           <div className="w-full text-left">Chọn gói:</div>
           <Filter
-            options={[`"Premium - $${premium}"`, `"Cinematic - $${cinematic}"`]}
-            //onSortChange={handleSortChange}
+            options={lstPayment} // Truyền danh sách rating vào dropdown
+            onSortChange={setPackageName} // Hàm xử lý khi chọn rating
             dropdownWidth="100%"
+            test="Chọn gói đăng kí"
           />
         </div>
         <p className="mt-[20px] text-left">
@@ -146,7 +101,13 @@ const SelectPlans = ({ onClose }) => {
         <div className="mt-[20px]">
           <p className="w-full text-left">Phương thức thanh toán:</p>
           <div className="flex items-center gap-2 mt-[10px]">
-            <input type="checkbox" id="type3" className="hidden peer" />
+            <input
+              type="checkbox"
+              id="type3"
+              className="hidden peer"
+              checked={paymentMethod.toLowerCase() === "paypal"} // Đảm bảo checkbox được chọn khi giá trị là "paypal"
+              onChange={handlePaymentMethodChange}
+            />
             <label
               htmlFor="type3"
               className="flex items-center justify-center w-[18px] h-[18px] border-[4px] border-gray-400 rounded-[100%] cursor-pointer peer-checked:border-[#f9ab00] transition select-none"
@@ -156,7 +117,10 @@ const SelectPlans = ({ onClose }) => {
             </label>
           </div>
         </div>
-        <button className="w-[120px] h-[45px] rounded-[8px] border-[2px] border-[#f9ab00] text-[16px] mt-[20px]">
+        <button
+          className="w-[120px] h-[45px] rounded-[8px] border-[2px] border-[#f9ab00] text-[16px] mt-[20px] hover:bg-[#f9ab00]"
+          onClick={handlePayment}
+        >
           Tiếp tục
         </button>
       </div>

@@ -192,15 +192,6 @@ const RenderAddItem = () => {
   useEffect(() => {
     fetchDataCountry();
   }, []);
-
-  useEffect(() => {
-    console.log("Genres cập nhật:", genres);
-  }, [genres]);
-
-  useEffect(() => {
-    console.log("Countries cập nhật:", countries);
-  }, [countries]);
-
   const handleSaveMovie = async () => {
     if (
       !title.trim() ||
@@ -417,9 +408,9 @@ const RenderAddItem = () => {
                 onSortChange={handleCountriesChange}
                 dropdownWidth="100%"
                 test={
-                  countries.name && countries.name.length > 0
-                    ? countries.name
-                    : "Quốc gia"
+                  Array.isArray(countries) && countries.length > 0
+                    ? countries.map((r) => r.name).join(", ")
+                    : countries?.name || "Quốc gia"
                 }
               />
             </div>

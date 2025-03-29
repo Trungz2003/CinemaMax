@@ -65,18 +65,16 @@ export const MoviePlans = () => {
               <p className="ml-[10px]">Độ phân giải 720p</p>
             </div>
             <div className="w-full flex text-[16px] items-center mb-[10px]">
-              <SettingCricleMinus />
-              <p className="ml-[10px] text-[#a5a6a6]">Số lượng có hạn</p>
+              <SettingCircleCheck />
+              <p className="ml-[10px]">Dùng trên điện thoại và máy tính bảng</p>
             </div>
             <div className="w-full flex text-[16px] items-center mb-[10px]">
               <SettingCricleMinus />
-              <p className="ml-[10px] text-[#a5a6a6]">
-                Chỉ dành cho máy tính để bàn
-              </p>
+              <p className="ml-[10px] text-[#a5a6a6]">Hỗ trợ 24/7</p>
             </div>
             <div className="w-full flex text-[16px] items-center mb-[10px]">
               <SettingCricleMinus />
-              <p className="ml-[10px] text-[#a5a6a6]">Hỗ trợ hạn chế</p>
+              <p className="ml-[10px] text-[#a5a6a6]">Không hỗ trợ tải xuống</p>
             </div>
           </div>
 
@@ -104,19 +102,19 @@ export const MoviePlans = () => {
             </div>
             <div className="w-full flex text-[16px] items-center mb-[10px]">
               <SettingCircleCheck />
-              <p className="ml-[10px]">Độ phân giải Full HD</p>
+              <p className="ml-[10px]">Độ phân giải 1080p</p>
             </div>
             <div className="w-full flex text-[16px] items-center mb-[10px]">
               <SettingCircleCheck />
-              <p className="ml-[10px]">Số lượng có hạn</p>
-            </div>
-            <div className="w-full flex text-[16px] items-center mb-[10px]">
-              <SettingCricleMinus />
-              <p className="ml-[10px] text-[#a5a6a6]">TV & Máy tính để bàn</p>
+              <p className="ml-[10px]">Dùng trên điện thoại và máy tính</p>
             </div>
             <div className="w-full flex text-[16px] items-center mb-[10px]">
               <SettingCricleMinus />
               <p className="ml-[10px] text-[#a5a6a6]">Hỗ trợ 24/7</p>
+            </div>
+            <div className="w-full flex text-[16px] items-center mb-[10px]">
+              <SettingCricleMinus />
+              <p className="ml-[10px] text-[#a5a6a6]">Không hỗ trợ tải xuống</p>
             </div>
           </div>
 
@@ -142,23 +140,23 @@ export const MoviePlans = () => {
           <div className="w-full text-white">
             <div className="w-full flex text-[16px] items-center mb-[10px]">
               <SettingCircleCheck />
-              <p className="ml-[10px]">7 ngày</p>
+              <p className="ml-[10px]">2 tháng</p>
             </div>
             <div className="w-full flex text-[16px] items-center mb-[10px]">
               <SettingCircleCheck />
-              <p className="ml-[10px]">Độ phân giải 720p</p>
+              <p className="ml-[10px]">Độ phân giải 1440p</p>
             </div>
             <div className="w-full flex text-[16px] items-center mb-[10px]">
               <SettingCircleCheck />
-              <p className="ml-[10px]">Số lượng có hạn</p>
+              <p className="ml-[10px]">Dùng trên điện thoại, máy tính và TV</p>
             </div>
             <div className="w-full flex text-[16px] items-center mb-[10px]">
               <SettingCircleCheck />
-              <p className="ml-[10px]">Chỉ dành cho máy tính để bàn</p>
+              <p className="ml-[10px]">Hỗ trợ 24/7</p>
             </div>
-            <div className="w-full flex text-[16px] items-center mb-[10px]">
-              <SettingCircleCheck />
-              <p className="ml-[10px]">Hỗ trợ hạn chế</p>
+            <div className="w-full flex text-[16px] items-center mb-[10px] text-[#a5a6a6]">
+              <SettingCricleMinus />
+              <p className="ml-[10px]">Không hỗ trợ tải xuống</p>
             </div>
           </div>
 

@@ -300,11 +300,20 @@ public class MoviesService {
     }
 
 
-    public VideoAccessResponse checkVideoAccess(IntrospectRequest introspectRequest, String email) throws ParseException, JOSEException {
+    public VideoAccessResponse checkVideoAccess(IntrospectRequest introspectRequest, String email, int movieId) throws ParseException, JOSEException {
         // Kiểm tra token
         IntrospectResponse introspect = authenticationService.introspect(introspectRequest);
         if (!introspect.isValid()){
             throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        // Kiểm tra xem phim có tồn tại không
+        Movies movie = moviesRepository.findById(movieId)
+                .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_EXISTED));
+
+        // 🔥 Nếu phim **private**, báo lỗi "Phim chưa được công chiếu!"
+        if (movie.getStatus() != MovieStatus.PUBLIC) {
+            throw new AppException(ErrorCode.MOVIE_NOT_RELEASED);
         }
 
         // Tìm người dùng theo email

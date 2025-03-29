@@ -26,6 +26,7 @@ import Setting from "./pages/admin/Setting";
 import EditUser from "./pages/admin/EditUser";
 import AddItem from "./pages/admin/AddItem";
 import PrivateRoute from "./ultils/PrivateRoute";
+import { MovieProvider } from "./ultils/MovieContext";
 
 // Cấu hình router với createBrowserRouter
 const router = createBrowserRouter([
@@ -64,24 +65,26 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <div className=" font-sans text-[14px] h-full w-full ">
-      {/* Sử dụng RouterProvider để cung cấp cấu hình router cho ứng dụng */}
-      <RouterProvider router={router} />
+    <MovieProvider>
+      <div className=" font-sans text-[14px] h-full w-full ">
+        {/* Sử dụng RouterProvider để cung cấp cấu hình router cho ứng dụng */}
+        <RouterProvider router={router} />
 
-      {/* ToastContainer để hiển thị các thông báo */}
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-    </div>
+        {/* ToastContainer để hiển thị các thông báo */}
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+      </div>
+    </MovieProvider>
   );
 }
 

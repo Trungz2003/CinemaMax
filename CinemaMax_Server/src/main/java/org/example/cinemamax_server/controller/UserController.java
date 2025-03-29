@@ -30,7 +30,6 @@ import java.util.Optional;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
     UserService service;
-    private final UserService userService;
 
 
     //1
@@ -81,9 +80,9 @@ public class UserController {
 
     @GetMapping("/admin/info/{email}")
     public ApiResponse<InfoAdminMenuResponse> getAdminMenu(@PathVariable String email) {
-        var response = userService.getInfoAdminMenu(email);
+        var response = service.getInfoAdminMenu(email);
         return  ApiResponse.<InfoAdminMenuResponse>builder()
-                .message("Lấy thông tin user thành công!")
+                .message("Lấy thông tin admin thành công!")
                 .result(response)
                 .build();
     }
@@ -185,7 +184,7 @@ public class UserController {
 
     @PostMapping("/admin/sendAllEmail")
     public ApiResponse<Boolean> sendNotification(@RequestBody SendMailUpdateRequest request) {
-        var status = userService.sendUpdateAlluser(request); // Lấy danh sách email từ DB
+        var status = service.sendUpdateAlluser(request); // Lấy danh sách email từ DB
 
         return ApiResponse.<Boolean>builder()
                 .result(status)

@@ -342,7 +342,6 @@ public class UserService {
         List<MovieDTO> favoriteMovies = moviesMapper.toResponseList(
                 favoritesRepository.findByUserId(user.getId()).stream()
                         .map(Favorites::getMovie)
-                        .filter(movie -> movie.getStatus() == MovieStatus.PUBLIC) // 🔥 Lọc phim có status PUBLIC
                         .toList(),
                 user.getId()
         );

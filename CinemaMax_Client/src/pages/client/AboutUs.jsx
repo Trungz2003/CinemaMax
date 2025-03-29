@@ -69,9 +69,9 @@ const RenderAbout = () => {
             <div className="text-[46px] text-[#faab00] font-bold p-0 m-0">
               03
             </div>
-            <div className="text-[20px] mt-[5px]">Thưởng thức HotFlix</div>
+            <div className="text-[20px] mt-[5px]">Thưởng thức StreamPhim</div>
             <div className="mt-[10px]">
-              Đắm mình vào thế giới HotFlix, nơi có dịch vụ phát trực tuyến phim
+              Đắm mình vào thế giới StreamPhim, nơi có dịch vụ phát trực tuyến phim
               không giới hạn đang chờ đón. Với bộ sưu tập phim đồ sộ của chúng
               tôi, sẽ có phim dành cho mọi người.
             </div>

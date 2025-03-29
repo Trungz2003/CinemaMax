@@ -4,6 +4,7 @@ import { checkVideoAccess } from "../../apis/client/MovieDetails";
 import { useNavigate } from "react-router-dom";
 import { ShowToast } from "../../ultils/ToastUtils";
 import path from "../../ultils/Path";
+import { useParams } from "react-router-dom";
 
 const VideoPlayer = ({ videoPath }) => {
   const [resolution, setResolution] = useState("360p"); // Độ phân giải mặc định
@@ -29,6 +30,7 @@ const VideoPlayer = ({ videoPath }) => {
   };
 
   const [duration, setDuration] = useState(0);
+  const { id } = useParams();
 
   const handleMetadataLoaded = () => {
     if (videoRef.current) {
@@ -50,6 +52,10 @@ const VideoPlayer = ({ videoPath }) => {
         ShowToast("error", "Vui lòng đăng nhập để thưởng thức phim!");
         navigate(path.PRICING);
         return null;
+      } else if (statusVideo === 400) {
+        ShowToast("error", "Phim chưa được công chiếu!");
+        event.target.pause();
+        return;
       }
     } catch (error) {
       event.target.pause();
@@ -60,7 +66,7 @@ const VideoPlayer = ({ videoPath }) => {
   useEffect(() => {
     const handleCheckVideoAccess = async (event) => {
       try {
-        const response = await checkVideoAccess(); // Không truyền navigate
+        const response = await checkVideoAccess(id); // Không truyền navigate
         if (response && response.code === 0) {
           const subscriptionName = response.result.subscriptions.name;
           setUserSubscription(subscriptionName);

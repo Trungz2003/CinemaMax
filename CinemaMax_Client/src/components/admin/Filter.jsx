@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import Icons from "../../ultils/Icons";
 
 const Filter = ({
   options,
@@ -16,7 +17,14 @@ const Filter = ({
   // Khởi tạo selectedOption, mặc định là mảng rỗng nếu multiSelect
   const [selectedOption, setSelectedOption] = useState(multiSelect ? [] : null);
 
-  const toggleDropdown = () => setIsOpen((prev) => !prev);
+  const toggleDropdown = () => {
+    setIsOpen((prev) => {
+      if (!prev) {
+        setSearchTerm(""); // Reset tìm kiếm khi mở lại dropdown
+      }
+      return !prev;
+    });
+  };
 
   const handleOptionSelect = (option) => {
     if (multiSelect) {
@@ -32,23 +40,34 @@ const Filter = ({
         return newSelected;
       });
     } else {
-      setSelectedOption(option);
-      if (onSortChange) {
-        onSortChange(option);
-      }
-      setIsOpen(false); // Đóng dropdown sau khi chọn
+      setSelectedOption((prev) => {
+        const newValue = prev?.name === option.name ? null : option; // Bỏ chọn nếu click lại
+        if (onSortChange) {
+          onSortChange(newValue);
+        }
+        setIsOpen(false); // Đóng dropdown khi chọn xong
+        return newValue;
+      });
     }
   };
 
   const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
-  const filteredOptions = Array.isArray(options)
-    ? options.filter(
-        (option) =>
-          option?.name &&
-          option.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : [];
+  const normalizeText = (text) =>
+    text
+      .normalize("NFD") // Chuẩn hóa Unicode
+      .replace(/[\u0300-\u036f]/g, "") // Xóa dấu tiếng Việt
+      .trim()
+      .toLowerCase();
+  const filteredOptions =
+    Array.isArray(options) && options.length > 0
+      ? options.filter((option) => {
+          if (!option?.name) return false;
+          const normalizedOptionName = normalizeText(option.name);
+          const normalizedSearchTerm = normalizeText(searchTerm);
+          return normalizedOptionName.includes(normalizedSearchTerm);
+        })
+      : [];
 
   const shouldShowSearchBar = options.length > 5;
 
@@ -135,24 +154,46 @@ const Filter = ({
             {filteredOptions.map((option, index) => (
               <div
                 key={index}
-                className={`px-4 py-2 cursor-pointer text-white hover:text-[#f9ab00] flex items-center ${
-                  selectedOption?.some((item) => item.id === option.id)
-                    ? "font-bold"
+                className={`px-4 py-2 cursor-pointer text-white hover:text-[#f9ab00] flex items-center justify-between ${
+                  multiSelect
+                    ? selectedOption?.some((item) => item.id === option.id)
+                      ? "font-bold text-custom-yellow"
+                      : ""
+                    : selectedOption?.name === option.name
+                    ? "font-bold text-custom-yellow"
                     : ""
                 }`}
                 onClick={() => handleOptionSelect(option)}
               >
-                {multiSelect && (
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    checked={selectedOption?.some(
-                      (item) => item.id === option.id
-                    )}
-                    readOnly
-                  />
+                <div className="flex items-center">
+                  {multiSelect && (
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      checked={
+                        multiSelect
+                          ? selectedOption?.some(
+                              (item) => item.id === option.id
+                            )
+                          : selectedOption?.id === option.id
+                      }
+                      readOnly
+                    />
+                  )}
+                  {option.name}
+                </div>
+
+                {!multiSelect && selectedOption?.name === option.name && (
+                  <span
+                    className="cursor-pointer ml-2 hover:text-red-500"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Ngăn không cho sự kiện chọn option chạy
+                      handleOptionSelect(option); // Gọi lại hàm chọn option để bỏ chọn
+                    }}
+                  >
+                    <Icons.Home.close />
+                  </span>
                 )}
-                {option.name}
               </div>
             ))}
 

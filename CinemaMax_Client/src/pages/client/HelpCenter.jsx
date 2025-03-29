@@ -11,42 +11,42 @@ const RenderHelpCenter = () => {
     {
       question: "Tại sao video không tải được?",
       answer:
-        "Một thực tế đã được chứng minh từ lâu là người đọc sẽ bị phân tâm bởi nội dung dễ đọc của một trang khi nhìn vào bố cục của nó . Mục đích của việc sử dụng Lorem Ipsum là nó có sự phân bổ các chữ cái ít nhiều bình thường, trái ngược với việc sử dụng 'Nội dung ở đây, nội dung ở đây', khiến nó trông giống như tiếng Anh dễ đọc.",
+        "Có thể do kết nối mạng của bạn không ổn định hoặc máy chủ đang gặp sự cố. Hãy kiểm tra lại đường truyền internet của bạn hoặc thử tải lại trang.",
     },
     {
       question: "Làm thế nào để tôi có thể phát video toàn màn hình?",
       answer:
-        "Nếu bạn định sử dụng một đoạn văn bản Lorem Ipsum, bạn cần chắc chắn rằng không có bất kỳ điều gì đáng xấu hổ ẩn giấu ở giữa văn bản. Tất cả các trình tạo Lorem Ipsum trên Internet có xu hướng lặp lại các đoạn được xác định trước khi cần thiết, khiến đây trở thành trình tạo thực sự đầu tiên trên Internet.",
+        "Bạn có thể nhấp vào biểu tượng toàn màn hình ở góc dưới cùng bên phải của trình phát video hoặc nhấn phím 'F' trên bàn phím để chuyển sang chế độ toàn màn hình.",
     },
     {
-      question: "Tại sao video này lại không có phiên bản HD?",
+      question: "Tại sao video này không có phiên bản HD?",
       answer:
-        "Nhiều gói xuất bản trên máy tính để bàn và trình chỉnh sửa trang web hiện sử dụng Lorem Ipsum làm văn bản mẫu mặc định và tìm kiếm 'lorem ipsum' sẽ khám phá ra nhiều trang web vẫn còn trong giai đoạn trứng nước. Nhiều phiên bản đã phát triển qua nhiều năm, đôi khi là vô tình, đôi khi là cố ý (thêm vào sự hài hước và những thứ tương tự).",
+        "Phiên bản HD có thể không khả dụng do bản quyền hoặc do tốc độ mạng của bạn không đủ để phát ở độ phân giải cao. Hãy kiểm tra cài đặt chất lượng trong trình phát video.",
     },
     {
       question: "Trình duyệt nào được hỗ trợ?",
       answer:
-        "Nó sử dụng một từ điển gồm hơn 200 từ tiếng Latin, kết hợp với một số ít cấu trúc câu mẫu, để tạo ra Lorem Ipsum trông có vẻ hợp lý. Do đó, Lorem Ipsum được tạo ra luôn không có sự lặp lại, sự hài hước được đưa vào hoặc các từ không đặc trưng, ​​v.v.",
+        "Trang web hỗ trợ các trình duyệt phổ biến như Google Chrome, Firefox, Safari và Microsoft Edge. Để có trải nghiệm tốt nhất, hãy đảm bảo trình duyệt của bạn được cập nhật lên phiên bản mới nhất.",
     },
     {
-      question: "Tại sao âm thanh lại bị méo?",
+      question: "Tại sao âm thanh lại bị méo hoặc không đồng bộ?",
       answer:
-        "Có nhiều phiên bản khác nhau của Lorem Ipsum, nhưng phần lớn đã bị thay đổi ở một hình thức nào đó, bằng cách thêm yếu tố hài hước hoặc các từ ngẫu nhiên trông thậm chí không có vẻ đáng tin chút nào.",
+        "Điều này có thể do kết nối mạng không ổn định hoặc lỗi trình duyệt. Hãy thử làm mới trang, kiểm tra loa/tai nghe của bạn hoặc đổi sang trình duyệt khác.",
     },
     {
       question: "Bạn xử lý quyền riêng tư của tôi như thế nào?",
       answer:
-        "Nhiều gói xuất bản trên máy tính để bàn và trình chỉnh sửa trang web hiện sử dụng Lorem Ipsum làm văn bản mẫu mặc định và tìm kiếm 'lorem ipsum' sẽ khám phá ra nhiều trang web vẫn còn trong giai đoạn trứng nước. Nhiều phiên bản đã phát triển qua nhiều năm, đôi khi là vô tình, đôi khi là cố ý (thêm vào sự hài hước và những thứ tương tự).",
+        "Chúng tôi cam kết bảo vệ quyền riêng tư của bạn. Mọi thông tin cá nhân đều được mã hóa và không chia sẻ với bên thứ ba mà không có sự đồng ý của bạn.",
     },
     {
-      question: "Tại sao Video bị giật, dừng đột ngột hoặc dừng đột ngột?",
+      question: "Tại sao video bị giật, dừng đột ngột?",
       answer:
-        "Nếu bạn định sử dụng một đoạn văn bản Lorem Ipsum, bạn cần chắc chắn rằng không có bất kỳ điều gì đáng xấu hổ ẩn giấu ở giữa văn bản. Tất cả các trình tạo Lorem Ipsum trên Internet có xu hướng lặp lại các đoạn được xác định trước khi cần thiết, khiến đây trở thành trình tạo thực sự đầu tiên trên Internet.",
+        "Nguyên nhân có thể do tốc độ mạng chậm hoặc thiết bị của bạn đang chạy nhiều ứng dụng khác cùng lúc. Hãy thử giảm chất lượng video hoặc đóng bớt các ứng dụng nền.",
     },
     {
       question: "Tôi có thể liên lạc với bạn bằng cách nào?",
       answer:
-        "Nhiều gói xuất bản trên máy tính để bàn và trình chỉnh sửa trang web hiện sử dụng Lorem Ipsum làm văn bản mẫu mặc định và tìm kiếm 'lorem ipsum' sẽ khám phá ra nhiều trang web vẫn còn trong giai đoạn trứng nước. Nhiều phiên bản đã phát triển qua nhiều năm, đôi khi là vô tình, đôi khi là cố ý (thêm vào sự hài hước và những thứ tương tự).",
+        "Bạn có thể liên hệ với chúng tôi qua email hỗ trợ hoặc gửi tin nhắn qua trang liên hệ trên website. Chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
     },
   ];
 

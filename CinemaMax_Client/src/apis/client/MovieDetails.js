@@ -5,17 +5,22 @@ import { ShowToast } from "../../ultils/ToastUtils";
 
 const API_URL = "http://localhost:8081/api";
 
-export const checkVideoAccess = async () => {
+export const checkVideoAccess = async (movieId) => {
+  if (!movieId) {
+    console.log("Không tìm thấy movieId!");
+    return { code: 400 }; // Lỗi nếu không có ID
+  }
+
   let token = localStorage.getItem("token");
 
   if (!token || isTokenExpired(token)) {
     localStorage.removeItem("token");
-    return { code: 401 }; // Không ép logout ngay
+    return { code: 401 };
   }
 
   try {
     const response = await axios.post(
-      `${API_URL}/user/movie/videoAccess`,
+      `${API_URL}/user/movie/videoAccess/${movieId}`, // Gửi movieId lên server
       {},
       {
         headers: {
@@ -29,10 +34,12 @@ export const checkVideoAccess = async () => {
     console.log(error);
 
     if (error.response?.status === 401) {
-      return { code: 401 }; // Trả về lỗi thay vì redirect ngay
+      return { code: 401 };
     } else if (error.response?.status === 403) {
       ShowToast("error", "Gói đăng kí của bạn đã hết hạn!");
       return { code: 403 };
+    } else if (error.response?.status === 400) {
+      return { code: 400 };
     }
     throw error;
   }

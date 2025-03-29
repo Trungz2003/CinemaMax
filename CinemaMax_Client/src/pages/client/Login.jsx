@@ -181,9 +181,18 @@ const Login = () => {
                 onChange={() => setIsAgree(!isAgree)}
                 className="h-5 w-5 bg-[#261e2a] appearance-none border-2 border-gray-500 rounded-md checked:before:content-['✔'] checked:before:text-[12px] checked:before:text-[#F9AB00] checked:before:flex checked:before:justify-center checked:before:items-center cursor-pointer"
               />
-              <label htmlFor="rememberMe" className="text-sm text-white">
+              {/* <label htmlFor="rememberMe" className="text-sm text-white">
                 Duy trì đăng nhập
-              </label>
+              </label> */}
+              <div className="flex items-center">
+                <p className="text-white">Tôi đồng ý với</p>
+                <Link
+                  to={path.PRIVACY}
+                  className="text-sm text-[#F9AB00] ml-0.5 pt-[1px]"
+                >
+                  Chính sách bảo mật
+                </Link>
+              </div>
             </div>
           </div>
           <div className="mt-[35px]">
