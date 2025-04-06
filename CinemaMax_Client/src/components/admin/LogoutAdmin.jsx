@@ -17,7 +17,6 @@ const LogoutAdmin = () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      console.warn("Không có token, điều hướng về trang đăng nhập!");
       navigate(path.LOGIN);
       return;
     }
@@ -32,7 +31,6 @@ const LogoutAdmin = () => {
 
       // 3. Đăng xuất khỏi Firebase
       await logOut(auth);
-      console.log("Đã đăng xuất khỏi Firebase");
 
       // 4. Hiển thị thông báo và điều hướng về trang đăng nhập
       ShowToast("success", "Đăng xuất thành công!");

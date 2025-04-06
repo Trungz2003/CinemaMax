@@ -68,7 +68,7 @@ const AddUser = ({ isOpen, toggleModal, status }) => {
       if (response.code === 0) {
         status(true);
         toggleModal();
-        ShowToast("succes", "Tạo tài khoản thành công!");
+        ShowToast("success", "Tạo tài khoản thành công!");
       } else {
         status(false);
         toggleModal();

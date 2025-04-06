@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const CLOUDINARY_BASE_URL = "https://api.cloudinary.com/v1_1/dqnncyd7t";
+const CLOUDINARY_BASE_URL = "https://api.cloudinary.com/v1_1/dt1nhr5pt";
 const UPLOAD_PRESET = "StreamPhim";
 
 export const uploadFile = async (file, type = "image", folder = "") => {

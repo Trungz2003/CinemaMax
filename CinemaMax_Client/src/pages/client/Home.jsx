@@ -30,21 +30,6 @@ const MovieSlider = () => {
   }, [moviesPublic]);
 
   const handleSelectMovie = (movie) => {
-    let selectedMovies =
-      JSON.parse(localStorage.getItem("selectedMovies")) || [];
-
-    // Tìm phim trong danh sách
-    const existingMovie = selectedMovies.find((item) => item.id === movie.id);
-
-    if (!existingMovie) {
-      // Nếu chưa có, thêm vào danh sách
-      selectedMovies.push(movie);
-      localStorage.setItem("selectedMovies", JSON.stringify(selectedMovies));
-    }
-
-    // Ghi đè `selectedMoviesById` với phim mới nhất
-    localStorage.setItem("selectedMoviesById", JSON.stringify([movie]));
-
     navigate(`${path.DETAILS}/${movie.id}`);
   };
 
@@ -114,6 +99,7 @@ const RenderHome = () => {
   const [searchParams] = useSearchParams();
   const success = searchParams.get("success");
   const failed = searchParams.get("failed");
+  const [viewAll, setViewAll] = useState(failed);
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { ShowToast } from "../../ultils/ToastUtils";
 import path from "../../ultils/Path";
 import { useParams } from "react-router-dom";
+import { incrementView } from "../../apis/client/MovieDetails";
 
 const VideoPlayer = ({ videoPath }) => {
   const [resolution, setResolution] = useState("360p"); // Độ phân giải mặc định
@@ -49,7 +50,7 @@ const VideoPlayer = ({ videoPath }) => {
         navigate(path.LOGIN);
         return;
       } else if (statusVideo === 403) {
-        ShowToast("error", "Vui lòng đăng nhập để thưởng thức phim!");
+        ShowToast("error", "Gói đăng kí đã hết hạn!");
         navigate(path.PRICING);
         return null;
       } else if (statusVideo === 400) {
@@ -147,14 +148,18 @@ const VideoPlayer = ({ videoPath }) => {
   }, []);
 
   // Hàm kiểm tra thời gian video và in +1 chỉ một lần
-  const handleTimeUpdate = () => {
+  const handleTimeUpdate = async () => {
     const currentTime = videoRef.current.currentTime; // Lấy thời gian video đã phát
     setVideoTime(currentTime); // Cập nhật state với thời gian hiện tại
 
     // Nếu video đã phát quá 30 giây và chưa in +1
     if (currentTime > 30 && !hasPrinted) {
-      console.log("+1");
-      setHasPrinted(true); // Đánh dấu đã in +1
+      console.log(id);
+
+      const response = await incrementView(id);
+      if (response.code === 0) {
+        setHasPrinted(true); // Đánh dấu đã in +1
+      }
     }
   };
 

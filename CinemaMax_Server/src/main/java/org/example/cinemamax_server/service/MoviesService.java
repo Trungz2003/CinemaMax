@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,11 +47,13 @@ public class MoviesService {
     UserRepository userRepository;
     AuthenticationService authenticationService;
     UserSubscriptionRepository userSubscriptionRepository;
+    MonthlyViewService monthlyViewService;
 
     @PostAuthorize("hasRole('ADMIN')")
     public AddMoviesRespone saveMovie(MoviesRequest request) {
         // Chuyển đổi request thành entity
         Movies movie = moviesMapper.toEntity(request);
+        movie.setCreatedAt(LocalDate.now());
 
         // Lưu movie vào database (giả sử có phương thức save trong repository)
         moviesRepository.save(movie);
@@ -123,24 +126,26 @@ public class MoviesService {
     @PostAuthorize("hasRole('ADMIN')")
     public boolean deleteMovie(int id) {
 
-        // Kiểm tra xem phim có tồn tại không trước khi xóa
-        if (!moviesRepository.existsById(id)) {
-            throw new AppException(ErrorCode.ID_NOT_EXISTED);
-        }
+        // Lấy bộ phim từ repository để lấy số lượt xem
+        Movies movie = moviesRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.ID_NOT_EXISTED));
 
+        int movieViewCount = movie.getView();  // Lượt xem của bộ phim bị xóa
+
+        // Xóa các dữ liệu liên quan đến phim
         commentRepository.deleteCommentsByMovieId(id);
-
         ratingsRepository.deleteRatingsByMovieId(id);
-
         favoritesRepository.deleteFavoritesByMovieId(id);
-
         moviesRepository.deleteMovieGenresByMovieId(id);
 
+        // Xóa phim
         int deletedCount = moviesRepository.deleteMoviesById(id);
 
         if (deletedCount == 0) {
             throw new AppException(ErrorCode.ID_NOT_EXISTED);
         }
+
+        // Cập nhật lại tổng lượt xem trong service MonthlyViewService
+        monthlyViewService.updateTotalViewsAfterDeletion(movieViewCount);
 
         return true;
     }
@@ -190,6 +195,10 @@ public class MoviesService {
     public DashboardResponse getDashboardData() {
         // Lấy số liệu thống kê tổng hợp
         DashboardStatisticsResponse statistics = userRepository.getDashboardStatistics();
+
+        // Tính phần trăm tăng trưởng
+        double growthPercentage = monthlyViewService.getMonthlyGrowthPercentage();
+        statistics.setGrowthPercentage(growthPercentage);
 
         // Lấy danh sách người dùng mới nhất
         List<UserDashboardResponse> latestUsers = userRepository.findLatestUsers().stream()
@@ -301,12 +310,6 @@ public class MoviesService {
 
 
     public VideoAccessResponse checkVideoAccess(IntrospectRequest introspectRequest, String email, int movieId) throws ParseException, JOSEException {
-        // Kiểm tra token
-        IntrospectResponse introspect = authenticationService.introspect(introspectRequest);
-        if (!introspect.isValid()){
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
-
         // Kiểm tra xem phim có tồn tại không
         Movies movie = moviesRepository.findById(movieId)
                 .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_EXISTED));
@@ -314,6 +317,12 @@ public class MoviesService {
         // 🔥 Nếu phim **private**, báo lỗi "Phim chưa được công chiếu!"
         if (movie.getStatus() != MovieStatus.PUBLIC) {
             throw new AppException(ErrorCode.MOVIE_NOT_RELEASED);
+        }
+
+        // Kiểm tra token
+        IntrospectResponse introspect = authenticationService.introspect(introspectRequest);
+        if (!introspect.isValid()){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
         // Tìm người dùng theo email
@@ -352,6 +361,13 @@ public class MoviesService {
         }
     }
 
+    public void incrementViewCount(int movieId) {
+        // Tìm phim theo ID
+        Movies movie = moviesRepository.findById(movieId).orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_EXISTED));
+        // Tăng lượt xem lên 1
+        movie.setView(movie.getView() + 1);
+        moviesRepository.save(movie);
+    }
 
 
 }

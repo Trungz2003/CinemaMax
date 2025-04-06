@@ -79,7 +79,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
         (SELECT COUNT(r) FROM Ratings r),
         (SELECT COUNT(r) FROM Ratings r WHERE MONTH(r.createdAt) = MONTH(CURRENT_DATE) 
-                                         AND YEAR(r.createdAt) = YEAR(CURRENT_DATE))
+                                         AND YEAR(r.createdAt) = YEAR(CURRENT_DATE)),
+                                         
+        (SELECT COALESCE(SUM(m.view), 0) FROM Movies m)
     )
 """)
     DashboardStatisticsResponse getDashboardStatistics();

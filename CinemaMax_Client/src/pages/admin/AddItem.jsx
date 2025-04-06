@@ -133,7 +133,11 @@ const RenderAddItem = () => {
     setIsUploading(true); // Bắt đầu quá trình tải lên
 
     try {
-      const data = await uploadFile(file, "image", `StreamPhim/image/${title}`);
+      const data = await uploadFile(
+        file,
+        "image",
+        `StreamPhim/movie/image/${title}`
+      );
       setIsUploading(false);
       setImage(data.secure_url);
     } catch (error) {
@@ -177,7 +181,7 @@ const RenderAddItem = () => {
       const data = await uploadFile(
         file,
         "video",
-        `StreamPhim/movies/${title}`
+        `StreamPhim/movies/video/${title}`
       );
       setIsUploading(false); // Kết thúc quá trình tải lên
       setVideo(data.secure_url);

@@ -17,6 +17,7 @@ const RenderCatalog = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const genreUrl = queryParams.get("genre");
+  const searchQuery = queryParams.get("search");
   const {
     moviesPublic,
     handleUpdateMoviePublic,
@@ -25,6 +26,8 @@ const RenderCatalog = () => {
   } = useMovies();
   const [filteredMoviesPublic, setFilteredMoviesPublic] =
     useState(moviesPublic);
+  const [filteredMoviesPrivate, setFilteredMoviesPrivate] =
+    useState(moviesPrivate);
 
   useEffect(() => {
     let filtered = moviesPublic;
@@ -56,23 +59,33 @@ const RenderCatalog = () => {
 
   useEffect(() => {
     setFilteredMoviesPublic(moviesPublic);
+    setFilteredMoviesPrivate(moviesPrivate);
   }, [moviesPublic]);
 
   useEffect(() => {
-    if (genreUrl) {
-      const decodedGenre = decodeURIComponent(genreUrl); // Giải mã về "Chính kịch"
+    const filterMovies = (movies) => {
+      let filtered = movies;
 
-      const filtered = moviesPublic.filter((movie) =>
-        movie.genres.some(
-          (g) => g.name.toLowerCase() === decodedGenre.toLowerCase()
-        )
-      );
+      if (genreUrl) {
+        const decodedGenre = decodeURIComponent(genreUrl).toLowerCase();
+        filtered = filtered.filter((movie) =>
+          movie.genres.some((g) => g.name.toLowerCase() === decodedGenre)
+        );
+      }
 
-      setFilteredMoviesPublic(filtered);
-    } else {
-      setFilteredMoviesPublic(moviesPublic);
-    }
-  }, [genreUrl, moviesPublic]);
+      if (searchQuery) {
+        const decodedSearch = decodeURIComponent(searchQuery).toLowerCase();
+        filtered = filtered.filter((movie) =>
+          movie.title.toLowerCase().includes(decodedSearch)
+        );
+      }
+
+      return filtered;
+    };
+
+    setFilteredMoviesPublic(filterMovies(moviesPublic));
+    setFilteredMoviesPrivate(filterMovies(moviesPrivate));
+  }, [searchQuery, genreUrl, moviesPublic, moviesPrivate]);
   return (
     <div className="bg-[#1a191f] text-white w-full border-b border-gray-600 box-border">
       <PageTitle title="Danh mục" />
@@ -85,7 +98,7 @@ const RenderCatalog = () => {
       </div>
 
       <ExpectedPremiere
-        data={moviesPrivate}
+        data={filteredMoviesPrivate || moviesPrivate}
         onUpdateFavorites={handleUpdateMoviePrivate}
       />
     </div>

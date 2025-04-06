@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Icons from "../../ultils/Icons";
+import { useNavigate } from "react-router-dom";
 
 const Filter = ({
   options,
@@ -10,6 +11,7 @@ const Filter = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
   // Ref để theo dõi component
   const filterRef = useRef(null);
@@ -42,10 +44,12 @@ const Filter = ({
     } else {
       setSelectedOption((prev) => {
         const newValue = prev?.name === option.name ? null : option; // Bỏ chọn nếu click lại
+
         if (onSortChange) {
           onSortChange(newValue);
         }
         setIsOpen(false); // Đóng dropdown khi chọn xong
+        navigate(`${location.pathname}`, { replace: true });
         return newValue;
       });
     }

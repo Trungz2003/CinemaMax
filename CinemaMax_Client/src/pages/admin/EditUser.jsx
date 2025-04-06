@@ -94,7 +94,6 @@ const RenderEditUser = () => {
     }
 
     const result = await getUserDetailsById(id); // Giả sử hàm này nhận ID và token
-    console.log("kết quả: ", result);
 
     if (result.code === 0) {
       setUserInfo(result.result.user);
@@ -121,7 +120,6 @@ const RenderEditUser = () => {
     let result;
     if (actionType === "update") {
       result = await updateUserStatus(userId);
-      console.log(result);
 
       if (result.code === 0) {
         // ✅ Cập nhật trạng thái mới của userInfo

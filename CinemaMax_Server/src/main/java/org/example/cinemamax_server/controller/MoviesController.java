@@ -10,6 +10,7 @@ import org.example.cinemamax_server.dto.request.IntrospectRequest;
 import org.example.cinemamax_server.dto.request.MoviesRequest;
 import org.example.cinemamax_server.dto.request.UpdateMovieByIdRequest;
 import org.example.cinemamax_server.dto.response.*;
+import org.example.cinemamax_server.entity.Movies;
 import org.example.cinemamax_server.enums.MovieStatus;
 import org.example.cinemamax_server.enums.Status;
 import org.example.cinemamax_server.exception.AppException;
@@ -225,6 +226,13 @@ public class MoviesController {
             // Handle JOSEException
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Lỗi xác thực JWT: " + e.getMessage());
         }
+    }
+
+    // API tăng lượt xem cho phim
+    @PutMapping("user/movie/{movieId}")
+    public ApiResponse<Void> incrementView(@PathVariable int movieId) {
+        movieService.incrementViewCount(movieId);
+        return ApiResponse.<Void>builder().build();
     }
 
 }

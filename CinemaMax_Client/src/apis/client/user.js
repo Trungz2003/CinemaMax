@@ -17,7 +17,14 @@ export const getProfileUser = async () => {
       return response.data;
     }
   } catch (error) {
-    console.error("Lỗi từ server: ", error.response?.data || error.message);
-    return null;
+    if (error.response) {
+      // Server trả lỗi có status code (ví dụ 403)
+      return {
+        code: error.response.status,
+      };
+    } else {
+      console.error("Error:", error);
+      throw error;
+    }
   }
 };

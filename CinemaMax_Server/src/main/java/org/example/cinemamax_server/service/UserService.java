@@ -55,10 +55,11 @@ public class UserService {
     SubscriptionsRepository subscriptionRepository;
     EmailService emailService;
     UserSubscriptionsService userSubscriptionsService;
-    FirebaseStorageService firebaseStorageService;
     CloudinaryService cloudinaryService;
     MoviesRepository moviesRepository;
+    CommentReactionsRepository commentReactionsRepository;
     MoviesMapper moviesMapper;
+
 
     public UserResponse createUser(UserRequest request) {
 
@@ -171,6 +172,7 @@ public class UserService {
         ratingsRepository.deleteByUserId(userId);
         favoritesRepository.deleteByUserId(userId);
         paymentsRepository.deleteByUserId(userId);
+        commentReactionsRepository.deleteByUserId(userId);
         userRepository.deleteById(userId);
     }
 

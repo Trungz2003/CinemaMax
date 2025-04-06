@@ -109,4 +109,8 @@ public interface MoviesRepository extends JpaRepository<Movies, Integer> {
 
     List<Movies> findByStatus(MovieStatus status);
 
+    @Query("SELECT SUM(m.view) FROM Movies m")
+    int getTotalViews();
+
+
 }

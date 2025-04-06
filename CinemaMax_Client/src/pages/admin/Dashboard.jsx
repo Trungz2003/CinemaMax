@@ -28,8 +28,8 @@ const RenderDashboard = () => {
     },
     {
       title: "Lượt xem tháng này",
-      value: "509 573",
-      change: 3.1, // Sử dụng số thực cho phần trăm thay đổi
+      value: statistics.totalViews,
+      change: statistics.growthPercentage, // Sử dụng số thực cho phần trăm thay đổi
       icon: Icons.Dashboard.show,
       isPercentage: true, // Thêm thuộc tính isPercentage để xác định cần hiển thị phần trăm
     },
@@ -40,24 +40,23 @@ const RenderDashboard = () => {
       icon: Icons.Dashboard.star,
     },
   ];
-  useEffect(() => {
-    const handleDashboard = async () => {
-      try {
-        const response = await getDashboard();
-        console.log(response.result.statistics);
 
-        if (response.code === 0) {
-          setLatestMovie(response.result.latestMovies);
-          setLatestRatedMovie(response.result.latestRatedMovies);
-          setTopRatedMovie(response.result.topRatedMovies);
-          setLatestUser(response.result.latestUsers);
-          setStatistics(response.result.statistics);
-        }
-      } catch (error) {
-        console.log(error);
+  const handleDashboard = async () => {
+    try {
+      const response = await getDashboard();
+
+      if (response.code === 0) {
+        setLatestMovie(response.result.latestMovies);
+        setLatestRatedMovie(response.result.latestRatedMovies);
+        setTopRatedMovie(response.result.topRatedMovies);
+        setLatestUser(response.result.latestUsers);
+        setStatistics(response.result.statistics);
       }
-    };
-
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
     handleDashboard();
   }, []);
 
@@ -113,6 +112,7 @@ const RenderDashboard = () => {
               rating: "ĐÁNH GIÁ",
             }}
             headerIcons={[Icons.Dashboard.trophy, Icons.Dashboard.refresh]}
+            handleDashboard={handleDashboard}
           />
           <div className="md:hidden md:pt-0 pt-[25px]"></div>
           <RenderMoviesTableDashboard
@@ -125,6 +125,7 @@ const RenderDashboard = () => {
               rating: "ĐÁNH GIÁ",
             }}
             headerIcons={[Icons.Dashboard.movie, Icons.Dashboard.refresh]}
+            handleDashboard={handleDashboard}
             className="mt-[25px]"
           />
         </div>
@@ -140,6 +141,7 @@ const RenderDashboard = () => {
               rating: "TÊN NGƯỜI DÙNG",
             }}
             headerIcons={[Icons.Dashboard.users, Icons.Dashboard.refresh]}
+            handleDashboard={handleDashboard}
           />
           <div className="md:hidden md:pt-0 pt-[25px]"></div>
           <RenderMoviesTableDashboard
@@ -152,6 +154,7 @@ const RenderDashboard = () => {
               rating: "ĐÁNH GIÁ",
             }}
             headerIcons={[Icons.Dashboard.star, Icons.Dashboard.refresh]}
+            handleDashboard={handleDashboard}
           />
         </div>
       </div>

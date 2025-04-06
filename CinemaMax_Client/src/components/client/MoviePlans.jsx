@@ -62,7 +62,7 @@ export const MoviePlans = () => {
             </div>
             <div className="w-full flex text-[16px] items-center mb-[10px]">
               <SettingCircleCheck />
-              <p className="ml-[10px]">Độ phân giải 720p</p>
+              <p className="ml-[10px]">Độ phân giải 480p</p>
             </div>
             <div className="w-full flex text-[16px] items-center mb-[10px]">
               <SettingCircleCheck />

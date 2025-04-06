@@ -75,8 +75,6 @@ const ReviewTables = ({
   const handleDeleteReview = async (id) => {
     const result = await deleteReview(id); // Giả sử hàm này nhận ID và token
 
-    console.log(result);
-
     if (result.code === 0) {
       setData(data.filter((c) => c.id !== id)); // Xóa phần tử có id = id
       ShowToast("success", result.message);

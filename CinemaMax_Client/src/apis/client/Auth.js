@@ -25,8 +25,16 @@ export const login = async (email, password) => {
       return response.data;
     }
   } catch (error) {
-    console.error("Error:", error);
-    throw error;
+    if (error.response) {
+      // Server trả lỗi có status code (ví dụ 403)
+      return {
+        code: error.response.status,
+        message: error.response.data?.message || "Lỗi không xác định",
+      };
+    } else {
+      console.error("Error:", error);
+      throw error;
+    }
   }
 };
 
@@ -139,10 +147,14 @@ export const forgotPassword = async (id, passwordData) => {
       return response.data; // Trả về dữ liệu thành công
     }
   } catch (error) {
-    // Kiểm tra nếu error.response có dữ liệu để lấy thông tin lỗi chi tiết
     if (error.response) {
-      console.error("Lỗi từ server: ", error.response.data);
-      return error.response.data; // Trả về thông tin lỗi từ server
+      // Server trả lỗi có status code (ví dụ 403)
+      return {
+        code: error.response.status,
+      };
+    } else {
+      console.error("Error:", error);
+      throw error;
     }
   }
 };

@@ -17,6 +17,8 @@ import { ShowToast } from "../../ultils/ToastUtils";
 import { getProfileUser } from "../../apis/client/user";
 import { useEffect } from "react";
 import defaultAvatar from "../../assets/img_user/img_user_not_avata.png";
+import { useMovies } from "../../ultils/MovieContext";
+import { useRef } from "react";
 
 const ContentNavbar = ({
   index,
@@ -94,6 +96,8 @@ const RenderMyCinemaMax = () => {
   const [topRatedMovies, setTopRatedMovies] = useState([]);
   const [latestRatedMovies, setLatestRatedMovies] = useState([]);
   const [favoriteMovies, setFavoriteMovies] = useState([]);
+  const { handleUpdateMoviePublic, handleUpdateMoviePrivate } = useMovies();
+  const toastShown = useRef(false); // Dùng useRef để lưu trạng thái cờ
   const handleLogout = async () => {
     const token = localStorage.getItem("token");
 
@@ -130,6 +134,9 @@ const RenderMyCinemaMax = () => {
           : movie
       )
     );
+
+    handleUpdateMoviePublic(movieId, isCurrentlyFavorite);
+    handleUpdateMoviePrivate(movieId);
   };
 
   useEffect(() => {
@@ -145,6 +152,19 @@ const RenderMyCinemaMax = () => {
           setTopRatedMovies(response.result.topRatedMovies);
           setLatestRatedMovies(response.result.latestRatedMovies);
           setFavoriteMovies(response.result.favoriteMovies);
+          toastShown.current = false;
+        } else if (response.code === 401) {
+          localStorage.removeItem("token");
+          if (!toastShown.current) {
+            // Kiểm tra nếu chưa hiển thị thông báo
+            ShowToast(
+              "error",
+              "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!"
+            );
+            toastShown.current = true; // Đánh dấu đã hiển thị thông báo
+          }
+
+          navigate(path.LOGIN); // Redirect to login page
         }
       } catch (error) {
         console.log(error);
@@ -162,7 +182,7 @@ const RenderMyCinemaMax = () => {
           <div className="flex md:w-[23%] md:pt-0 pt-[20px]">
             {/* Thông tin người dùng (Tên và ID) */}
             <div className="md:w-full w-[600px] h-full flex items-center justify-start mb-4 md:mb-0">
-              <div className="w-[40px] h-[40px] rounded bg-[#212026] flex justify-center items-center">
+              <div className="w-[40px] h-[40px] rounded-[9999px] bg-[#212026] flex justify-center items-center">
                 <img
                   src={myInfo.thumbnail || defaultAvatar}
                   alt="User Avatar"

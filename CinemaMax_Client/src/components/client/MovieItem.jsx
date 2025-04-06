@@ -25,6 +25,10 @@ const MovieItem = ({ item, onUpdateFavorites }) => {
     navigate(`${path.DETAILS}/${id}`);
   };
 
+  const handleGenreClick = (genre) => {
+    navigate(`${path.CATALOG}?genre=${encodeURIComponent(genre)}`); // Chuyển hướng sang /catalog với query params
+  };
+
   if (!item) return <p className="text-white">Dữ liệu phim bị lỗi</p>;
 
   return (
@@ -81,7 +85,12 @@ const MovieItem = ({ item, onUpdateFavorites }) => {
       <div className="w-full text-[#f9ab00] md:text-[14px] text-[10px] flex gap-1">
         {item.genres.map((genre, index) => (
           <span key={genre.id}>
-            <span className="hover:underline decoration-[1px] hover:cursor-pointer">
+            <span
+              className="hover:underline decoration-[1px] hover:cursor-pointer"
+              onClick={() => {
+                handleGenreClick(genre.name);
+              }}
+            >
               {genre.name}
             </span>
             {index < item.genres.length - 1 && <span>, </span>}

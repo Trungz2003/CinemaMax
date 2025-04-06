@@ -1,10 +1,45 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "../../components/client/Navbar";
 import { Footer } from "../../components/client/Footer";
 import PageTitle from "../../components/client/PageTitle";
 import Icons from "../../ultils/Icons";
+import { ShowToast } from "../../ultils/ToastUtils";
+import { userSendMail } from "../../apis/client/contacts";
 
 const RenderContacts = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false); // Trạng thái loading
+
+  // Hàm xử lý khi nhấn nút gửi
+  const handleSubmit = async () => {
+    if (!name || !email || !subject || !message) {
+      ShowToast("error", "Vui lòng điền đầy đủ thông tin!");
+      return;
+    }
+
+    setLoading(true);
+    const formData = { name, email, subject, message };
+
+    try {
+      const response = await userSendMail(formData);
+      if (response.code === 401) {
+        ShowToast("error", "Phiên đăng nhập hết hạn, vui lòng đăng nhập lại!");
+      } else {
+        ShowToast("success", "Gửi email thành công!");
+        setName("");
+        setEmail("");
+        setSubject("");
+        setMessage("");
+      }
+    } catch (error) {
+      ShowToast("error", "Lỗi khi gửi email, vui lòng thử lại!");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="bg-[#1a191f] text-white pt-[80px] pb-[100px] w-full border-b border-gray-600 box-border text-[16px]">
       <PageTitle title={"Liên hệ"} />
@@ -20,7 +55,8 @@ const RenderContacts = () => {
                   name="name"
                   type="name"
                   placeholder="Manh"
-                  //value={email}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="block w-full h-[45px] bg-[#222129] mt-[10px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
                 />
               </div>
@@ -31,7 +67,8 @@ const RenderContacts = () => {
                   name="email"
                   type="email"
                   placeholder="Namz2003@gmail.com"
-                  //value={email}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="block w-full h-[45px] bg-[#222129] mt-[10px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
                 />
               </div>
@@ -43,7 +80,8 @@ const RenderContacts = () => {
                 name="Subject"
                 type="Subject"
                 placeholder="Quan hệ đối tác"
-                //value={email}
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
                 className="block w-full h-[45px] bg-[#222129] mt-[10px] text-white rounded-[8px] py-1 pl-[20px] focus:ring-1 focus:ring-custom-yellow focus:outline-none"
               />
             </div>
@@ -54,14 +92,18 @@ const RenderContacts = () => {
                 name="message"
                 className="p-[15px] rounded-[8px] mt-[10px] w-full h-[150px] bg-[#222129] resize-none"
                 placeholder="Thêm bình luận"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
               ></textarea>
             </div>
             <div>
               <button
+                onClick={handleSubmit}
+                disabled={loading}
                 type="button"
                 className="mt-[40px] border-[2px] border-[#f9ab00] hover:bg-[#f2d19480] text-white p-2 rounded-lg w-[140px] h-[45px]"
               >
-                Gửi
+                {loading ? "Đang gửi..." : "Gửi"}
               </button>
             </div>
           </div>
@@ -78,8 +120,24 @@ const RenderContacts = () => {
 
             <p className="w-full text-left mt-[15px]">+86 337196790</p>
             <div className="w-full mt-[15px] flex justify-start gap-3">
-              <Icons.Login.facebook className="text-[20px] cursor-pointer hover:text-[#f9ab00]" />
-              <Icons.Login.google className="text-[20px] cursor-pointer hover:text-[#f9ab00]" />
+              {/* Icon Facebook */}
+              <a
+                href="https://www.facebook.com/quang.trung.502564/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:text-[#faab00] transition-all"
+              >
+                <Icons.Login.facebook />
+              </a>
+
+              <a
+                href="https://mail.google.com/mail/u/0/?view=cm&fs=1&to=quangtrunghytq203@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:text-[#faab00] transition-all"
+              >
+                <Icons.Login.google />
+              </a>
             </div>
           </div>
         </div>

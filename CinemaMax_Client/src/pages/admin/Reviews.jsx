@@ -17,6 +17,12 @@ const RenderReviews = () => {
   const [totalReview, setTotalReview] = useState(0);
 
   const handleSortChange = (option) => {
+    if (!option) {
+      // Nếu option bị null (bấm x để bỏ lọc), khôi phục dữ liệu ban đầu
+      setDataReview([...dataReview]);
+      setSortOption(null); // Đặt lại trạng thái sắp xếp
+      return;
+    }
     let sortedData = [...dataReview];
 
     switch (option.value) {
@@ -27,7 +33,11 @@ const RenderReviews = () => {
         sortedData.sort((a, b) => b.rating - a.rating);
         break;
       case "date":
-        sortedData.sort((a, b) => new Date(a.date) - new Date(b.date));
+        sortedData.sort((a, b) => {
+          if (!a.releaseDate) return 1; // Đẩy a xuống cuối nếu null hoặc undefined
+          if (!b.releaseDate) return -1; // Đẩy b xuống cuối nếu null hoặc undefined
+          return new Date(b.releaseDate) - new Date(a.releaseDate); // Sắp xếp từ mới nhất -> cũ nhất
+        });
         break;
       default:
         return;

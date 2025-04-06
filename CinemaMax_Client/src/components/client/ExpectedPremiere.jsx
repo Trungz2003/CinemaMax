@@ -5,9 +5,8 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import path from "../../ultils/Path";
 
-const ExpectedPremiere = ({ data, onUpdateFavorites, isFavorite = false }) => {
+const ExpectedPremiere = ({ data, onUpdateFavorites }) => {
   const scrollContainerRef = useRef();
-  const [favoriteState, setFavoriteState] = useState({});
   const navigate = useNavigate();
 
   // Hàm xử lý cuộn trái/phải
@@ -24,13 +23,7 @@ const ExpectedPremiere = ({ data, onUpdateFavorites, isFavorite = false }) => {
     try {
       const response = await updateFavorites(id, navigate);
       if (response.code === 0) {
-        console.log("Update thành công!");
-
-        setFavoriteState((prev) => ({
-          ...prev,
-          [id]: !prev[id], // Cập nhật trạng thái yêu thích của phim có id đó
-        }));
-        onUpdateFavorites(id, isFavorite); // Cập nhật danh sách phim yêu thích trong component cha
+        onUpdateFavorites(id);
       }
     } catch (error) {
       console.log(error);
@@ -95,7 +88,7 @@ const ExpectedPremiere = ({ data, onUpdateFavorites, isFavorite = false }) => {
                 <button
                   onClick={() => handleToggleFavorite(item.id)}
                   className={`md:w-[36px] md:h-[36px] w-[18px] h-[18px] font-bold text-[16px] flex justify-center items-center bg-black rounded-[8px] ${
-                    favoriteState[item.id] ? "text-[#faab00]" : "text-white"
+                    item.isFavorite ? "text-[#faab00]" : "text-white"
                   }`}
                 >
                   <Icons.Home.bookmark />
@@ -118,7 +111,7 @@ const ExpectedPremiere = ({ data, onUpdateFavorites, isFavorite = false }) => {
                 <img
                   src={item.thumbnail}
                   alt={item.title}
-                  className="w-full h-full rounded-[8px] object-cover"
+                  className="w-full aspect-[3/4] rounded-[8px] object-cover"
                 />
                 <div className="absolute top-0 left-0 w-full h-full rounded-[8px] bg-black bg-opacity-10 hover:bg-opacity-[0.4] transition-all z-0"></div>
               </div>

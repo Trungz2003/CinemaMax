@@ -7,6 +7,7 @@ const RenderMoviesTableDashboard = ({
   data,
   columnTitles,
   headerIcons,
+  handleDashboard,
 }) => {
   return (
     <div className="w-full md:w-[49%] h-[340px] bg-[#222129] rounded-[8px]">
@@ -36,14 +37,11 @@ const RenderMoviesTableDashboard = ({
                 <div
                   key={index}
                   className="text-[20px] cursor-pointer hover:text-[#f9ab00]"
+                  onClick={handleDashboard}
                 >
                   <Icon /> {/* Render icon từ phần tử JSX */}
                 </div>
               ))}
-
-          <div className="h-[35px] w-[85px] md:w-[100px] rounded-[8px] bg-[#1a191f] cursor-pointer text-[16px] flex items-center justify-center hover:text-[#f9ab00]">
-            Xem tất cả
-          </div>
         </div>
       </div>
 

@@ -115,15 +115,13 @@ const MovieTable = ({
       : []; // Nếu `data` không phải mảng, trả về mảng rỗng
 
   const sortedData = [...searchData].sort((a, b) => {
-    if (sortOption.name === "Xếp hạng") {
+    if (sortOption === "Xếp hạng") {
       const likeA = a.like ?? 0;
       const likeB = b.like ?? 0;
-      console.log(`So sánh like: ${likeB} - ${likeA}`);
       return likeB - likeA;
-    } else if (sortOption.name === "Ngày tạo") {
+    } else if (sortOption === "Ngày tạo") {
       const dateA = a.creationDate ? new Date(a.creationDate) : new Date(0);
       const dateB = b.creationDate ? new Date(b.creationDate) : new Date(0);
-      console.log(`So sánh ngày: ${dateB} - ${dateA}`);
       return dateB - dateA;
     }
     return 0; // Trả về 0 nếu không khớp bất kỳ điều kiện nào

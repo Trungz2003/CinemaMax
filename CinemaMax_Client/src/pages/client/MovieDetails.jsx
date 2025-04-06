@@ -10,12 +10,14 @@ import {
   updateReaction,
   addCommentByMovie,
   getRatingMovie,
+  addRatingByMovie,
 } from "../../apis/client/MovieDetails";
 import { ShowToast } from "../../ultils/ToastUtils";
 import { useParams, useNavigate } from "react-router-dom";
 import defaultAvatar from "../../assets/img_user/img_user_not_avata.png";
 import { useMovies } from "../../ultils/MovieContext";
 import path from "../../ultils/Path";
+import { updateFavorites } from "../../apis/client/MovieItem";
 
 const TabMenu = () => {
   const { id } = useParams(); // Lấy id từ URL
@@ -24,18 +26,24 @@ const TabMenu = () => {
   const tabs = ["BÌNH LUẬN", "ĐÁNH GIÁ"];
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [movieData, setMoviDate] = useState([]);
-
+  // dữ liệu bình luận và đánh giá
   const [dataComment, setDataComment] = useState([]);
   const [dataRating, setDataRating] = useState([]);
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Trạng thái dropdown
-  const [selectedRating, setSelectedRating] = useState(""); // Trạng thái giá trị được chọn
   const dropdownRef = useRef(null); // Tham chiếu đến container chứa dropdown
   const [currentPageMovie, setCurrentPageMovie] = useState(1);
   const [currentPageRating, setCurrentPageRating] = useState(1);
   const limitPerPage = 5; // ✅ Số bình luận mỗi trang
+  // Lấy dữ liệu người dùng nhập bình luận
   const [commentText, setCommentText] = useState("");
 
+  // Lấy dữ liệu người dùng nhập từ đánh giá
+  const [title, setTitle] = useState("");
+  const [selectedRating, setSelectedRating] = useState(""); // Trạng thái giá trị được chọn
+  const [ratingText, setRatingText] = useState("");
+
+  const { handleUpdateMovieRating } = useMovies();
   // ✅ Tính tổng số trang dựa trên tổng số bình luận
   const totalPagesMovie = Math.ceil(dataComment.length / limitPerPage);
 
@@ -127,6 +135,36 @@ const TabMenu = () => {
         setDataComment((prev) => [...prev, response.result]); // ✅ Thêm vào cuối mảng
         ShowToast("success", "Thêm bình luận thành công!");
         setCommentText("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleAddRating = async () => {
+    if (!title.trim() || !ratingText || !selectedRating) {
+      ShowToast("error", "Vui lòng nhập đánh giá!");
+      return;
+    }
+    const rating = parseInt(selectedRating);
+    const content = {
+      title,
+      content: ratingText,
+      rating,
+    };
+
+    try {
+      const response = await addRatingByMovie(id, content, navigate);
+
+      if (response.code === 0) {
+        setDataRating((prev) => [...prev, response.result]); // ✅ Thêm vào cuối mảng
+        ShowToast("success", "Thêm đánh giá thành công!");
+        setTitle("");
+        setRatingText("");
+        setSelectedRating("");
+        handleUpdateMovieRating(id, rating, dataRating.length);
+      } else if (response.code === 400) {
+        ShowToast("error", response.message);
       }
     } catch (error) {
       console.log(error);
@@ -418,6 +456,8 @@ const TabMenu = () => {
                     name="text"
                     className="p-[15px] rounded-[8px] w-full h-[100%] bg-[#222129] resize-none"
                     placeholder="Tiêu đề"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                   ></textarea>
                 </div>
                 <div
@@ -433,6 +473,9 @@ const TabMenu = () => {
                     onClick={toggleDropdown}
                     value={selectedRating} // Hiển thị giá trị đã chọn
                     readOnly
+                    onKeyDown={(e) => {
+                      if (e.key.toLowerCase() === "f") e.stopPropagation(); // Chặn sự kiện full screen
+                    }}
                   ></textarea>
 
                   <Icons.MovieDetails.down
@@ -467,11 +510,17 @@ const TabMenu = () => {
                     name="text"
                     className="p-[15px] rounded-[8px] w-full h-[100%] bg-[#222129] resize-none"
                     placeholder="Thêm đánh giá"
+                    value={ratingText}
+                    onChange={(e) => setRatingText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key.toLowerCase() === "f") e.stopPropagation(); // Chặn sự kiện full screen
+                    }}
                   ></textarea>
                 </div>
                 <button
                   type="button"
                   className="mt-[15px] border-[2px] border-[#f9ab00] hover:bg-[#f2d19480] text-white p-2 rounded-lg w-[140px] h-[45px]"
+                  onClick={handleAddRating}
                 >
                   Gửi
                 </button>
@@ -497,7 +546,13 @@ const TabMenu = () => {
 const RenderMovieDetals = () => {
   const [movie, setMovie] = useState({});
   const { id } = useParams(); // Lấy id từ URL
-  const { moviesPublic, moviesPrivate } = useMovies();
+  const {
+    moviesPublic,
+    moviesPrivate,
+    handleUpdateMoviePublic,
+    handleUpdateMoviePrivate,
+    handleToggleFavoriteMovie,
+  } = useMovies();
   const navigate = useNavigate();
 
   const handleGenreClick = (genre) => {
@@ -518,6 +573,17 @@ const RenderMovieDetals = () => {
       }
     }
   }, [id, moviesPublic, moviesPrivate, navigate]);
+
+  const handleToggleFavorite = async (id) => {
+    try {
+      const response = await updateFavorites(id, navigate);
+      if (response.code === 0) {
+        handleToggleFavoriteMovie(id);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="bg-[#1a191f] text-white w-full border-b border-gray-600 box-border">
@@ -548,7 +614,12 @@ const RenderMovieDetals = () => {
 
                 {/* Phần bookmark button */}
                 <div className="absolute right-0 flex items-center md:px-[15px] px-[8px] md:top-[20px] top-[10px] opacity-100 pointer-events-auto z-20">
-                  <button className="md:w-[36px] md:h-[36px] w-[18px] h-[18px] text-white font-bold text-[16px] flex justify-center items-center bg-black rounded-[8px]">
+                  <button
+                    className={`md:w-[36px] md:h-[36px] w-[18px] h-[18px] font-bold text-[16px] flex justify-center items-center bg-black rounded-[8px] ${
+                      movie.isFavorite ? "text-[#faab00]" : "text-white"
+                    }`}
+                    onClick={() => handleToggleFavorite(movie.id)}
+                  >
                     <Icons.Home.bookmark />
                   </button>
                 </div>

@@ -6,10 +6,13 @@ import { uploadFile } from "../../cloudinary/upload";
 import { useEffect } from "react";
 import { ShowToast } from "../../ultils/ToastUtils";
 import { forgotPassword } from "../../apis/client/Auth";
+import { useNavigate } from "react-router-dom";
+import path from "../../ultils/Path";
 const Setting = ({ myInfo, setMyInfo }) => {
   const [showPasswordOld, setShowPasswordOld] = useState(false);
   const [showPasswordNew, setShowPasswordNew] = useState(false);
   const [showConfirmPassword, setConfirmPassword] = useState(false);
+  const navigate = useNavigate();
 
   //Lưu giá trị mật khẩu
   const [passwordOld, setPasswordOld] = useState("");
@@ -58,6 +61,14 @@ const Setting = ({ myInfo, setMyInfo }) => {
         // Gọi callback từ component cha để cập nhật dữ liệu
         console.log("Cập nhật thành công, user mới:", updatedUser); // Log kiểm tra
         setMyInfo(updatedUser);
+      } else if (response.code === 401) {
+        localStorage.removeItem("token");
+        ShowToast(
+          "error",
+          "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!"
+        );
+
+        navigate(path.LOGIN); // Redirect to login page
       } else {
         ShowToast("Cập nhật thất bại!", "error");
       }
@@ -82,6 +93,14 @@ const Setting = ({ myInfo, setMyInfo }) => {
         const response = await forgotPassword(id, updatedPassword);
         if (response.code === 0) {
           ShowToast("success", "Cập nhật thành công!");
+        } else if (response.code === 401) {
+          localStorage.removeItem("token");
+          ShowToast(
+            "error",
+            "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!"
+          );
+
+          navigate(path.LOGIN); // Redirect to login page
         } else {
           ShowToast("error", response.message);
         }
@@ -151,8 +170,8 @@ const Setting = ({ myInfo, setMyInfo }) => {
               id="name"
               name="name"
               type="name"
-              placeholder="Manh"
-              value={fullName || "null"}
+              placeholder="Cập nhật họ và tên người dùng"
+              value={fullName || ""}
               onChange={(e) => {
                 setFullName(e.target.value);
               }}

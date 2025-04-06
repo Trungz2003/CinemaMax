@@ -15,16 +15,12 @@ import org.example.cinemamax_server.dto.request.*;
 import org.example.cinemamax_server.dto.response.AuthenticationResponse;
 import org.example.cinemamax_server.dto.response.IntrospectResponse;
 import org.example.cinemamax_server.dto.response.UserResponse;
-import org.example.cinemamax_server.entity.InvalidatedToken;
-import org.example.cinemamax_server.entity.Role;
-import org.example.cinemamax_server.entity.User;
+import org.example.cinemamax_server.entity.*;
 import org.example.cinemamax_server.enums.Status;
 import org.example.cinemamax_server.exception.AppException;
 import org.example.cinemamax_server.exception.ErrorCode;
 import org.example.cinemamax_server.mapper.UserMapper;
-import org.example.cinemamax_server.repository.InvalidatedTokenRepository;
-import org.example.cinemamax_server.repository.RoleRepository;
-import org.example.cinemamax_server.repository.UserRepository;
+import org.example.cinemamax_server.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -36,6 +32,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -49,6 +46,8 @@ public class AuthenticationService {
     UserMapper userMapper;
     RoleRepository roleRepository;
     FirebaseAuthService firebaseAuthService;
+    SubscriptionsRepository subscriptionsRepository;
+    UserSubscriptionRepository userSubscriptionRepository;
 
     @NonFinal
     @Value("${jwt.valid-duration}")
@@ -145,6 +144,9 @@ public class AuthenticationService {
             user.setThumbnail(thumbnail);
             user.setUserName(userName);
             user.setEnabled(true);
+            user.setCreatedAt(LocalDateTime.now());
+            user.setStatus(Status.ACTIVE);
+
 
             // Tạo roles cho người dùng
             HashSet<Role> roles = new HashSet<>();
@@ -160,6 +162,22 @@ public class AuthenticationService {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+
+            Subscriptions subscription = subscriptionsRepository.findByName("Free")
+                    .orElseThrow(() -> new AppException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+
+            LocalDateTime startDate = LocalDateTime.now();
+            LocalDateTime endDate = startDate.plusDays(subscription.getDuration());
+
+            UserSubscriptions userSubscription = UserSubscriptions.builder()
+                    .user(user)
+                    .subscription(subscription)
+                    .startDate(startDate)
+                    .endDate(endDate)
+                    .status(UserSubscriptions.Status.ACTIVE)
+                    .build();
+
+            userSubscriptionRepository.save(userSubscription);
         }
 
         // Chuyển đổi User sang UserResponse

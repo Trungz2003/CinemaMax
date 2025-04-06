@@ -19,6 +19,12 @@ const RenderCatalogs = () => {
   const [totalMovie, setTotalMovie] = useState(0);
 
   const handleSortChange = (option) => {
+    if (!option) {
+      // Nếu option bị null (bấm x để bỏ lọc), khôi phục dữ liệu ban đầu
+      setDataMovies([...dataMovies]);
+      setSortOption(null); // Đặt lại trạng thái sắp xếp
+      return;
+    }
     let sortedData = [...dataMovies];
 
     switch (option.name) {

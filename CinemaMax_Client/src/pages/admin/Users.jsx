@@ -20,30 +20,52 @@ const RenderUsers = () => {
   const [totalUser, setTotalUser] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreate, setIsCreate] = useState(false);
-
+  const order = { Free: 1, Premium: 2, Cinematic: 3 };
   const handleSortChange = (option) => {
+    if (!option) {
+      // Nếu option bị null (bấm x để bỏ lọc), khôi phục dữ liệu ban đầu
+      setData([...data]);
+      setSortOption(null); // Đặt lại trạng thái sắp xếp
+      return;
+    }
+
     let sortedData = [...(data.length > 0 ? data : data)];
 
     switch (option.name) {
       case "Ngày tạo":
-        sortedData.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
+        sortedData.sort((a, b) => {
+          if (!a.creationDate) return 1; // Đẩy a xuống cuối nếu null hoặc undefined
+          if (!b.creationDate) return -1; // Đẩy b xuống cuối nếu null hoặc undefined
+          return new Date(b.creationDate) - new Date(a.creationDate); // Sắp xếp từ mới nhất -> cũ nhất
+        });
         break;
       case "Kế hoạch giá cả":
-        sortedData.sort((a, b) =>
-          a.subscriptionName.localeCompare(b.subscriptionName)
-        );
+        sortedData.sort((a, b) => {
+          const rankA = order[a.pricingPlan] || 0; // Nếu không tìm thấy, mặc định là 0
+          const rankB = order[b.pricingPlan] || 0;
+          return rankA - rankB; // Sắp xếp tăng dần
+        });
         break;
       case "Trạng thái":
-        sortedData.sort((a, b) => a.status.localeCompare(b.status));
+        sortedData.sort((a, b) => {
+          if (a.status === "ACTIVE" && b.status !== "ACTIVE") return -1;
+          if (a.status !== "ACTIVE" && b.status === "ACTIVE") return 1;
+          return a.status.localeCompare(b.status);
+        });
         break;
       default:
         return;
     }
 
-    setData(sortedData);
+    console.log("data đã lọc: ", sortedData);
+    console.log("name: ", option.name);
+
+    setData([...sortedData]);
     setSortOption(option);
+    // if (!option || !option.name) {
+    //   setSortOption("Sắp xếp");
+    // } else {
+    // }
   };
 
   const handleSearchQueryChange = (query) => {
@@ -101,7 +123,14 @@ const RenderUsers = () => {
               ]}
               onSortChange={handleSortChange}
               dropdownWidth="150px"
-              test="Sắp xếp"
+              test={
+                Array.isArray(sortOption) && sortOption.length > 0
+                  ? sortOption
+                      .filter((o) => o && o.name)
+                      .map((o) => o.name)
+                      .join(", ")
+                  : sortOption?.name || "Sắp xếp"
+              }
             />
           </div>
         </div>
@@ -114,7 +143,7 @@ const RenderUsers = () => {
       </div>
       <UserTable
         initialData={data}
-        sortOption={sortOption}
+        // sortOption={sortOption}
         searchQuery={searchQuery}
         columnTitles={{
           id: "ID",

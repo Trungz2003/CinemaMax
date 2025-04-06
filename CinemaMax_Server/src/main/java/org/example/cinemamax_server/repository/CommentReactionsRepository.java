@@ -20,4 +20,6 @@ public interface CommentReactionsRepository extends JpaRepository<CommentReactio
     void deleteByCommentId(@Param("comment_id") int commentId);
 
     Optional<CommentReactions> findByUserAndComment(User user, Comment comment);
+
+    void deleteByUserId(int userId);
 }

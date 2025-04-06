@@ -45,6 +45,46 @@ export const checkVideoAccess = async (movieId) => {
   }
 };
 
+export const incrementView = async (movieId) => {
+  if (!movieId) {
+    console.log("Không tìm thấy movieId!");
+    return { code: 400 }; // Lỗi nếu không có ID
+  }
+
+  let token = localStorage.getItem("token");
+
+  if (!token || isTokenExpired(token)) {
+    localStorage.removeItem("token");
+    return { code: 401 };
+  }
+
+  try {
+    const response = await axios.put(
+      `${API_URL}/user/movie/${movieId}`, // Gửi movieId lên server
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error);
+
+    if (error.response?.status === 401) {
+      return { code: 401 };
+    } else if (error.response?.status === 403) {
+      ShowToast("error", "Gói đăng kí của bạn đã hết hạn!");
+      return { code: 403 };
+    } else if (error.response?.status === 400) {
+      return { code: 400 };
+    }
+    throw error;
+  }
+};
+
 export const getRatingMovie = async (id) => {
   let token = localStorage.getItem("token");
 
@@ -70,6 +110,37 @@ export const getRatingMovie = async (id) => {
     }
 
     throw error;
+  }
+};
+
+export const addRatingByMovie = async (id, content, navigate) => {
+  let token = localStorage.getItem("token");
+
+  if (!token || isTokenExpired(token)) {
+    localStorage.removeItem("token"); // Xóa token nếu hết hạn
+    navigate(path.LOGIN); // Chuyển hướng bằng prop
+    return null;
+  }
+
+  try {
+    const response = await axios.post(
+      `${API_URL}/user/movie/rating/${id}`,
+      content,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token"); // Xóa token khi hết hạn
+      navigate("/login"); // Chuyển hướng về login
+      return null;
+    }
+    return error.response?.data;
   }
 };
 

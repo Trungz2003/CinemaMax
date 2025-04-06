@@ -46,6 +46,7 @@ public enum ErrorCode {
     INVALID_AMOUNT_FORMAT(400, "Định dạng số tiền không hợp lệ!", HttpStatus.BAD_REQUEST),
     PAYMENT_REJECTED(400, "Thanh toán bị từ chối!", HttpStatus.BAD_REQUEST),
     MOVIE_NOT_RELEASED(400, "Phim chưa được công chiếu!", HttpStatus.BAD_REQUEST),
+    EMAIL_SEND_FAILED(500, "Không thể gửi email!", HttpStatus.INTERNAL_SERVER_ERROR);
 
     ;
 

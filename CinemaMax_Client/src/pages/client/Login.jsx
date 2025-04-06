@@ -83,6 +83,10 @@ const Login = () => {
         if (response.code === 0) {
           ShowToast("success", "Đăng nhập thành công!");
           navigate(path.HOME);
+        } else if (response.code === 403) {
+          ShowToast("error", response.message || "Tài khoản đã bị khóa!");
+        } else {
+          ShowToast("error", response.message || "Đăng nhập không thành công!");
         }
       } catch {
         ShowToast("error", "Đăng nhập không thành công, vui lòng thử lại!");
@@ -103,7 +107,6 @@ const Login = () => {
 
       const response = await signupGG(accessToken);
       if (response.code === 0) {
-        console.log("Trước khi navigate:", path.HOME);
         navigate(path.HOME);
         console.log("Sau khi navigate");
         ShowToast("success", "Đăng nhập thành công!");

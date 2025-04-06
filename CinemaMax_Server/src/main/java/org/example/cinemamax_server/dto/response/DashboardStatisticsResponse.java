@@ -16,15 +16,23 @@ public class DashboardStatisticsResponse {
     int totalRatings;
     int newRatingsThisMonth;
 
-    // Constructor riêng cho JPQL/Hibernate
+    int totalViews; // Tổng lượt xem của tất cả các tháng
+    double growthPercentage; // % tăng trưởng
+
     public DashboardStatisticsResponse(Long totalUsers, Long newUsersThisMonth,
                                        Long totalMovies, Long newMoviesThisMonth,
-                                       Long totalRatings, Long newRatingsThisMonth) {
+                                       Long totalRatings, Long newRatingsThisMonth,
+                                       Long totalViews) {
         this.totalUsers = totalUsers.intValue();
         this.newUsersThisMonth = newUsersThisMonth.intValue();
         this.totalMovies = totalMovies.intValue();
         this.newMoviesThisMonth = newMoviesThisMonth.intValue();
         this.totalRatings = totalRatings.intValue();
         this.newRatingsThisMonth = newRatingsThisMonth.intValue();
+        this.totalViews = totalViews.intValue();
+    }
+
+    public void setGrowthPercentage(double growthPercentage) {
+        this.growthPercentage = growthPercentage;
     }
 }

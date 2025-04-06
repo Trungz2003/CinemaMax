@@ -21,10 +21,14 @@ export const updateUserProfile = async (userData) => {
       return response.data;
     }
   } catch (error) {
-    console.error(
-      "Lỗi cập nhật người dùng:",
-      error.response?.data || error.message
-    );
-    throw error;
+    if (error.response) {
+      // Server trả lỗi có status code (ví dụ 403)
+      return {
+        code: error.response.status,
+      };
+    } else {
+      console.error("Error:", error);
+      throw error;
+    }
   }
 };

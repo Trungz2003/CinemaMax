@@ -21,7 +21,6 @@ const UserTable = ({ initialData, columnTitles, sortOption, searchQuery }) => {
     let result;
     if (actionType === "update") {
       result = await updateUserStatus(userId);
-      console.log("arr: ", result);
 
       if (result.code === 0) {
         // ✅ Cập nhật trạng thái mới của userInfo
@@ -111,6 +110,7 @@ const UserTable = ({ initialData, columnTitles, sortOption, searchQuery }) => {
 
   useEffect(() => {
     setData([...initialData]); // Clone để tạo tham chiếu mới
+    console.log(initialData);
   }, [initialData]);
 
   // Tính toán dữ liệu cho trang hiện tại
@@ -159,7 +159,7 @@ const UserTable = ({ initialData, columnTitles, sortOption, searchQuery }) => {
 
         {/* Nội dung bảng */}
         <div className="w-full whitespace-nowrap">
-          {currentMovies.map((item, index) => (
+          {data.map((item, index) => (
             <div key={index} className="w-full h-[80px] flex text-white ">
               <div className="flex-shrink-0 md:w-[5%] w-[50px] h-full flex items-center justify-start text-[#C0C0C0]">
                 {item.id}

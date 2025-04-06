@@ -17,6 +17,12 @@ const RenderComments = () => {
   const [totalComment, setTotalComment] = useState(0);
 
   const handleSortChange = (option) => {
+    if (!option) {
+      // Nếu option bị null (bấm x để bỏ lọc), khôi phục dữ liệu ban đầu
+      setDataComment([...dataComment]);
+      setSortOption(null); // Đặt lại trạng thái sắp xếp
+      return;
+    }
     let sortedData = [...dataComment];
 
     sortedData = sortedData.map((item) => {
@@ -28,7 +34,11 @@ const RenderComments = () => {
 
     switch (option.value) {
       case "date":
-        sortedData.sort((a, b) => new Date(a.date) - new Date(b.date));
+        sortedData.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+          const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+          return dateB - dateA;
+        });
         break;
       case "like_desc": // Thích nhiều → ít
         sortedData.sort((a, b) => b.like_count - a.like_count);
@@ -52,9 +62,10 @@ const RenderComments = () => {
 
   const handleReviewDetails = async () => {
     const result = await getComment(); // Giả sử hàm này nhận ID và token
-    console.log("kết quả: ", result);
 
     if (result.code === 0) {
+      console.log(result.result.comments);
+
       setDataComment(result.result.comments);
       setTotalComment(result.result.totalComments);
     } else {
