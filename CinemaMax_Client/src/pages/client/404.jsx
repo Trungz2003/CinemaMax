@@ -7,11 +7,7 @@ const NotFound = () => {
   return (
     <div className="flex justify-center items-center md:h-[100%] h-full w-full text-[14px]">
       <div className="absolute h-full w-full">
-        <img
-          src="src/assets/bg/section__bg.jpg"
-          alt=""
-          className="h-full w-full"
-        />
+        <img src="\section__bg.jpg" alt="" className="h-full w-full" />
       </div>
       <div className="w-full h-full flex justify-center items-center">
         <div className="absolute md:w-[400px] w-[85%] max-w-[400px] h-[330px] md:h-[50%] rounded-[10px] py-[0px] md:px-[70px] px-[20px] bg-[#1a191f] shadow-[0_0_0_0.5px_rgba(255,255,255,0.3)]">

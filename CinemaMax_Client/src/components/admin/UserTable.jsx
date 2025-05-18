@@ -118,6 +118,8 @@ const UserTable = ({ initialData, columnTitles, sortOption, searchQuery }) => {
   const currentMovies = sortedData.slice(startIndex, startIndex + itemsPerPage);
 
   const handlePageChange = (page) => {
+    console.log(page);
+
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
@@ -159,7 +161,7 @@ const UserTable = ({ initialData, columnTitles, sortOption, searchQuery }) => {
 
         {/* Nội dung bảng */}
         <div className="w-full whitespace-nowrap">
-          {data.map((item, index) => (
+          {currentMovies.map((item, index) => (
             <div key={index} className="w-full h-[80px] flex text-white ">
               <div className="flex-shrink-0 md:w-[5%] w-[50px] h-full flex items-center justify-start text-[#C0C0C0]">
                 {item.id}
@@ -259,9 +261,9 @@ const UserTable = ({ initialData, columnTitles, sortOption, searchQuery }) => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`paginator__item text-white md:w-[40px] w-[30px] md:h-[40px] h-[30px] flex items-center justify-center font-bold bg-gray-800 hover:text-[#f9ab00] rounded-[8px] select-none${
+                    className={`paginator__item text-white  md:w-[40px] w-[30px] md:h-[40px] h-[30px] flex items-center justify-center font-bold bg-gray-800 hover:text-[#f9ab00] rounded-[8px] select-none${
                       currentPage === page
-                        ? "border-[2px] border-[#f9ab00]"
+                        ? " border-[2px] border-[#f9ab00]"
                         : ""
                     }`}
                   >
@@ -306,7 +308,7 @@ const UserTable = ({ initialData, columnTitles, sortOption, searchQuery }) => {
                     onClick={() => handlePageChange(page)}
                     className={`paginator__item text-white md:w-[40px] w-[30px] md:h-[40px] h-[30px] flex items-center justify-center font-bold bg-gray-800 hover:text-[#f9ab00] rounded-[8px] select-none${
                       currentPage === page
-                        ? "border-[2px] border-[#f9ab00]"
+                        ? " border-[2px] border-[#f9ab00]"
                         : ""
                     }`}
                   >

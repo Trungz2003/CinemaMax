@@ -74,11 +74,11 @@ export const signupGG = async (token) => {
 export const signup = async (email, password, userName) => {
   try {
     const response = await axios.post(
-      `${API_URL}/users/add`,
+      `${API_URL}/api/users/add`,
       {
-        email: email,
-        password: password,
-        userName: userName,
+        email: email.trim(),
+        password: password.trim(),
+        userName: userName.trim(),
       },
       {
         headers: {

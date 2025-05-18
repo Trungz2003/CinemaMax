@@ -259,8 +259,10 @@ const Navbar = () => {
             className="md:w-[40px] md:h-[40px] w-[30px] rounded-full flex justify-center items-center cursor-pointer "
           >
             <Icons.Navbar.account
-              className={`w-full h-full text-black hover:bg-[#faab00] bg-white rounded-[20px] ${
-                location.pathname === path.MYCINEMAMAX ? "bg-[#faab00]" : ""
+              className={`w-full h-full text-black hover:bg-[#faab00]  rounded-[20px] ${
+                location.pathname === path.MYCINEMAMAX
+                  ? "bg-[#faab00]"
+                  : "bg-white"
               }`}
             />
           </Link>

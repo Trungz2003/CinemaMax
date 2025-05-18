@@ -14,7 +14,7 @@ import {
 } from "../../apis/client/MovieDetails";
 import { ShowToast } from "../../ultils/ToastUtils";
 import { useParams, useNavigate } from "react-router-dom";
-import defaultAvatar from "../../assets/img_user/img_user_not_avata.png";
+import defaultAvatar from "/img_user_not_avata.png";
 import { useMovies } from "../../ultils/MovieContext";
 import path from "../../ultils/Path";
 import { updateFavorites } from "../../apis/client/MovieItem";

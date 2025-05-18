@@ -19,6 +19,7 @@ const VideoPlayer = ({ videoPath }) => {
   const [userSubscription, setUserSubscription] = useState("");
   const [resolutionOptions, setResolutionOptions] = useState([]);
   const [statusVideo, setStatus] = useState(0);
+  const isCalled = useRef(false);
 
   const navigate = useNavigate();
 
@@ -65,9 +66,17 @@ const VideoPlayer = ({ videoPath }) => {
   };
 
   useEffect(() => {
+    if (isCalled.current) return;
+    isCalled.current = true;
+
     const handleCheckVideoAccess = async (event) => {
       try {
         const response = await checkVideoAccess(id); // Không truyền navigate
+        if (response.code === 403) {
+          ShowToast("error", "Gói đăng kí của bạn đã hết hạn!");
+          setStatus(response.code);
+          return;
+        }
         if (response && response.code === 0) {
           const subscriptionName = response.result.subscriptions.name;
           setUserSubscription(subscriptionName);
@@ -89,7 +98,7 @@ const VideoPlayer = ({ videoPath }) => {
     };
 
     handleCheckVideoAccess();
-  }, []); // Chạy một lần khi component mount
+  }, [id]); // Chạy một lần khi component mount
 
   const handleChangeResolution = async (event) => {
     if (videoRef.current) {
@@ -159,6 +168,8 @@ const VideoPlayer = ({ videoPath }) => {
       const response = await incrementView(id);
       if (response.code === 0) {
         setHasPrinted(true); // Đánh dấu đã in +1
+      } else if (response.code === 403) {
+        ShowToast("error", "Gói đăng kí của bạn đã hết hạn!");
       }
     }
   };

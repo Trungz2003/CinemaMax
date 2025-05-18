@@ -58,8 +58,8 @@ const AddUser = ({ isOpen, toggleModal, status }) => {
   const handleAddUser = async () => {
     try {
       const dataUser = {
-        email,
-        password,
+        email: email.trim(),
+        password: password.trim(),
         subscription: subscription?.name || subscription, // Đảm bảo là String
         role: role?.name || role, // Đảm bảo là String
       };

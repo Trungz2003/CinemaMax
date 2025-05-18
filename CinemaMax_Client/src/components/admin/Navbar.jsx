@@ -4,7 +4,7 @@ import Icons from "../../ultils/Icons";
 import path from "../../ultils/Path";
 import { useState, useEffect } from "react";
 import { getInfoAdmin } from "../../apis/server/Menu";
-import defaultAvatar from "../../assets/img_user/img_user_not_avata.png";
+import defaultAvatar from "/img_user_not_avata.png";
 import LogoutAdmin from "./LogoutAdmin";
 
 const RenderNavBar = () => {

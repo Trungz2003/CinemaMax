@@ -96,11 +96,7 @@ const SignUp = () => {
   return (
     <div className="flex justify-center items-center md:h-[100%]  h-full w-full text-[14px]">
       <div className=" absolute h-full w-full">
-        <img
-          src="src/assets/bg/section__bg.jpg"
-          alt=""
-          className="h-full w-full"
-        />
+        <img src="\section__bg.jpg" alt="" className="h-full w-full" />
       </div>
       <form
         //onSubmit={handleSubmit}

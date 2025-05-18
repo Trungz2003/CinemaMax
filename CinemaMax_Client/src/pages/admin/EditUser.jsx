@@ -12,7 +12,7 @@ import { useEffect } from "react";
 import { updateUserStatus, deleteUser } from "../../apis/server/User";
 import StatusModal from "../../components/admin/StatusModal";
 import { useNavigate } from "react-router-dom";
-import defaultAvatar from "../../assets/img_user/img_user_not_avata.png";
+import defaultAvatar from "/img_user_not_avata.png";
 
 const ContentNavbar = ({
   index,

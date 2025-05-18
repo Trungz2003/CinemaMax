@@ -16,7 +16,7 @@ import { auth, logOut } from "../../firebase/firebaseConfig";
 import { ShowToast } from "../../ultils/ToastUtils";
 import { getProfileUser } from "../../apis/client/user";
 import { useEffect } from "react";
-import defaultAvatar from "../../assets/img_user/img_user_not_avata.png";
+import defaultAvatar from "/img_user_not_avata.png";
 import { useMovies } from "../../ultils/MovieContext";
 import { useRef } from "react";
 
@@ -140,6 +140,8 @@ const RenderMyCinemaMax = () => {
   };
 
   useEffect(() => {
+    console.log(location.pathname);
+
     const fetchProfileUser = async () => {
       try {
         const response = await getProfileUser();

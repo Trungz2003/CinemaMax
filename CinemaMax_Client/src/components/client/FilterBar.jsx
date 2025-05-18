@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import Icons from "../../ultils/Icons";
 import { getGenres } from "../../apis/server/AddItem";
 import Filter from "../admin/Filter";
@@ -87,19 +87,24 @@ export const FilterBar = ({ setGenre, setRating }) => {
             </span>
           </div>
           {/* Thể loại */}
-          <Filter
-            options={genresRender.map((genre) => ({
-              id: genre.id,
-              name: genre.name,
-            }))}
-            onSortChange={handleGenreChange}
-            dropdownWidth="100%"
-            test={
-              Array.isArray(genres) && genres.length > 0
-                ? genres.map((g) => g.name).join(", ")
-                : "Chọn thể loại"
-            }
-          />
+          <div
+            className="relative mt-[20px] z-[30] w-full"
+            onClick={fetchDataGenres}
+          >
+            <Filter
+              options={genresRender.map((genre) => ({
+                id: genre.id,
+                name: genre.name,
+              }))}
+              onSortChange={handleGenreChange}
+              dropdownWidth="100%"
+              test={
+                Array.isArray(genres) && genres.length > 0
+                  ? genres.map((g) => g.name).join(", ")
+                  : "Chọn thể loại"
+              }
+            />
+          </div>
 
           <Filter
             options={ratings} // Truyền danh sách rating vào dropdown

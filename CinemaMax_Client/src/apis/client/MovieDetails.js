@@ -36,7 +36,6 @@ export const checkVideoAccess = async (movieId) => {
     if (error.response?.status === 401) {
       return { code: 401 };
     } else if (error.response?.status === 403) {
-      ShowToast("error", "Gói đăng kí của bạn đã hết hạn!");
       return { code: 403 };
     } else if (error.response?.status === 400) {
       return { code: 400 };
@@ -76,7 +75,6 @@ export const incrementView = async (movieId) => {
     if (error.response?.status === 401) {
       return { code: 401 };
     } else if (error.response?.status === 403) {
-      ShowToast("error", "Gói đăng kí của bạn đã hết hạn!");
       return { code: 403 };
     } else if (error.response?.status === 400) {
       return { code: 400 };

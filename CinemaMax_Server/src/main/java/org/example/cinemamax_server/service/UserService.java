@@ -87,7 +87,7 @@ public class UserService {
         }
 
         // Gửi email xác thực ngay sau khi đăng ký
-        String verificationLink = "http://localhost:8081/users/verify-email?email=" + user.getEmail();
+        String verificationLink = "http://localhost:8081/api/users/verify-email?email=" + user.getEmail();
         // Gửi email xác thực với nội dung HTML
         String emailContent = "<html><body>"
                 + "<p>Chào bạn,</p>"
@@ -107,8 +107,8 @@ public class UserService {
 
         // Tạo user mới
         User user = new User();
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEmail(request.getEmail().trim());
+        user.setPassword(passwordEncoder.encode(request.getPassword().trim()));
         user.setStatus(Status.ACTIVE);
 
         // Xử lý role
